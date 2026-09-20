@@ -267,6 +267,7 @@
   .jdp-clear{background:var(--paper);color:var(--ink);border:1.5px solid var(--line);}
   .jdp-ok{background:var(--accent);color:#fff;}
 </style>
+<meta name="template-data-policy" content="empty-input-template"><meta name="template-version" content="5.1">
 </head>
 <body>
 
@@ -1245,8 +1246,6 @@ function buildRowItem(slide, row, i){
   });
   typeSel.addEventListener("change", function(){
     row.type = typeSel.value;
-    if(row.type === FIELD.PROVINCE && !row.value) row.value = "تهران";
-    if(row.type === FIELD.BRAND && !row.value) row.value = "Nian";
     openId = slide.id;
     commit(); renderSlidesList();
   });
@@ -1347,11 +1346,13 @@ function buildValueInput(slide, row){
   if(type === FIELD.PROVINCE){
     var provSel = document.createElement("select");
     var provs = Object.keys(IRAN_PROVINCES);
-    var curProv = v || "تهران";
-    if(!v){ row.value = "تهران"; }
+    var emptyProv = document.createElement("option");
+    emptyProv.value = ""; emptyProv.textContent = "— انتخاب استان —";
+    emptyProv.selected = !v;
+    provSel.appendChild(emptyProv);
     provs.forEach(function(p){
       var o = document.createElement("option"); o.value = p; o.textContent = p;
-      if(p === curProv) o.selected = true;
+      if(p === v) o.selected = true;
       provSel.appendChild(o);
     });
     provSel.addEventListener("change", function(){
@@ -1370,7 +1371,7 @@ function buildValueInput(slide, row){
 
   if(type === FIELD.CITY){
     var citySel = document.createElement("select");
-    var provName = "تهران";
+    var provName = "";
     if(row.dependsOn){
       var pr = (slide.rows||[]).find(function(r){ return r.label === row.dependsOn; });
       if(pr && pr.value) provName = pr.value;
@@ -1379,7 +1380,11 @@ function buildValueInput(slide, row){
       if(pr2 && pr2.value) provName = pr2.value;
     }
     var cities = IRAN_PROVINCES[provName] || [];
-    if(!v && cities[0]) row.value = cities[0];
+    var emptyCity = document.createElement("option");
+    emptyCity.value = "";
+    emptyCity.textContent = provName ? "— انتخاب شهر —" : "— ابتدا استان را انتخاب کنید —";
+    emptyCity.selected = !v;
+    citySel.appendChild(emptyCity);
     cities.forEach(function(c){
       var o = document.createElement("option"); o.value = c; o.textContent = c;
       if(c === v) o.selected = true;
@@ -2126,6 +2131,7 @@ function wireLogoUpload(inputId, key, thumbId){
    تمپلیت نصب باتری
    ============================================================================ */
 function loadBatteryTemplate(){
+  // Template contains structure only; all site/equipment input values start empty.
   if(state.slides.length && !confirm("اسلایدهای فعلی پاک شده و تمپلیت نصب باتری جایگزین می‌شود. ادامه می‌دهید؟")) return;
 
   state.meta.projectTitle = "گزارش نصب باتری — Batteries Check List";
@@ -2133,8 +2139,6 @@ function loadBatteryTemplate(){
   state.meta.primary = "#00A651";
   state.meta.accent = "#2F6FB5";
 
-  var DEFAULT_PROVINCE = "تهران";
-  var DEFAULT_CITY = "تهران";
   var slides = [];
 
   /* 1) روی جلد */
@@ -2148,8 +2152,8 @@ function loadBatteryTemplate(){
 
   /* 2) جدول اطلاعات با انواع ورودی */
   var infoRows = [
-    { label:"Province / استان", type:FIELD.PROVINCE, value:DEFAULT_PROVINCE },
-    { label:"City / شهر",       type:FIELD.CITY,     value:DEFAULT_CITY, dependsOn:"Province / استان" },
+    { label:"Province / استان", type:FIELD.PROVINCE, value:"" },
+    { label:"City / شهر",       type:FIELD.CITY,     value:"", dependsOn:"Province / استان" },
     { label:"Lat & Long",       type:FIELD.LOCATION, value:"", placeholder:"از GPS یا دستی" },
     { label:"Site Type",        type:FIELD.SELECT,   value:"", options:["Indoor","Outdoor","Shelter","Rooftop","Green Field"] },
     { label:"Site ID",          type:FIELD.TEXT,     value:"" },
@@ -2166,8 +2170,8 @@ function loadBatteryTemplate(){
     { label:"Equalize (charging voltage)",    type:FIELD.DECIMAL, value:"", unit:"V" },
     { label:"Batteries Type",   type:FIELD.SELECT, value:"", options:["VRLA","AGM","GEL","Li-Ion","Ni-Cd"] },
     { label:"Number of Battery", type:FIELD.NUMBER, value:"", unit:"عدد", key:"batteryCount" },
-    { label:"Number of Battery Banks (auto)", type:FIELD.AUTO, value:"0" },
-    { label:"Supplier",         type:FIELD.BRAND, value:"Nian" },
+    { label:"Number of Battery Banks (auto)", type:FIELD.AUTO, value:"" },
+    { label:"Supplier",         type:FIELD.BRAND, value:"" },
     { label:"Production date of Battery",   type:FIELD.DATE, value:"" },
     { label:"Installation Date",            type:FIELD.DATE, value:"" },
     { label:"Expiration date of Guarantee", type:FIELD.DATE, value:"" },
@@ -2216,7 +2220,7 @@ function loadBatteryTemplate(){
     title: "جدول تست ولتاژ — Voltage Test Results",
     note: "مقادیر ولتاژ بانک‌ها و سل‌ها (۰ / ۵ / ۳۰ دقیقه) — به‌صورت خودکار بر اساس تعداد باتری ساخته می‌شود",
     body: "",
-    rows: buildVoltageTestRows(3, 4),
+    rows: buildVoltageTestRows(0, 4),
     images: [], checklist: [],
     autoFromBatteryCount: true
   });
