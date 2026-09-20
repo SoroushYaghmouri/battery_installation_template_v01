@@ -140,8 +140,8 @@
 
   .img-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:8px;}
   .img-item{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--paper);}
-  .img-item .img-box{position:relative;aspect-ratio:4/3;background:#e9ecf0;}
-  .img-item .img-box img{width:100%;height:100%;object-fit:cover;cursor:zoom-in;}
+  .img-item .img-box{position:relative;aspect-ratio:16/9;background:#e9ecf0;}
+  .img-item .img-box img{width:100%;height:100%;object-fit:contain;cursor:zoom-in;background:#111;}
   .img-item .img-box button.rm{position:absolute;top:4px;left:4px;width:24px;height:24px;border-radius:7px;
     border:none;background:rgba(20,20,20,.6);color:#fff;font-size:12px;cursor:pointer;}
   .img-item .img-move{position:absolute;bottom:4px;left:4px;display:flex;gap:4px;}
@@ -885,31 +885,11 @@ function showToast(msg){
 }
 
 /* ---------- فشرده‌سازی تصویر ---------- */
-function fileToCompressedDataURL(file, maxDim, quality){
-  maxDim = maxDim || 1400; quality = quality || 0.82;
+function fileToCompressedDataURL(file){
   return new Promise(function(resolve, reject){
     var reader = new FileReader();
     reader.onerror = function(){ reject(new Error("خواندن فایل ناموفق")); };
-    reader.onload = function(){
-      var img = new Image();
-      img.onerror = function(){ reject(new Error("بارگذاری تصویر ناموفق")); };
-      img.onload = function(){
-        var w = img.naturalWidth, h = img.naturalHeight;
-        if(w > maxDim || h > maxDim){
-          if(w >= h){ h = Math.round(h*(maxDim/w)); w = maxDim; }
-          else { w = Math.round(w*(maxDim/h)); h = maxDim; }
-        }
-        var c = document.createElement("canvas");
-        c.width = w; c.height = h;
-        var ctx = c.getContext("2d");
-        ctx.fillStyle = "#fff";
-        ctx.fillRect(0,0,w,h);
-        ctx.drawImage(img,0,0,w,h);
-        try{ resolve(c.toDataURL("image/jpeg", quality)); }
-        catch(e){ reject(e); }
-      };
-      img.src = reader.result;
-    };
+    reader.onload = function(){ resolve(reader.result); };
     reader.readAsDataURL(file);
   });
 }
@@ -956,39 +936,27 @@ function imageLabel(im){
 function makeLabeledDataURL(dataUrl, label){
   return new Promise(function(resolve,reject){
     if(!dataUrl){ reject(new Error("تصویر خالی است")); return; }
-    var img = new Image();
-    img.onload = function(){
-      var maxDim = 1800, w=img.naturalWidth, h=img.naturalHeight;
-      if(w>maxDim || h>maxDim){
-        if(w>=h){ h=Math.round(h*(maxDim/w)); w=maxDim; }
-        else { w=Math.round(w*(maxDim/h)); h=maxDim; }
-      }
-      var scale = w/1400;
-      var fontSize = Math.max(22, Math.round(24*scale));
-      var pad = Math.max(12, Math.round(18*scale));
-      var maxText = w - pad*2;
-      var ctxMeasure = document.createElement("canvas").getContext("2d");
-      ctxMeasure.font = "700 "+fontSize+"px Vazirmatn, Arial, sans-serif";
-      var words = String(label||"").split(/\s+/), lines=[], line="";
-      words.forEach(function(word){
-        var test=line ? line+" "+word : word;
-        if(ctxMeasure.measureText(test).width > maxText && line){ lines.push(line); line=word; }
-        else line=test;
-      });
-      if(line) lines.push(line);
-      if(!lines.length) lines=[""];
-      var lineH = Math.round(fontSize*1.55), stripH = pad*2 + lineH*lines.length;
-      var c=document.createElement("canvas"); c.width=w; c.height=h+stripH;
-      var ctx=c.getContext("2d");
-      ctx.fillStyle="#fff"; ctx.fillRect(0,0,w,c.height);
-      ctx.drawImage(img,0,0,w,h);
-      ctx.fillStyle="#17202b"; ctx.fillRect(0,h,w,stripH);
+    var img=new Image();
+    img.onload=function(){
+      var w=img.naturalWidth, h=img.naturalHeight;
+      var c=document.createElement("canvas"); c.width=w; c.height=h;
+      var ctx=c.getContext("2d"); ctx.drawImage(img,0,0,w,h);
+      var scale=Math.max(1,Math.min(w,h)/900);
+      var fontSize=Math.max(18,Math.round(24*scale));
+      var pad=Math.max(10,Math.round(16*scale));
+      var stripH=Math.max(Math.round(fontSize*2.35),Math.round(h*0.075));
+      var maxText=w-pad*2;
+      ctx.font="700 "+fontSize+"px Vazirmatn, Arial, sans-serif";
+      var text=String(label||"");
+      while(ctx.measureText(text).width>maxText && text.length>20) text=text.slice(0,-2).trim()+"…";
+      ctx.fillStyle="rgba(12,18,28,.78)";
+      ctx.fillRect(0,h-stripH,w,stripH);
       ctx.fillStyle="#fff"; ctx.font="700 "+fontSize+"px Vazirmatn, Arial, sans-serif";
       ctx.textAlign="right"; ctx.textBaseline="middle";
-      lines.forEach(function(t,i){ ctx.fillText(t,w-pad,h+pad+lineH*(i+.5)); });
-      try{ resolve(c.toDataURL("image/jpeg",0.9)); }catch(e){ reject(e); }
+      ctx.fillText(text,w-pad,h-stripH/2);
+      try{ resolve(c.toDataURL("image/jpeg",0.94)); }catch(e){ reject(e); }
     };
-    img.onerror=function(){ reject(new Error("تصویر قابل پردازش نیست")); };
+    img.onerror=function(){reject(new Error("تصویر قابل پردازش نیست"));};
     img.src=dataUrl;
   });
 }
@@ -2024,18 +1992,14 @@ function layoutPhotosOnSlide(pres, s, imgs, x, y, w, h){
     var r = Math.floor(i / cols), c = i % cols;
     var cx = x + c*(cellW+gap);
     var cy = y + r*(cellH+gap);
-    var imgH = im.caption ? cellH - 0.26 : cellH;
-    s.addImage({
-      data: im.data,
-      x: cx, y: cy, w: cellW, h: imgH,
-      sizing: { type:"cover", w:cellW, h:imgH }
-    });
+    var frameRatio=16/9;
+    var cellRatio=cellW/cellH;
+    var iw=cellW, ih=cellW/frameRatio, ix=cx, iy=cy+(cellH-ih)/2;
+    if(ih>cellH){ ih=cellH; iw=cellH*frameRatio; ix=cx+(cellW-iw)/2; iy=cy; }
+    s.addShape(pres.ShapeType.rect,{x:cx,y:cy,w:cellW,h:cellH,fill:{color:"111111"},line:{type:"none"}});
+    s.addImage({data:im.data,x:ix,y:iy,w:iw,h:ih});
     if(im.caption){
-      s.addText(im.caption, {
-        x: cx, y: cy + cellH - 0.26, w: cellW, h: 0.26,
-        align: "center", valign: "middle", fontSize: 9, color: "FFFFFF",
-        fill: { color: "2B3038" }, fontFace: "Arial", rtlMode: true
-      });
+      s.addText(im.caption,{x:cx,y:cy+cellH-0.25,w:cellW,h:0.25,align:"center",valign:"middle",fontSize:8,color:"FFFFFF",fill:{color:"2B3038",transparency:18},fontFace:"Arial",rtlMode:true});
     }
   });
 }
@@ -2059,8 +2023,22 @@ async function exportPPTX(){
     var accentSoft = softHexForPptx(state.meta.accent);
     var total = state.slides.length;
     var showFooter = !!state.meta.showFooter;
+    var exportSlides = [];
+    for(var esi=0; esi<state.slides.length; esi++){
+      var es=state.slides[esi];
+      var ec=Object.assign({},es);
+      if(es.images && es.images.length){
+        ec.images=[];
+        for(var eji=0; eji<es.images.length; eji++){
+          var eim=Object.assign({},es.images[eji]);
+          if(eim.data){ eim.data=await makeLabeledDataURL(eim.data,imageLabel(eim)); }
+          ec.images.push(eim);
+        }
+      }
+      exportSlides.push(ec);
+    }
 
-    state.slides.forEach(function(slide, si){
+    exportSlides.forEach(function(slide, si){
       var s = pres.addSlide();
       s.background = { color: "FFFFFF" };
 
