@@ -140,8 +140,8 @@
 
   .img-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:8px;}
   .img-item{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--paper);}
-  .img-item .img-box{position:relative;aspect-ratio:16/9;background:#e9ecf0;}
-  .img-item .img-box img{width:100%;height:100%;object-fit:contain;cursor:zoom-in;background:#111;display:block;}.img-item .img-overlay-label{position:absolute;left:0;right:0;bottom:0;padding:7px 9px;background:rgba(12,18,28,.78);color:#fff;font-size:10px;line-height:1.45;text-align:right;pointer-events:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .img-item .img-box{position:relative;aspect-ratio:16/9;background:transparent;overflow:hidden;}
+  .img-item .img-box img{width:100%;height:100%;object-fit:contain;cursor:zoom-in;background:transparent;display:block;}.img-item .img-overlay-label{position:absolute;left:0;right:0;bottom:0;padding:7px 9px;background:rgba(12,18,28,.78);color:#fff;font-size:10px;line-height:1.45;text-align:right;pointer-events:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .img-item .img-box button.rm{position:absolute;top:4px;left:4px;width:24px;height:24px;border-radius:7px;
     border:none;background:rgba(20,20,20,.6);color:#fff;font-size:12px;cursor:pointer;}
   .img-item .img-move{position:absolute;bottom:4px;left:4px;display:flex;gap:4px;}
@@ -241,6 +241,7 @@
 .camera-stage video{width:100%;height:100%;display:block;object-fit:contain;background:#000;}
 .camera-frame-169{position:absolute;inset:0;border:2px solid rgba(255,255,255,.9);pointer-events:none;box-shadow:inset 0 0 0 9999px rgba(0,0,0,.03);}
 .camera-frame-169 span{position:absolute;top:10px;left:10px;padding:4px 8px;border-radius:7px;background:rgba(0,0,0,.55);color:#fff;font-size:11px;font-weight:800;}
+.camera-live-label{position:absolute;left:3%;right:3%;bottom:3%;padding:8px 10px;border-radius:9px;background:rgba(5,10,18,.78);color:#fff;font-size:11px;line-height:1.55;text-align:right;direction:rtl;pointer-events:none;backdrop-filter:blur(2px);}
 .camera-info{padding:10px 14px;color:#c8d0dc;font-size:12px;line-height:1.7;text-align:center;}
 .camera-actions{display:flex;gap:10px;padding:12px 14px;background:#11161e;}
 .camera-actions button{flex:1;border:0;border-radius:11px;padding:12px;font-family:inherit;font-weight:800;cursor:pointer;background:#2b3442;color:#fff;}
@@ -463,7 +464,7 @@
     </div>
     <div class="camera-stage">
       <video id="cameraVideo" autoplay playsinline muted></video>
-      <div class="camera-frame-169"><span>16:9</span></div>
+      <div class="camera-frame-169"><span>16:9</span></div><div class="camera-live-label" id="cameraLiveLabel">در حال دریافت زمان و موقعیت…</div>
     </div>
     <div class="camera-info" id="cameraInfo">دوربین پشت با نسبت 16:9 درخواست می‌شود. تصویر با رزولوشن واقعی دوربین ثبت خواهد شد.</div>
     <div class="camera-actions">
@@ -713,9 +714,9 @@ var BOARD_CSS = [
   ".board .b-table td{border:1px solid #d5dbe3;padding:1.6% 2%;}",
   ".board .b-table td.lab{background:var(--b-accent-soft);font-weight:700;color:#213041;width:22%;}",
   ".board .b-table td.val{background:#fff;color:#333;width:28%;text-align:center;}",
-  ".board .b-photos{display:grid;gap:2%;width:100%;height:100%;align-content:center;justify-content:center;}",
-  ".board .b-photo{position:relative;background:#eef0f3;border-radius:5px;overflow:hidden;border:1px solid #dfe3e9;aspect-ratio:16/9;min-width:0;width:100%;height:auto;align-self:center;}",
-  ".board .b-photo img{width:100%;height:100%;object-fit:contain;object-position:center center;display:block;background:#111;image-rendering:auto;}",
+  ".board .b-photos{display:grid;gap:2%;width:100%;height:auto;align-content:start;justify-content:center;}",
+  ".board .b-photo{position:relative;overflow:hidden;aspect-ratio:16/9;min-width:0;width:100%;height:auto;align-self:start;background:transparent;border:0;border-radius:0;}",
+  ".board .b-photo img{width:100%;height:auto;aspect-ratio:16/9;object-fit:fill;object-position:center center;display:block;background:transparent;image-rendering:auto;}",
   ".board .b-photo .ph-cap{position:absolute;left:0;right:0;bottom:0;background:rgba(20,25,35,.62);color:#fff;font-size:2.3%;padding:1.5% 2%;text-align:center;z-index:3;}",
   ".board .b-photo .ph-meta{position:absolute;bottom:0;left:0;right:0;background:rgba(8,12,18,.72);color:#fff;font-size:1.9%;padding:1.2% 1.6%;text-align:right;line-height:1.45;}",
   ".board .b-photo-empty{grid-column:1/-1;grid-row:1/-1;border:2px dashed #c6ced9;border-radius:6px;background:#f7f9fb;",
@@ -967,145 +968,114 @@ function imageLabel(im){
   if(m.capturedAt) parts.push("ثبت تصویر: " + m.capturedAt);
   return parts.join("  |  ") || "اطلاعات ثبت تصویر وارد نشده است";
 }
-function makeLabeledDataURL(dataUrl, label){
+function normalize16x9DataURL(dataUrl, mime, quality){
   return new Promise(function(resolve,reject){
     if(!dataUrl){ reject(new Error("تصویر خالی است")); return; }
     var img=new Image();
     img.onload=function(){
-      var w=img.naturalWidth || img.width;
-      var h=img.naturalHeight || img.height;
-      if(!w || !h){ reject(new Error("ابعاد تصویر نامعتبر است")); return; }
-
-      /* مهم: canvas دقیقاً همان ابعاد پیکسلی عکس اصلی را نگه می‌دارد.
-         هیچ resize، crop، stretch یا تغییر نسبت تصویر انجام نمی‌شود. */
-      var c=document.createElement("canvas");
-      c.width=w; c.height=h;
+      var sw=img.naturalWidth||img.width, sh=img.naturalHeight||img.height;
+      if(!sw||!sh){ reject(new Error("ابعاد تصویر نامعتبر است")); return; }
+      var target=16/9, src=sw/sh;
+      var sx=0, sy=0, cw=sw, ch=sh;
+      /* فقط Crop مرکزی؛ هیچ Scale/Stretch انجام نمی‌شود.
+         بعد پیکسلیِ ضلع بزرگ/محدودکننده حفظ می‌شود و خروجی دقیقاً 16:9 است. */
+      if(Math.abs(src-target) > 0.0005){
+        if(src > target){
+          ch=Math.max(1,Math.floor(sw/target));
+          sy=Math.floor((sh-ch)/2);
+        }else{
+          ch=Math.max(1,Math.floor(sw/target));
+          sy=Math.floor((sh-ch)/2);
+        }
+      }
+      var c=document.createElement("canvas"); c.width=cw; c.height=ch;
       var ctx=c.getContext("2d",{alpha:false});
       ctx.imageSmoothingEnabled=false;
-      ctx.drawImage(img,0,0,w,h);
-
-      var text=String(label||"اطلاعات ثبت تصویر");
-      var shortText=text;
-      var maxW=w*0.94;
-      var fontSize=Math.max(16,Math.min(42,Math.round(w/48)));
-      ctx.font="700 "+fontSize+"px Arial, Tahoma, sans-serif";
-      while(ctx.measureText(shortText).width>maxW && shortText.length>12){
-        shortText=shortText.slice(0,-2).trim()+"…";
-      }
-      var pad=Math.max(10,Math.round(w/120));
-      var stripH=Math.max(Math.round(fontSize*2.15),Math.round(h*0.075));
-      stripH=Math.min(stripH,Math.round(h*0.20));
-
-      /* لیبل داخل خود تصویر و در همان canvas؛ ابعاد canvas ثابت می‌ماند. */
-      ctx.save();
-      ctx.fillStyle="rgba(7,12,20,0.86)";
-      ctx.fillRect(0,h-stripH,w,stripH);
-      ctx.fillStyle="#ffffff";
-      ctx.font="700 "+fontSize+"px Arial, Tahoma, sans-serif";
-      ctx.textAlign="right";
-      ctx.textBaseline="middle";
-      ctx.direction="rtl";
-      ctx.fillText(shortText,w-pad,h-stripH/2);
-      ctx.restore();
-
-      try{
-        resolve(c.toDataURL("image/png"));
-      }catch(e){ reject(e); }
+      ctx.drawImage(img,sx,sy,cw,ch,0,0,cw,ch);
+      resolve(c.toDataURL(mime||"image/jpeg", quality==null?0.97:quality));
     };
     img.onerror=function(){reject(new Error("تصویر قابل پردازش نیست"));};
     img.src=dataUrl;
   });
 }
-function fileSafeName(s){
-  return String(s||"image").replace(/[\\/:*?"<>|]+/g,"_").replace(/\s+/g,"_").slice(0,80) || "image";
+function makeLabeledDataURL(dataUrl, label){
+  return new Promise(function(resolve,reject){
+    if(!dataUrl){reject(new Error("تصویر خالی است"));return;}
+    var img=new Image();
+    img.onload=function(){
+      var w=img.naturalWidth||img.width,h=img.naturalHeight||img.height;
+      if(!w||!h){reject(new Error("ابعاد تصویر نامعتبر است"));return;}
+      var c=document.createElement("canvas"); c.width=w; c.height=h;
+      var ctx=c.getContext("2d",{alpha:false}); ctx.imageSmoothingEnabled=false; ctx.drawImage(img,0,0,w,h);
+      var m=labelToLines(label,w,ctx);
+      var pad=Math.max(12,Math.round(w/110));
+      var fontSize=Math.max(18,Math.min(34,Math.round(w/58)));
+      var lineH=Math.round(fontSize*1.35), stripH=Math.min(Math.round(h*0.24),Math.max(lineH+pad*1.4,m.length*lineH+pad*1.5));
+      ctx.save();
+      ctx.fillStyle="rgba(5,10,18,.88)"; ctx.fillRect(0,h-stripH,w,stripH);
+      ctx.fillStyle="#fff"; ctx.font="700 "+fontSize+"px Arial,Tahoma,sans-serif"; ctx.textAlign="right"; ctx.textBaseline="middle"; ctx.direction="rtl";
+      var startY=h-stripH+stripH/2-(m.length-1)*lineH/2;
+      m.forEach(function(line,i){ctx.fillText(line,w-pad,startY+i*lineH);});
+      ctx.restore();
+      try{resolve(c.toDataURL("image/jpeg",0.98));}catch(e){reject(e);}
+    };
+    img.onerror=function(){reject(new Error("تصویر قابل پردازش نیست"));}; img.src=dataUrl;
+  });
 }
-function downloadBlob(blob, name){
-  var a=document.createElement("a"), url=URL.createObjectURL(blob);
-  a.href=url; a.download=name; document.body.appendChild(a); a.click();
-  setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); },1000);
+function labelToLines(label,w,ctx){
+  var raw=String(label||"").split("  |  ").filter(Boolean), lines=[], maxW=w*0.93;
+  raw.forEach(function(part){
+    var words=part.split(/\s+/), line="";
+    words.forEach(function(word){
+      var test=line?line+" "+word:word;
+      if(ctx.measureText(test).width>maxW && line){lines.push(line);line=word;} else line=test;
+    });
+    if(line) lines.push(line);
+  });
+  return lines.slice(-5);
+}
+
+function getFreshGPS(){
+  return new Promise(function(resolve){
+    if(!navigator.geolocation){ resolve(""); return; }
+    navigator.geolocation.getCurrentPosition(function(pos){
+      var lat=Number(pos.coords.latitude), lon=Number(pos.coords.longitude);
+      if(Number.isFinite(lat)&&Number.isFinite(lon)) resolve(lat.toFixed(6)+", "+lon.toFixed(6));
+      else resolve("");
+    },function(){ resolve(""); },{enableHighAccuracy:true,maximumAge:0,timeout:8000});
+  });
+}
+function liveCaptureLabel(gps){
+  var m=currentCaptureMeta();
+  var t=captureTimestamp();
+  return [m.fieldExpert?"کارشناس: "+m.fieldExpert:"",m.siteCode?"کد سایت: "+m.siteCode:"",m.siteName?"نام سایت: "+m.siteName:"",gps?"GPS: "+gps:"GPS: در حال دریافت…","زمان: "+t].filter(Boolean).join("  |  ");
+}
+
+async function prepareOutputImage(im){
+  if(!im || !im.data) throw new Error("تصویر خالی است");
+  if(im.labeled && Math.abs((im.naturalWidth||0)/(im.naturalHeight||1)-16/9)<0.002) return im.data;
+  var normalized=await normalize16x9DataURL(im.data,"image/jpeg",0.98);
+  return await makeLabeledDataURL(normalized,imageLabel(im));
 }
 async function exportLabeledImages(){
+  if(typeof JSZip==="undefined"){showToast("کتابخانه ZIP بارگذاری نشده است");return;}
   var imgs=[];
-  state.slides.forEach(function(slide,si){
-    (slide.images||[]).forEach(function(im,ii){
-      if(im && im.data) imgs.push({im:im,slide:slide,si:si,ii:ii});
-    });
-  });
-  if(!imgs.length){ showToast("تصویری برای دانلود وجود ندارد"); return; }
-  showToast("در حال آماده‌سازی تصاویر لیبل‌خورده…");
+  state.slides.forEach(function(s,si){(s.images||[]).forEach(function(im,ii){if(im&&im.data) imgs.push({im:im,si:si,ii:ii,title:s.title||"تصویر"});});});
+  if(!imgs.length){showToast("تصویری برای خروجی وجود ندارد");return;}
+  showToast("در حال ساخت تصاویر 16:9 لیبل‌خورده…");
   try{
-    if(typeof JSZip === "undefined") throw new Error("JSZip");
     var zip=new JSZip();
     for(var i=0;i<imgs.length;i++){
-      var x=imgs[i], labeled=await makeLabeledDataURL(x.im.data,imageLabel(x.im));
-      var base64=labeled.split(",")[1];
-      var name=String(x.si+1).padStart(2,"0")+"-"+String(x.ii+1).padStart(2,"0")+"-"+fileSafeName(x.slide.title)+".png";
-      zip.file(name,base64,{base64:true});
+      var x=imgs[i], data=await prepareOutputImage(x.im);
+      var b64=data.split(",")[1];
+      zip.file("Slide_"+(x.si+1)+"_Image_"+(x.ii+1)+"_"+fileSafeName(x.title)+".jpg",b64,{base64:true});
     }
-    var blob=await zip.generateAsync({type:"blob",compression:"DEFLATE"});
-    downloadBlob(blob,"تصاویر-لیبل-خورده-"+Date.now()+".zip");
-    showToast(imgs.length+" تصویر لیبل‌خورده دانلود شد");
-  }catch(e){
-    console.error(e);
-    showToast("ساخت فایل دانلودی ناموفق بود");
-  }
+    var blob=await zip.generateAsync({type:"blob",compression:"STORE"});
+    downloadBlob(blob,"NAK_Labeled_16x9_Images.zip");
+    showToast("دانلود تصاویر لیبل‌خورده آغاز شد ✅");
+  }catch(e){console.error(e);showToast("ساخت فایل تصاویر ناموفق بود");}
 }
 
-/* ---------- رندر بورد اسلاید ---------- */
-function boardHTML(slide, meta, opts){
-  opts = opts || {};
-  var vars = "--b-primary:" + meta.primary + "; --b-accent:" + meta.accent +
-             "; --b-accent-soft:" + hexToSoft(meta.accent) + ";";
-  var coverCls = slide.layout === "cover" ? " cover" : "";
-  var inner = "";
-
-  inner += '<div class="bar-top"></div><div class="bar-bottom"></div>';
-  inner += '<div class="logo l"><img src="' + (meta.logoLeft||"") + '" alt=""></div>';
-  inner += '<div class="logo r"><img src="' + (meta.logoRight||"") + '" alt=""></div>';
-
-  if(slide.layout === "cover"){
-    inner += '<div class="b-mark">📄</div>';
-    inner += '<div class="b-title">' + escapeHTML(slide.title || "عنوان گزارش") + '</div>';
-    if(slide.note) inner += '<div class="b-note">' + escapeHTML(slide.note) + '</div>';
-    if(slide.body) inner += '<div class="b-extra">' + escapeHTML(slide.body) + '</div>';
-  } else {
-    inner += '<div class="b-title">' + escapeHTML(slide.title || "(بدون عنوان)") + '</div>';
-    var contentTop = "top:17%;";
-    if(slide.note){
-      inner += '<div class="b-note" style="top:14.2%;">' + escapeHTML(slide.note) + '</div>';
-      contentTop = "top:21.5%;";
-    }
-    inner += '<div class="b-content" style="' + contentTop + ' bottom:8%;">';
-    if(slide.layout === "table")          inner += tableHTML(slide.rows);
-    else if(slide.layout === "photos")    inner += photosHTML(slide.images, slide);
-    else if(slide.layout === "checklist") inner += checklistHTML(slide.checklist);
-    else if(slide.layout === "text")      inner += '<div class="b-body">' + escapeHTML(slide.body || "متن توضیحی…") + '</div>';
-    inner += '</div>';
-  }
-
-  if(meta.showFooter && !opts.noFooter){
-    var idxTxt = opts.index != null ? (opts.index+1) + " / " + (opts.total||"?") : "";
-    inner += '<div class="b-footer"><span>' + escapeHTML(idxTxt) + '</span><span>' +
-             escapeHTML(meta.projectTitle||"") + '</span></div>';
-  }
-  return '<div class="board' + coverCls + '" style="' + vars + '">' + inner + '</div>';
-}
-
-function tableHTML(rows){
-  rows = (rows||[]).filter(function(r){ return (r.label && r.label.trim()) || (r.value && r.value.trim()); });
-  if(!rows.length) return '<div style="font-size:3.2%;color:#a6adba;text-align:center;padding-top:8%;">ردیف جدول اضافه نشده</div>';
-  var h = '<table class="b-table">';
-  for(var i=0; i<rows.length; i+=2){
-    var a = rows[i], b = rows[i+1];
-    h += '<tr>';
-    h += '<td class="lab">' + escapeHTML(a.label||"") + '</td><td class="val">' + escapeHTML(a.value||"") + '</td>';
-    if(b) h += '<td class="lab">' + escapeHTML(b.label||"") + '</td><td class="val">' + escapeHTML(b.value||"") + '</td>';
-    else  h += '<td class="lab"></td><td class="val"></td>';
-    h += '</tr>';
-  }
-  h += '</table>';
-  return h;
-}
 function photosHTML(images, slide){
   images = (images||[]).filter(function(i){ return i && i.data; });
   if(!images.length){
@@ -1117,11 +1087,10 @@ function photosHTML(images, slide){
   var n = images.length;
   var cols = n === 1 ? 1 : (n === 2 ? 2 : (n <= 4 ? 2 : 4));
   var rows = Math.ceil(n / cols);
-  var h = '<div class="b-photos" style="grid-template-columns:repeat(' + cols + ',minmax(0,1fr));grid-template-rows:repeat(' + rows + ',auto);">';
+  var h = '<div class="b-photos" style="grid-template-columns:repeat(' + cols + ',minmax(0,1fr));grid-auto-rows:auto;">';
   images.forEach(function(im){
     h += '<div class="b-photo" data-natural="' + (im.naturalWidth||"") + 'x' + (im.naturalHeight||"") + '">';
     h += '<img src="' + im.data + '" alt="">';
-    h += '<div class="ph-meta">' + escapeHTML(imageLabel(im)) + '</div>';
     if(im.caption) h += '<div class="ph-cap">' + escapeHTML(im.caption) + '</div>';
     h += '</div>';
   });
@@ -1739,77 +1708,57 @@ function buildChecklistEditor(slide){
 }
 
 /* ---------- دوربین واقعی 16:9 ---------- */
-var cameraState = { stream:null, slide:null, facing:"environment" };
-
+var cameraState = { stream:null, slide:null, facing:"environment", liveTimer:null, liveGPS:"" };
+function updateCameraLiveLabel(gps){
+  cameraState.liveGPS=gps||cameraState.liveGPS||"";
+  var el=document.getElementById("cameraLiveLabel");
+  if(el) el.textContent=liveCaptureLabel(cameraState.liveGPS);
+}
 function stopCamera(){
-  if(cameraState.stream){
-    cameraState.stream.getTracks().forEach(function(t){ try{t.stop();}catch(e){} });
-    cameraState.stream=null;
-  }
-  var v=document.getElementById("cameraVideo");
-  if(v) v.srcObject=null;
-  var ov=document.getElementById("cameraOverlay");
-  if(ov){ ov.classList.remove("open"); ov.setAttribute("aria-hidden","true"); }
-  cameraState.slide=null;
+  if(cameraState.stream){ cameraState.stream.getTracks().forEach(function(t){try{t.stop();}catch(e){}}); cameraState.stream=null; }
+  if(cameraState.liveTimer){ clearInterval(cameraState.liveTimer); cameraState.liveTimer=null; }
+  var v=document.getElementById("cameraVideo"); if(v) v.srcObject=null;
+  var ov=document.getElementById("cameraOverlay"); if(ov){ov.classList.remove("open");ov.setAttribute("aria-hidden","true");}
+  cameraState.slide=null; cameraState.liveGPS="";
 }
-
 async function startCamera(slide){
-  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
-    showToast("مرورگر امکان دسترسی مستقیم به دوربین را ندارد؛ از گزینه انتخاب از گالری استفاده کنید.");
-    return;
-  }
-  stopCamera();
-  cameraState.slide=slide;
-  var ov=document.getElementById("cameraOverlay");
-  var video=document.getElementById("cameraVideo");
-  var info=document.getElementById("cameraInfo");
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){showToast("مرورگر امکان دسترسی مستقیم به دوربین را ندارد.");return;}
+  stopCamera(); cameraState.slide=slide;
+  var ov=document.getElementById("cameraOverlay"), video=document.getElementById("cameraVideo"), info=document.getElementById("cameraInfo");
   ov.classList.add("open"); ov.setAttribute("aria-hidden","false");
+  updateCameraLiveLabel("");
   try{
-    var stream=await navigator.mediaDevices.getUserMedia({
-      audio:false,
-      video:{
-        facingMode:{ideal:cameraState.facing},
-        aspectRatio:{ideal:16/9},
-        width:{ideal:1920},
-        height:{ideal:1080}
-      }
-    });
-    cameraState.stream=stream;
-    video.srcObject=stream;
-    await video.play();
-    var tr=stream.getVideoTracks()[0], set=tr.getSettings ? tr.getSettings() : {};
-    var vw=video.videoWidth||set.width||0, vh=video.videoHeight||set.height||0;
-    var ratio=vw&&vh ? vw/vh : 16/9;
-    info.textContent="فریم نمایش 16:9 است · رزولوشن واقعی دوربین: "+(vw||"—")+"×"+(vh||"—")+" · نسبت: "+ratio.toFixed(3)+
-      " · هنگام ثبت، تصویر بدون Stretch/Crop و با ابعاد واقعی خود ذخیره می‌شود.";
-  }catch(e){
-    console.error(e);
-    stopCamera();
-    showToast("دسترسی به دوربین برقرار نشد. مجوز دوربین را بررسی کنید.");
-  }
+    var stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:cameraState.facing},aspectRatio:{ideal:16/9},width:{ideal:1920},height:{ideal:1080}}});
+    cameraState.stream=stream; video.srcObject=stream; await video.play();
+    var tr=stream.getVideoTracks()[0], set=tr.getSettings?tr.getSettings():{};
+    var vw=video.videoWidth||set.width||0,vh=video.videoHeight||set.height||0;
+    info.textContent="دوربین: "+(vw||"—")+"×"+(vh||"—")+" · خروجی ثبت: 16:9 واقعی، بدون Resize/Stretch؛ فقط برش مرکزی در صورت نیاز.";
+    await getFreshGPS().then(function(g){updateCameraLiveLabel(g);});
+    cameraState.liveTimer=setInterval(async function(){
+      var d=new Date(); updateCameraLiveLabel(cameraState.liveGPS); 
+      /* زمان هر ثانیه تازه می‌شود؛ GPS هر 3 ثانیه دوباره درخواست می‌شود. */
+      if(d.getSeconds()%3===0){ var g=await getFreshGPS(); if(g) updateCameraLiveLabel(g); }
+    },1000);
+  }catch(e){console.error(e);stopCamera();showToast("دسترسی به دوربین برقرار نشد. مجوز دوربین را بررسی کنید.");}
 }
-
-function captureCameraImage(){
+async function captureCameraImage(){
   var slide=cameraState.slide, video=document.getElementById("cameraVideo");
-  if(!slide || !video || !video.videoWidth || !video.videoHeight) return;
-  var c=document.createElement("canvas");
-  c.width=video.videoWidth; c.height=video.videoHeight;
-  var ctx=c.getContext("2d",{alpha:false});
-  ctx.drawImage(video,0,0,c.width,c.height);
-  var data=c.toDataURL("image/jpeg",0.97);
-  slide.images=slide.images||[];
-  if(slide.images.length>=MAX_IMAGES){ showToast("حداکثر تعداد عکس پر شده است"); return; }
-  slide.images.push({
-    data:data, caption:"",
-    capturedAt:captureTimestamp(),
-    captureMeta:currentCaptureMeta(),
-    naturalWidth:c.width,
-    naturalHeight:c.height,
-    sourceRatio:c.width/c.height
-  });
-  openId=slide.id;
-  commit(); renderSlidesList();
-  showToast("تصویر با ابعاد "+c.width+"×"+c.height+" ثبت شد");
+  if(!slide||!video||!video.videoWidth||!video.videoHeight)return;
+  if(slide.images.length>=MAX_IMAGES){showToast("حداکثر تعداد عکس پر شده است");return;}
+  var gps=await getFreshGPS();
+  var capturedAt=captureTimestamp();
+  var sw=video.videoWidth, sh=video.videoHeight, src=sw/sh, target=16/9, sx=0, sy=0, cw=sw, ch=sh;
+  if(src>target){ch=Math.floor(sw/target);sy=Math.floor((sh-ch)/2);} else if(src<target){cw=Math.floor(sh*target);sx=Math.floor((sw-cw)/2);}
+  var c=document.createElement("canvas"); c.width=cw; c.height=ch;
+  var ctx=c.getContext("2d",{alpha:false}); ctx.imageSmoothingEnabled=false; ctx.drawImage(video,sx,sy,cw,ch,0,0,cw,ch);
+  var data=c.toDataURL("image/jpeg",0.98);
+  var meta=currentCaptureMeta(); meta.siteGPS=gps||meta.siteGPS||"";
+  var im={data:data,caption:"",capturedAt:capturedAt,captureMeta:meta,naturalWidth:cw,naturalHeight:ch,sourceRatio:cw/ch};
+  /* ابتدا تصویر بدون تغییر ذخیره می‌شود؛ سپس نسخه لیبل‌خورده در همان رزولوشن تولید می‌شود. */
+  im.data=await makeLabeledDataURL(im.data,imageLabel(im));
+  im.labeled=true;
+  slide.images.push(im); openId=slide.id; commit(); renderSlidesList();
+  updateCameraLiveLabel(gps); showToast("تصویر 16:9 با رزولوشن "+cw+"×"+ch+" و لیبل ثبت شد");
 }
 
 /* ---------- ویرایشگر عکس ---------- */
@@ -1912,28 +1861,23 @@ function handlePhotoFiles(slide, files){
     }
     var f = toProcess[idx++];
     fileToOriginalDataURL(f).then(function(url){
+      return normalize16x9DataURL(url,"image/jpeg",0.98);
+    }).then(function(url16){
+      return getFreshGPS().then(function(gps){ return {url:url16,gps:gps}; });
+    }).then(function(info){
       return new Promise(function(resolve){
         var probe=new Image();
         probe.onload=function(){
-          resolve({url:url,w:probe.naturalWidth,h:probe.naturalHeight});
+          var meta=currentCaptureMeta(); meta.siteGPS=info.gps||meta.siteGPS||"";
+          var im={data:info.url,caption:"",capturedAt:captureTimestamp(),captureMeta:meta,naturalWidth:probe.naturalWidth,naturalHeight:probe.naturalHeight,sourceRatio:probe.naturalWidth/probe.naturalHeight};
+          makeLabeledDataURL(im.data,imageLabel(im)).then(function(labeled){im.data=labeled;im.labeled=true;resolve(im);}).catch(function(){resolve(im);});
         };
-        probe.onerror=function(){ resolve({url:url,w:0,h:0}); };
-        probe.src=url;
+        probe.onerror=function(){resolve(null);}; probe.src=info.url;
       });
-    }).then(function(info){
-      slide.images.push({
-        data:info.url, caption:"",
-        capturedAt:captureTimestamp(),
-        captureMeta:currentCaptureMeta(),
-        naturalWidth:info.w,
-        naturalHeight:info.h,
-        sourceRatio:(info.w&&info.h)?info.w/info.h:0
-      });
-      added++;
+    }).then(function(im){
+      if(im){slide.images.push(im);added++;}
       next();
-    }).catch(function(){
-      next();
-    });
+    }).catch(function(){next();});
   }
   next();
 }
@@ -2125,69 +2069,19 @@ function addPlaceholder(pres, s, x, y, w, h, title, sub){
   }
 }
 function layoutPhotosOnSlide(pres, s, imgs, x, y, w, h){
-  var n = imgs.length;
-  var cols = n === 1 ? 1 : (n === 2 ? 2 : (n <= 4 ? 2 : 4));
-  var rows = Math.ceil(n / cols);
-  var gap = 0.14;
-  var frameW = (w - gap*(cols-1)) / cols;
-  var frameH = frameW * 9/16;
-  var totalH = frameH*rows + gap*(rows-1);
-
-  /* اگر ارتفاع موجود کمتر باشد، کل فریم‌ها متناسباً کوچک می‌شوند؛
-     نسبت 16:9 همیشه ثابت می‌ماند و عکس داخل آن contain می‌شود. */
-  if(totalH > h){
-    frameH = (h - gap*(rows-1)) / rows;
-    frameW = frameH * 16/9;
-    var totalW = frameW*cols + gap*(cols-1);
-    x = x + (w-totalW)/2;
-  } else {
-    y = y + (h-totalH)/2;
-  }
-
-  imgs.forEach(function(im, i){
-    var r = Math.floor(i / cols), c = i % cols;
-    var cx = x + c*(frameW+gap);
-    var cy = y + r*(frameH+gap);
-
-    /* قاب دقیقاً 16:9 است. خود تصویر با نسبت واقعی داخل قاب قرار می‌گیرد. */
-    s.addShape(pres.ShapeType.rect,{
-      x:cx,y:cy,w:frameW,h:frameH,
-      fill:{color:"111111"},line:{color:"D9DEE6",pt:0.6}
-    });
-
-    var iw=frameW, ih=frameH, ix=cx, iy=cy;
-    var iw0=im.naturalWidth||0, ih0=im.naturalHeight||0;
-    if(iw0 && ih0){
-      var imageRatio=iw0/ih0, frameRatio=16/9;
-      if(imageRatio > frameRatio){
-        ih=frameW/imageRatio;
-        iy=cy+(frameH-ih)/2;
-      }else{
-        iw=frameH*imageRatio;
-        ix=cx+(frameW-iw)/2;
-      }
-    }
-    s.addImage({data:im.data,x:ix,y:iy,w:iw,h:ih});
-
-    /* لیبل به صورت یک لایه واقعی روی تصویر؛ بدون دستکاری ابعاد تصویر */
-    var label=imageLabel(im);
-    s.addText(label,{
-      x:cx+0.03,y:cy+frameH-0.34,w:frameW-0.06,h:0.31,
-      align:"right",valign:"middle",fontSize:7.5,
-      color:"FFFFFF",fill:{color:"07101A",transparency:12},
-      line:{color:"07101A",transparency:100},
-      fontFace:"Arial",rtlMode:true,margin:0.04
-    });
-    if(im.caption){
-      s.addText(im.caption,{
-        x:cx+0.04,y:cy+0.04,w:frameW-0.08,h:0.24,
-        align:"center",valign:"middle",fontSize:7.5,
-        color:"FFFFFF",fill:{color:"2B3038",transparency:20},
-        fontFace:"Arial",rtlMode:true,margin:0.03
-      });
-    }
+  var n=imgs.length, cols=n===1?1:(n===2?2:(n<=4?2:4)), rows=Math.ceil(n/cols), gap=0.14;
+  var cellW=(w-gap*(cols-1))/cols, cellH=cellW*9/16;
+  var totalH=cellH*rows+gap*(rows-1);
+  if(totalH>h){cellH=(h-gap*(rows-1))/rows;cellW=cellH*16/9;}
+  var totalW=cellW*cols+gap*(cols-1), ox=x+(w-totalW)/2, oy=y+(h-(cellH*rows+gap*(rows-1)))/2;
+  imgs.forEach(function(im,i){
+    var r=Math.floor(i/cols), c=i%cols, ix=ox+c*(cellW+gap), iy=oy+r*(cellH+gap);
+    /* خود فایل تصویر 16:9 است؛ هیچ قاب اضافی و هیچ contain/crop در PPTX وجود ندارد. */
+    s.addImage({data:im.data,x:ix,y:iy,w:cellW,h:cellH});
+    if(im.caption){s.addText(im.caption,{x:ix+0.04,y:iy+0.04,w:cellW-0.08,h:0.24,align:"center",valign:"middle",fontSize:7.5,color:"FFFFFF",fill:{color:"2B3038",transparency:20},fontFace:"Arial",rtlMode:true,margin:0.03});}
   });
 }
+
 async function exportPPTX(){
   if(!state.slides.length){ showToast("ابتدا حداقل یک اسلاید اضافه کنید"); return; }
   if(typeof PptxGenJS === "undefined"){ showToast("کتابخانه PPTX بارگذاری نشد"); return; }
@@ -2216,7 +2110,7 @@ async function exportPPTX(){
         ec.images=[];
         for(var eji=0; eji<es.images.length; eji++){
           var eim=Object.assign({},es.images[eji]);
-          if(eim.data){ eim.data=await makeLabeledDataURL(eim.data,imageLabel(eim)); }
+          if(eim.data){ eim.data=await prepareOutputImage(eim); eim.labeled=true; }
           ec.images.push(eim);
         }
       }
@@ -2370,7 +2264,7 @@ async function buildExportHTML(){
       var copy = Object.assign({}, im);
       if(im && im.data){
         try{
-          copy.data = await makeLabeledDataURL(im.data, imageLabel(im));
+          copy.data = await prepareOutputImage(im); copy.labeled=true;
         }catch(err){
           console.warn("Label generation failed; original image used.", err);
           copy.data = im.data;
