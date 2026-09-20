@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@4.0.1/dist/pptxgen.bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <style>
   :root{
     --ink:#1c2230;--ink-soft:#5b6472;--paper:#f5f6f8;--card:#ffffff;--line:#e3e6ec;
@@ -238,6 +239,27 @@
   .lightbox .lb-close{position:absolute;top:calc(16px + var(--safe-t));right:16px;width:40px;height:40px;
     border-radius:12px;border:none;background:rgba(255,255,255,.16);color:#fff;font-size:18px;cursor:pointer;}
 
+
+  /* Field verification / site-photo capture */
+  .site-meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .site-meta-grid .field{margin-bottom:0;}
+  .gps-row{display:flex;gap:7px;align-items:center;}
+  .gps-row input{flex:1;min-width:0;}
+  .gps-btn{white-space:nowrap;border:1.5px solid rgba(47,111,181,.35);background:var(--accent-soft);
+    color:var(--accent);border-radius:9px;padding:8px 9px;font-size:11.5px;font-weight:800;cursor:pointer;}
+  .gps-btn:active{transform:scale(.98);}
+  .photo-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
+  .photo-action{display:flex;align-items:center;justify-content:center;gap:5px;border:1.5px dashed var(--line);
+    border-radius:10px;padding:10px;background:var(--paper);color:var(--ink);font-size:12px;font-weight:800;cursor:pointer;}
+  .photo-action.camera{border-color:rgba(0,166,81,.35);background:rgba(0,166,81,.06);color:var(--primary-deep);}
+  .photo-action.gallery{border-color:rgba(47,111,181,.35);background:var(--accent-soft);color:var(--accent);}
+  .photo-label{padding:7px 8px;border-top:1px solid var(--line);background:var(--card);color:var(--ink-soft);
+    font-size:10px;line-height:1.65;font-weight:700;text-align:right;}
+  .photo-label b{color:var(--ink);}
+  .img-item .img-box{border-bottom:0;}
+  .download-photos{margin-top:10px;}
+  @media(max-width:560px){.site-meta-grid{grid-template-columns:1fr;}}
+
   input[type=file]{display:none;}
   .hidden{display:none !important;}
   .kbd-hint{font-size:10.5px;color:var(--ink-soft);text-align:center;margin-top:8px;}
@@ -301,7 +323,15 @@
   <div class="quality-strip"><span class="quality-dot" id="qualityDot"></span><span id="qualityText">در حال بررسی وضعیت گزارش…</span><span class="save-status" id="saveStatus">آماده</span></div>
 
   <div class="panel" id="settingsPanel" style="display:none;">
-    <h2>تنظیمات گزارش <span class="muted">رنگ، لوگو، فوتر و پروژه</span></h2>
+    <h2>اطلاعات سایت و کارشناس میدانی <span class="muted">برای ثبت روی تمام تصاویر</span></h2>
+    <div class="site-meta-grid">
+      <div class="field"><label>نام کارشناس میدانی</label><input type="text" id="fieldFieldExpert" placeholder="نام و نام خانوادگی"></div>
+      <div class="field"><label>کد سایت</label><input type="text" id="fieldSiteCode" placeholder="مثلاً TH12345"></div>
+      <div class="field"><label>نام سایت</label><input type="text" id="fieldSiteName" placeholder="نام سایت"></div>
+      <div class="field"><label>مختصات GPS سایت</label><div class="gps-row"><input type="text" id="fieldSiteGPS" placeholder="Latitude, Longitude"><button class="gps-btn" id="btnSiteGPS" type="button">📍 دریافت GPS</button></div></div>
+    </div>
+    <div class="kbd-hint" style="text-align:right;margin:8px 0 14px;">این اطلاعات هنگام ثبت هر تصویر ذخیره می‌شوند و در لیبل تصویر، پیش‌نمایش، PPTX و بسته دانلودی استفاده خواهند شد.</div>
+    <div class="sub-h">تنظیمات گزارش</div>
     <div class="field">
       <label>نام پروژه / گزارش</label>
       <input type="text" id="projectTitle" placeholder="مثلاً: گزارش نصب باتری سایت">
@@ -351,6 +381,7 @@
       <button class="btn-mini btn-block btn-plain" id="btnLoadProject">📂 بارگذاری پروژه از فایل</button>
       <button class="btn-mini btn-block btn-green" id="btnLoadBatteryTpl2">🔋 بارگذاری / بازنشانی تمپلیت نصب باتری</button>
       <button class="btn-mini btn-block btn-blue" id="btnQualityCheck">🧪 اجرای کنترل کیفیت گزارش</button>
+      <button class="btn-mini btn-block btn-green download-photos" id="btnDownloadLabeledPhotos">🖼️ دانلود تمام تصاویر لیبل‌خورده</button>
       <button class="btn-mini btn-block btn-danger" id="btnClearAll">🗑️ پاک کردن همه اسلایدها</button>
     </div>
     <div class="sub-h">حافظه مرورگر</div>
@@ -655,6 +686,7 @@ var BOARD_CSS = [
   ".board .b-photo{position:relative;background:#eef0f3;border-radius:5px;overflow:hidden;border:1px solid #dfe3e9;}",
   ".board .b-photo img{width:100%;height:100%;object-fit:cover;}",
   ".board .b-photo .ph-cap{position:absolute;bottom:0;left:0;right:0;background:rgba(20,25,35,.62);color:#fff;font-size:2.3%;padding:1.5% 2%;text-align:center;}",
+  ".board .b-photo .ph-meta{position:absolute;bottom:0;left:0;right:0;background:rgba(20,25,35,.72);color:#fff;font-size:1.9%;padding:1.2% 1.6%;text-align:right;line-height:1.45;}",
   ".board .b-photo-empty{grid-column:1/-1;grid-row:1/-1;border:2px dashed #c6ced9;border-radius:6px;background:#f7f9fb;",
   "display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2%;color:#98a2b0;text-align:center;padding:4%;}",
   ".board .b-photo-empty .pe-ic{font-size:5.5%;}",
@@ -708,7 +740,8 @@ function defaultState(){
       logoRight: window.LOGO_RIGHT_DEFAULT,
       showFooter: true, showMarks: true, theme: "auto",
       companyName: "شرکت نقش اول کیفیت (NAK) — تیم پاور",
-      companyWebsite: "https://www.nak-mci.ir"
+      companyWebsite: "https://www.nak-mci.ir",
+      fieldExpert: "", siteCode: "", siteName: "", siteGPS: ""
     },
     slides: []
   };
@@ -742,7 +775,18 @@ function migrateState(parsed){
       note: s.note || "",
       body: s.body || "",
       rows: Array.isArray(s.rows) ? s.rows.map(normalizeRow) : [],
-      images: Array.isArray(s.images) ? s.images.map(function(i){ return { data:i.data||"", caption:i.caption||"" }; }) : [],
+      images: Array.isArray(s.images) ? s.images.map(function(i){
+         return {
+           data:i.data||"", caption:i.caption||"",
+           capturedAt:i.capturedAt||"",
+           captureMeta:{
+             fieldExpert:(i.captureMeta&&i.captureMeta.fieldExpert)||"",
+             siteCode:(i.captureMeta&&i.captureMeta.siteCode)||"",
+             siteName:(i.captureMeta&&i.captureMeta.siteName)||"",
+             siteGPS:(i.captureMeta&&i.captureMeta.siteGPS)||""
+           }
+         };
+       }) : [],
       checklist: Array.isArray(s.checklist) ? s.checklist.map(function(c){ return { text:c.text||"", done:!!c.done }; }) : [],
       autoFromBatteryCount: !!s.autoFromBatteryCount
     };
@@ -870,6 +914,119 @@ function fileToCompressedDataURL(file, maxDim, quality){
   });
 }
 
+
+/* ---------- اطلاعات ثبت تصویر و لیبل ---------- */
+function currentCaptureMeta(){
+  return {
+    fieldExpert: String(state.meta.fieldExpert||"").trim(),
+    siteCode: String(state.meta.siteCode||"").trim(),
+    siteName: String(state.meta.siteName||"").trim(),
+    siteGPS: String(state.meta.siteGPS||"").trim()
+  };
+}
+function captureTimestamp(){
+  var d = new Date();
+  var j = toJalaali(d.getFullYear(), d.getMonth()+1, d.getDate());
+  var date = formatJalali(j.jy,j.jm,j.jd);
+  var hh = String(d.getHours()).padStart(2,"0");
+  var mm = String(d.getMinutes()).padStart(2,"0");
+  var ss = String(d.getSeconds()).padStart(2,"0");
+  return date + " - " + faDigits(hh+":"+mm+":"+ss);
+}
+function imageMeta(im){
+  var cm = im && im.captureMeta ? im.captureMeta : {};
+  return {
+    fieldExpert: String(cm.fieldExpert || state.meta.fieldExpert || "").trim(),
+    siteCode: String(cm.siteCode || state.meta.siteCode || "").trim(),
+    siteName: String(cm.siteName || state.meta.siteName || "").trim(),
+    siteGPS: String(cm.siteGPS || state.meta.siteGPS || "").trim(),
+    capturedAt: String((im&&im.capturedAt)||"").trim()
+  };
+}
+function imageLabel(im){
+  var m = imageMeta(im);
+  var parts = [];
+  if(m.fieldExpert) parts.push("کارشناس: " + m.fieldExpert);
+  if(m.siteCode) parts.push("کد سایت: " + m.siteCode);
+  if(m.siteName) parts.push("نام سایت: " + m.siteName);
+  if(m.siteGPS) parts.push("GPS: " + m.siteGPS);
+  if(m.capturedAt) parts.push("ثبت تصویر: " + m.capturedAt);
+  return parts.join("  |  ") || "اطلاعات ثبت تصویر وارد نشده است";
+}
+function makeLabeledDataURL(dataUrl, label){
+  return new Promise(function(resolve,reject){
+    if(!dataUrl){ reject(new Error("تصویر خالی است")); return; }
+    var img = new Image();
+    img.onload = function(){
+      var maxDim = 1800, w=img.naturalWidth, h=img.naturalHeight;
+      if(w>maxDim || h>maxDim){
+        if(w>=h){ h=Math.round(h*(maxDim/w)); w=maxDim; }
+        else { w=Math.round(w*(maxDim/h)); h=maxDim; }
+      }
+      var scale = w/1400;
+      var fontSize = Math.max(22, Math.round(24*scale));
+      var pad = Math.max(12, Math.round(18*scale));
+      var maxText = w - pad*2;
+      var ctxMeasure = document.createElement("canvas").getContext("2d");
+      ctxMeasure.font = "700 "+fontSize+"px Vazirmatn, Arial, sans-serif";
+      var words = String(label||"").split(/\s+/), lines=[], line="";
+      words.forEach(function(word){
+        var test=line ? line+" "+word : word;
+        if(ctxMeasure.measureText(test).width > maxText && line){ lines.push(line); line=word; }
+        else line=test;
+      });
+      if(line) lines.push(line);
+      if(!lines.length) lines=[""];
+      var lineH = Math.round(fontSize*1.55), stripH = pad*2 + lineH*lines.length;
+      var c=document.createElement("canvas"); c.width=w; c.height=h+stripH;
+      var ctx=c.getContext("2d");
+      ctx.fillStyle="#fff"; ctx.fillRect(0,0,w,c.height);
+      ctx.drawImage(img,0,0,w,h);
+      ctx.fillStyle="#17202b"; ctx.fillRect(0,h,w,stripH);
+      ctx.fillStyle="#fff"; ctx.font="700 "+fontSize+"px Vazirmatn, Arial, sans-serif";
+      ctx.textAlign="right"; ctx.textBaseline="middle";
+      lines.forEach(function(t,i){ ctx.fillText(t,w-pad,h+pad+lineH*(i+.5)); });
+      try{ resolve(c.toDataURL("image/jpeg",0.9)); }catch(e){ reject(e); }
+    };
+    img.onerror=function(){ reject(new Error("تصویر قابل پردازش نیست")); };
+    img.src=dataUrl;
+  });
+}
+function fileSafeName(s){
+  return String(s||"image").replace(/[\\/:*?"<>|]+/g,"_").replace(/\s+/g,"_").slice(0,80) || "image";
+}
+function downloadBlob(blob, name){
+  var a=document.createElement("a"), url=URL.createObjectURL(blob);
+  a.href=url; a.download=name; document.body.appendChild(a); a.click();
+  setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); },1000);
+}
+async function exportLabeledImages(){
+  var imgs=[];
+  state.slides.forEach(function(slide,si){
+    (slide.images||[]).forEach(function(im,ii){
+      if(im && im.data) imgs.push({im:im,slide:slide,si:si,ii:ii});
+    });
+  });
+  if(!imgs.length){ showToast("تصویری برای دانلود وجود ندارد"); return; }
+  showToast("در حال آماده‌سازی تصاویر لیبل‌خورده…");
+  try{
+    if(typeof JSZip === "undefined") throw new Error("JSZip");
+    var zip=new JSZip();
+    for(var i=0;i<imgs.length;i++){
+      var x=imgs[i], labeled=await makeLabeledDataURL(x.im.data,imageLabel(x.im));
+      var base64=labeled.split(",")[1];
+      var name=String(x.si+1).padStart(2,"0")+"-"+String(x.ii+1).padStart(2,"0")+"-"+fileSafeName(x.slide.title)+".jpg";
+      zip.file(name,base64,{base64:true});
+    }
+    var blob=await zip.generateAsync({type:"blob",compression:"DEFLATE"});
+    downloadBlob(blob,"تصاویر-لیبل-خورده-"+Date.now()+".zip");
+    showToast(imgs.length+" تصویر لیبل‌خورده دانلود شد");
+  }catch(e){
+    console.error(e);
+    showToast("ساخت فایل دانلودی ناموفق بود");
+  }
+}
+
 /* ---------- رندر بورد اسلاید ---------- */
 function boardHTML(slide, meta, opts){
   opts = opts || {};
@@ -991,6 +1148,10 @@ function render(){
   updateStorageMeter();
 }
 function renderSettings(){
+  document.getElementById("fieldFieldExpert").value = state.meta.fieldExpert || "";
+  document.getElementById("fieldSiteCode").value = state.meta.siteCode || "";
+  document.getElementById("fieldSiteName").value = state.meta.siteName || "";
+  document.getElementById("fieldSiteGPS").value = state.meta.siteGPS || "";
   document.getElementById("projectTitle").value = state.meta.projectTitle;
   document.getElementById("projectSubtitle").value = state.meta.projectSubtitle || "";
   document.getElementById("colorPrimary").value = state.meta.primary;
@@ -1562,6 +1723,7 @@ function buildPhotosEditor(slide){
   slide.images.forEach(function(im, i){
     var item = document.createElement("div");
     item.className = "img-item";
+    var lbl = imageLabel(im);
     item.innerHTML =
       '<div class="img-box">' +
         '<img src="' + im.data + '" alt="">' +
@@ -1571,7 +1733,8 @@ function buildPhotosEditor(slide){
           '<button data-mv="1" title="چپ" ' + (i===slide.images.length-1?"disabled":"") + '>◀</button>' +
         '</div>' +
       '</div>' +
-      '<div class="img-cap"><input type="text" placeholder="زیرنویس (اختیاری)"></div>';
+      '<div class="photo-label"><b>لیبل ثبت تصویر</b><br>' + escapeHTML(lbl) + '</div>' +
+      '<div class="img-cap"><input type="text" placeholder="زیرنویس اختیاری"></div>';
 
     item.querySelector(".rm").addEventListener("click", function(){
       slide.images.splice(i,1);
@@ -1579,49 +1742,59 @@ function buildPhotosEditor(slide){
     });
     item.querySelectorAll(".img-move button").forEach(function(b){
       b.addEventListener("click", function(){
-        var dir = parseInt(b.dataset.mv,10);
-        var j = i + dir;
-        if(j < 0 || j >= slide.images.length) return;
-        var tmp = slide.images[i]; slide.images[i] = slide.images[j]; slide.images[j] = tmp;
-        openId = slide.id; commit(); renderSlidesList();
+        var dir = parseInt(b.dataset.mv,10), j=i+dir;
+        if(j<0 || j>=slide.images.length) return;
+        var tmp=slide.images[i]; slide.images[i]=slide.images[j]; slide.images[j]=tmp;
+        openId=slide.id; commit(); renderSlidesList();
       });
     });
     item.querySelector(".img-box img").addEventListener("click", function(){ openLightbox(im.data); });
-    var capInput = item.querySelector(".img-cap input");
-    capInput.value = im.caption || "";
-    capInput.addEventListener("input", function(){ im.caption = capInput.value; refreshOpenCardLive(slide); });
+    var capInput=item.querySelector(".img-cap input");
+    capInput.value=im.caption||"";
+    capInput.addEventListener("input",function(){ im.caption=capInput.value; refreshOpenCardLive(slide); });
     grid.appendChild(item);
   });
 
   if(slide.images.length < MAX_IMAGES){
-    var addTile = document.createElement("label");
-    addTile.className = "add-photo-btn";
-    addTile.innerHTML = '<span style="font-size:22px;">📷</span><span>افزودن عکس</span>' +
-      '<span style="font-size:10px;opacity:.75;">چند فایل همزمان مجاز است</span>';
-    var fi = document.createElement("input");
-    fi.type = "file"; fi.accept = "image/*"; fi.multiple = true;
-    fi.addEventListener("change", function(){ handlePhotoFiles(slide, Array.prototype.slice.call(fi.files||[])); });
-    addTile.appendChild(fi);
-    grid.appendChild(addTile);
+    var actions=document.createElement("div");
+    actions.style.gridColumn="1/-1";
+    actions.className="photo-actions";
+
+    var camLabel=document.createElement("label");
+    camLabel.className="photo-action camera";
+    camLabel.innerHTML="📷 ثبت با دوربین";
+    var cam=document.createElement("input");
+    cam.type="file"; cam.accept="image/*"; cam.setAttribute("capture","environment");
+    cam.addEventListener("change",function(){ handlePhotoFiles(slide,Array.prototype.slice.call(cam.files||[])); cam.value=""; });
+    camLabel.appendChild(cam);
+
+    var galLabel=document.createElement("label");
+    galLabel.className="photo-action gallery";
+    galLabel.innerHTML="🖼️ انتخاب از گالری";
+    var gal=document.createElement("input");
+    gal.type="file"; gal.accept="image/*"; gal.multiple=true;
+    gal.addEventListener("change",function(){ handlePhotoFiles(slide,Array.prototype.slice.call(gal.files||[])); gal.value=""; });
+    galLabel.appendChild(gal);
+
+    actions.appendChild(camLabel); actions.appendChild(galLabel); grid.appendChild(actions);
   }
 
-  grid.addEventListener("dragover", function(e){ e.preventDefault(); grid.classList.add("dropping"); });
-  grid.addEventListener("dragleave", function(){ grid.classList.remove("dropping"); });
-  grid.addEventListener("drop", function(e){
-    e.preventDefault(); grid.classList.remove("dropping");
-    var files = Array.prototype.slice.call((e.dataTransfer && e.dataTransfer.files) || [])
-      .filter(function(f){ return f.type.indexOf("image/") === 0; });
-    handlePhotoFiles(slide, files);
+  grid.addEventListener("dragover",function(e){e.preventDefault();grid.classList.add("dropping");});
+  grid.addEventListener("dragleave",function(){grid.classList.remove("dropping");});
+  grid.addEventListener("drop",function(e){
+    e.preventDefault();grid.classList.remove("dropping");
+    var files=Array.prototype.slice.call((e.dataTransfer&&e.dataTransfer.files)||[]).filter(function(f){return f.type.indexOf("image/")===0;});
+    handlePhotoFiles(slide,files);
   });
-
   wrap.appendChild(grid);
 
-  var info = document.createElement("div");
-  info.style.cssText = "font-size:11px;color:var(--ink-soft);margin-top:8px;line-height:1.7;";
-  info.textContent = "می‌توانید فایل‌ها را روی ناحیه بکشید و رها کنید. ترتیب عکس با ◀ ▶ تغییر می‌کند.";
+  var info=document.createElement("div");
+  info.style.cssText="font-size:11px;color:var(--ink-soft);margin-top:8px;line-height:1.7;";
+  info.innerHTML="هر تصویر با نام کارشناس، کد سایت، نام سایت، GPS و زمان ثبت، <b>لیبل اختصاصی</b> دریافت می‌کند. اطلاعات ثبت‌شده تصویر مستقل از تغییرات بعدی اطلاعات سایت است.";
   wrap.appendChild(info);
   return wrap;
 }
+
 function handlePhotoFiles(slide, files){
   if(!files || !files.length) return;
   var remaining = MAX_IMAGES - slide.images.length;
@@ -1640,7 +1813,11 @@ function handlePhotoFiles(slide, files){
     }
     var f = toProcess[idx++];
     fileToCompressedDataURL(f).then(function(url){
-      slide.images.push({ data:url, caption:"" });
+      slide.images.push({
+        data:url, caption:"",
+        capturedAt:captureTimestamp(),
+        captureMeta:currentCaptureMeta()
+      });
       added++;
       next();
     }).catch(function(){
@@ -2275,6 +2452,26 @@ function init(){
     p.style.display = p.style.display === "none" ? "" : "none";
     if(p.style.display !== "none") updateStorageMeter();
   });
+
+  ["fieldFieldExpert","fieldSiteCode","fieldSiteName","fieldSiteGPS"].forEach(function(id){
+    document.getElementById(id).addEventListener("input",function(e){
+      var key={fieldFieldExpert:"fieldExpert",fieldSiteCode:"siteCode",fieldSiteName:"siteName",fieldSiteGPS:"siteGPS"}[id];
+      state.meta[key]=e.target.value;
+      renderOpenCardsIfAny(); scheduleCommit();
+    });
+  });
+  document.getElementById("btnSiteGPS").addEventListener("click",function(){
+    if(!navigator.geolocation){ showToast("مرورگر GPS را پشتیبانی نمی‌کند"); return; }
+    showToast("در حال دریافت مختصات GPS…");
+    navigator.geolocation.getCurrentPosition(function(p){
+      state.meta.siteGPS=p.coords.latitude.toFixed(6)+", "+p.coords.longitude.toFixed(6);
+      document.getElementById("fieldSiteGPS").value=state.meta.siteGPS;
+      renderOpenCardsIfAny(); commit();
+      showToast("مختصات GPS ثبت شد");
+    },function(){ showToast("دریافت GPS ناموفق بود؛ دسترسی مکان را فعال کنید"); },
+    {enableHighAccuracy:true,timeout:15000,maximumAge:0});
+  });
+  document.getElementById("btnDownloadLabeledPhotos").addEventListener("click",exportLabeledImages);
 
   document.getElementById("projectTitle").addEventListener("input", function(e){
     state.meta.projectTitle = e.target.value;
