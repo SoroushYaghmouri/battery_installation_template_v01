@@ -10,23 +10,26 @@
 <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@4.0.1/dist/pptxgen.bundle.js"></script>
 <style>
   :root{
-    --ink:#1c2230; --ink-soft:#5b6472; --paper:#f5f6f8; --card:#ffffff; --line:#e3e6ec;
-    --primary:#00A651; --primary-deep:#00823f; --accent:#2F6FB5; --accent-soft:#eaf2fb;
-    --danger:#d6483f; --warn:#e08b1a; --radius:14px;
-    --safe-t:env(safe-area-inset-top,0px); --safe-b:env(safe-area-inset-bottom,0px);
+    --ink:#1c2230;--ink-soft:#5b6472;--paper:#f5f6f8;--card:#ffffff;--line:#e3e6ec;
+    --primary:#00A651;--primary-deep:#00823f;--accent:#2F6FB5;--accent-soft:#eaf2fb;
+    --danger:#d6483f;--warn:#e08b1a;--radius:14px;
+    --safe-t:env(safe-area-inset-top,0px);--safe-b:env(safe-area-inset-bottom,0px);
   }
   @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){ --ink:#eef0f4; --ink-soft:#a7aebb; --paper:#14171c; --card:#1c2028; --line:#2b3038; --accent-soft:#182634; }
+    :root:not([data-theme="light"]){--ink:#eef0f4;--ink-soft:#a7aebb;--paper:#14171c;--card:#1c2028;--line:#2b3038;--accent-soft:#182634;}
   }
-  :root[data-theme="dark"]{ --ink:#eef0f4; --ink-soft:#a7aebb; --paper:#14171c; --card:#1c2028; --line:#2b3038; --accent-soft:#182634; }
-  *{box-sizing:border-box;} html,body{height:100%;}
+  :root[data-theme="dark"]{--ink:#eef0f4;--ink-soft:#a7aebb;--paper:#14171c;--card:#1c2028;--line:#2b3038;--accent-soft:#182634;}
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
   html{scroll-padding-top:var(--safe-t);}
   body{margin:0;background:var(--paper);color:var(--ink);font-family:'Vazirmatn',sans-serif;direction:rtl;
     padding-top:var(--safe-t);padding-bottom:var(--safe-b);-webkit-tap-highlight-color:transparent;}
-  button,input,textarea,select{font-family:inherit;} img{max-width:100%;display:block;}
+  button,input,textarea,select{font-family:inherit;}
+  img{max-width:100%;display:block;}
 
-  header.appbar{position:sticky;top:var(--safe-t);z-index:20;background:linear-gradient(135deg,var(--primary),var(--primary-deep));
-    color:#fff;padding:12px;display:flex;align-items:center;gap:8px;box-shadow:0 2px 10px rgba(0,0,0,.12);}
+  header.appbar{position:sticky;top:var(--safe-t);z-index:20;
+    background:linear-gradient(135deg,var(--primary),var(--primary-deep));color:#fff;padding:12px;
+    display:flex;align-items:center;gap:8px;box-shadow:0 2px 10px rgba(0,0,0,.12);}
   header.appbar .brand{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0;}
   header.appbar .brand b{font-size:15.5px;font-weight:800;}
   header.appbar .brand span{font-size:11px;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -34,23 +37,27 @@
     border-radius:10px;font-size:16px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;cursor:pointer;}
   header.appbar button.icon-btn:active{background:rgba(255,255,255,.32);}
 
-  .toolbar{position:sticky;top:calc(var(--safe-t) + 60px);z-index:19;background:var(--paper);padding:8px 12px 6px;border-bottom:1px solid var(--line);}
+  .toolbar{position:sticky;top:calc(var(--safe-t) + 60px);z-index:19;background:var(--paper);
+    padding:8px 12px 6px;border-bottom:1px solid var(--line);}
   .toolbar .tb-inner{max-width:640px;margin:0 auto;display:flex;gap:8px;align-items:center;}
-  .toolbar input[type=search]{flex:1;padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);font-size:13px;min-width:0;}
+  .toolbar input[type=search]{flex:1;padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;
+    background:var(--card);color:var(--ink);font-size:13px;min-width:0;}
   .toolbar input[type=search]:focus{outline:2px solid var(--accent);outline-offset:1px;}
-  .stats{font-size:11px;color:var(--ink-soft);font-weight:700;white-space:nowrap;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;}
+  .stats{font-size:11px;color:var(--ink-soft);font-weight:700;white-space:nowrap;background:var(--card);
+    border:1px solid var(--line);border-radius:10px;padding:8px 10px;}
 
   main{max-width:640px;margin:0 auto;padding:14px 12px 110px;}
-
   .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:14px;}
   .panel h2{margin:0 0 10px;font-size:14.5px;font-weight:800;display:flex;align-items:center;gap:6px;}
   .panel h2 .muted{font-weight:500;font-size:12px;color:var(--ink-soft);}
-  .panel .sub-h{margin:16px 0 8px;font-size:12.5px;font-weight:800;color:var(--ink-soft);border-top:1px dashed var(--line);padding-top:12px;}
+  .panel .sub-h{margin:16px 0 8px;font-size:12.5px;font-weight:800;color:var(--ink-soft);
+    border-top:1px dashed var(--line);padding-top:12px;}
 
-  .field{margin-bottom:10px;} .field:last-child{margin-bottom:0;}
+  .field{margin-bottom:10px;}
+  .field:last-child{margin-bottom:0;}
   .field label{display:block;font-size:12.5px;font-weight:600;color:var(--ink-soft);margin-bottom:5px;}
-  .field input[type=text], .field input[type=number], .field input[type=tel], .field textarea, .field select{
-    width:100%;padding:9px 11px;border:1.5px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);font-size:14px;}
+  .field input[type=text],.field input[type=number],.field textarea,.field select{width:100%;padding:9px 11px;
+    border:1.5px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);font-size:14px;}
   .field textarea{resize:vertical;min-height:60px;line-height:1.7;}
   .field input:focus,.field textarea:focus,.field select:focus{outline:2px solid var(--accent);outline-offset:1px;}
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
@@ -60,11 +67,14 @@
   .color-row span{font-size:12.5px;color:var(--ink-soft);font-weight:600;}
 
   .logo-pick{display:flex;align-items:center;gap:10px;}
-  .logo-pick .logo-thumb{width:44px;height:44px;border-radius:9px;border:1.5px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;flex:0 0 auto;}
+  .logo-pick .logo-thumb{width:44px;height:44px;border-radius:9px;border:1.5px solid var(--line);
+    background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;flex:0 0 auto;}
   .logo-pick .logo-thumb img{max-width:100%;max-height:100%;object-fit:contain;}
-  .btn-mini{border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:9px;padding:7px 10px;font-size:12.5px;font-weight:600;cursor:pointer;}
+  .btn-mini{border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:9px;
+    padding:7px 10px;font-size:12.5px;font-weight:600;cursor:pointer;}
   .btn-mini:active{background:var(--paper);}
-  .btn-block{width:100%;padding:11px;border-radius:11px;border:none;font-weight:800;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;}
+  .btn-block{width:100%;padding:11px;border-radius:11px;border:none;font-weight:800;font-size:13px;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;}
   .btn-green{background:linear-gradient(135deg,var(--primary),var(--primary-deep));color:#fff;}
   .btn-blue{background:var(--accent-soft);color:var(--accent);border:1.5px solid rgba(47,111,181,.25);}
   .btn-plain{background:var(--paper);color:var(--ink);border:1.5px solid var(--line);}
@@ -73,26 +83,32 @@
 
   .toggle-row{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:7px 0;}
   .toggle-row span{font-size:13px;font-weight:600;}
-  .switch{width:44px;height:26px;border-radius:14px;background:var(--line);position:relative;transition:background .18s;flex:0 0 auto;}
-  .switch::after{content:"";position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .18s;box-shadow:0 1px 3px rgba(0,0,0,.25);}
-  .switch.on{background:var(--primary);} .switch.on::after{transform:translateX(-18px);}
+  .switch{width:44px;height:26px;border-radius:14px;background:var(--line);position:relative;
+    transition:background .18s;flex:0 0 auto;}
+  .switch::after{content:"";position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;
+    background:#fff;transition:transform .18s;box-shadow:0 1px 3px rgba(0,0,0,.25);}
+  .switch.on{background:var(--primary);}
+  .switch.on::after{transform:translateX(-18px);}
 
   .meter{height:7px;border-radius:5px;background:var(--line);overflow:hidden;margin-top:6px;}
-  .meter > i{display:block;height:100%;background:linear-gradient(90deg,var(--primary),var(--accent));width:0%;transition:width .3s;}
+  .meter > i{display:block;height:100%;background:linear-gradient(90deg,var(--primary),var(--accent));
+    width:0%;transition:width .3s;}
   .meter.warn > i{background:linear-gradient(90deg,var(--warn),var(--danger));}
 
-  .slide-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:12px;overflow:hidden;}
-  .slide-card.dragging{opacity:.45;}
-  .slide-card.drop-target{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft);}
+  .slide-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    margin-bottom:12px;overflow:hidden;}
   .slide-card .sc-head{display:flex;align-items:center;gap:9px;padding:11px 12px;cursor:pointer;}
-  .sc-badge{width:26px;height:26px;border-radius:8px;background:var(--accent-soft);color:var(--accent);font-size:12.5px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+  .sc-badge{width:26px;height:26px;border-radius:8px;background:var(--accent-soft);color:var(--accent);
+    font-size:12.5px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
   .sc-head .sc-info{flex:1;min-width:0;}
   .sc-info .sc-type{font-size:10.5px;color:var(--ink-soft);font-weight:700;display:flex;align-items:center;gap:5px;}
   .sc-info .sc-title{font-size:13.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .sc-flag{font-size:9.5px;font-weight:800;border-radius:6px;padding:1px 5px;background:rgba(0,166,81,.12);color:var(--primary-deep);}
+  .sc-flag{font-size:9.5px;font-weight:800;border-radius:6px;padding:1px 5px;
+    background:rgba(0,166,81,.12);color:var(--primary-deep);}
   .sc-flag.warn{background:rgba(224,139,26,.14);color:var(--warn);}
   .sc-head .sc-actions{display:flex;gap:2px;flex:0 0 auto;}
-  .sc-head .sc-actions button{width:29px;height:29px;border:none;background:transparent;color:var(--ink-soft);font-size:14px;border-radius:8px;cursor:pointer;}
+  .sc-head .sc-actions button{width:29px;height:29px;border:none;background:transparent;color:var(--ink-soft);
+    font-size:14px;border-radius:8px;cursor:pointer;}
   .sc-head .sc-actions button:active{background:var(--paper);}
   .sc-head .sc-actions button:disabled{opacity:.28;}
   .sc-body{padding:0 14px 14px;border-top:1px solid var(--line);}
@@ -102,74 +118,92 @@
   .mini-preview .mp-label{font-size:11px;color:var(--ink-soft);font-weight:700;margin-bottom:6px;}
 
   .lp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-  .lp-item{border:1.5px solid var(--line);border-radius:12px;background:var(--card);padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;cursor:pointer;}
-  .lp-item .lp-ic{font-size:25px;} .lp-item b{font-size:13px;} .lp-item span{font-size:11px;color:var(--ink-soft);}
-  .lp-item:active{background:var(--paper);}
+  .lp-item{border:1.5px solid var(--line);border-radius:12px;background:var(--card);padding:14px 10px;
+    display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;cursor:pointer;}
+  .lp-item .lp-ic{font-size:25px;}
+  .lp-item b{font-size:13px;}
+  .lp-item span{font-size:11px;color:var(--ink-soft);}
   .lp-extra{margin-top:12px;display:flex;flex-direction:column;gap:8px;}
 
   .img-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:8px;}
   .img-item{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--paper);}
   .img-item .img-box{position:relative;aspect-ratio:4/3;background:#e9ecf0;}
   .img-item .img-box img{width:100%;height:100%;object-fit:cover;cursor:zoom-in;}
-  .img-item .img-box button.rm{position:absolute;top:4px;left:4px;width:24px;height:24px;border-radius:7px;border:none;background:rgba(20,20,20,.6);color:#fff;font-size:12px;cursor:pointer;}
+  .img-item .img-box button.rm{position:absolute;top:4px;left:4px;width:24px;height:24px;border-radius:7px;
+    border:none;background:rgba(20,20,20,.6);color:#fff;font-size:12px;cursor:pointer;}
   .img-item .img-move{position:absolute;bottom:4px;left:4px;display:flex;gap:4px;}
-  .img-item .img-move button{width:24px;height:24px;border-radius:7px;border:none;background:rgba(20,20,20,.6);color:#fff;font-size:11px;cursor:pointer;}
+  .img-item .img-move button{width:24px;height:24px;border-radius:7px;border:none;
+    background:rgba(20,20,20,.6);color:#fff;font-size:11px;cursor:pointer;}
   .img-item .img-move button:disabled{opacity:.3;}
   .img-item .img-cap{padding:6px;}
-  .img-item .img-cap input{width:100%;border:1px solid var(--line);border-radius:7px;padding:5px 7px;font-size:11.5px;background:var(--card);color:var(--ink);}
-  .add-photo-btn{border:1.5px dashed var(--line);border-radius:10px;aspect-ratio:4/3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--ink-soft);background:var(--paper);font-size:12px;cursor:pointer;text-align:center;}
+  .img-item .img-cap input{width:100%;border:1px solid var(--line);border-radius:7px;padding:5px 7px;
+    font-size:11.5px;background:var(--card);color:var(--ink);}
+  .add-photo-btn{border:1.5px dashed var(--line);border-radius:10px;aspect-ratio:4/3;display:flex;
+    flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--ink-soft);
+    background:var(--paper);font-size:12px;cursor:pointer;text-align:center;}
   .img-grid.dropping .add-photo-btn{border-color:var(--accent);color:var(--accent);background:var(--accent-soft);}
 
-  /* ====== Rows editor (typed) ====== */
-  .rows-editor .row-item{display:grid;grid-template-columns:1.1fr .9fr 1.6fr auto;gap:6px;align-items:start;margin-bottom:10px;
-    padding:8px;border:1px solid var(--line);border-radius:10px;background:var(--paper);}
+  /* Typed rows editor */
+  .rows-editor .row-item{display:grid;grid-template-columns:1fr 1fr 1.7fr auto;gap:6px;align-items:start;
+    margin-bottom:10px;padding:8px;border:1px solid var(--line);border-radius:10px;background:var(--paper);}
   .rows-editor .row-item .cell{display:flex;flex-direction:column;gap:3px;min-width:0;}
   .rows-editor .row-item label{font-size:10.5px;color:var(--ink-soft);font-weight:700;}
-  .rows-editor .row-item input[type=text], .rows-editor .row-item input[type=number],
-  .rows-editor .row-item input[type=tel], .rows-editor .row-item select{
-    width:100%;padding:7px 8px;border:1.5px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font-size:12.5px;min-width:0;
-  }
+  .rows-editor .row-item input[type=text],.rows-editor .row-item input[type=number],
+  .rows-editor .row-item input[type=tel],.rows-editor .row-item select{
+    width:100%;padding:7px 8px;border:1.5px solid var(--line);border-radius:8px;
+    background:var(--card);color:var(--ink);font-size:12.5px;min-width:0;}
   .rows-editor .row-item input[readonly]{background:var(--accent-soft);color:var(--accent);font-weight:700;cursor:not-allowed;}
-  .rows-editor .row-item .rm-btn{flex:0 0 auto;width:30px;height:30px;border:none;border-radius:8px;background:var(--card);color:var(--danger);font-size:13px;border:1px solid var(--line);cursor:pointer;align-self:center;}
-  .rows-editor .row-item .val-cell{position:relative;}
-  .rows-editor .row-item .loc-btn{position:absolute;left:6px;top:50%;transform:translateY(-50%);
-    background:var(--accent-soft);border:1px solid rgba(47,111,181,.35);color:var(--accent);
-    font-size:11px;font-weight:700;padding:4px 8px;border-radius:7px;cursor:pointer;white-space:nowrap;}
-  .rows-editor .row-item .date-wrap{display:flex;gap:4px;}
-  .rows-editor .row-item .date-wrap input{flex:1;}
-  .rows-editor .row-item .date-wrap .pick-btn{flex:0 0 auto;width:34px;border:1.5px solid var(--line);border-radius:8px;background:var(--card);color:var(--accent);font-size:15px;cursor:pointer;}
-  .rows-editor .row-item .phone-hint{font-size:10px;color:var(--danger);margin-top:2px;display:none;}
+  .rows-editor .row-item .rm-btn{width:30px;height:30px;border:none;border-radius:8px;background:var(--card);
+    color:var(--danger);font-size:13px;border:1px solid var(--line);cursor:pointer;align-self:center;}
+  .rows-editor .val-wrap{display:flex;gap:4px;align-items:center;flex-wrap:wrap;}
+  .rows-editor .val-wrap input,.rows-editor .val-wrap select{flex:1;}
+  .rows-editor .loc-btn{background:var(--accent-soft);border:1px solid rgba(47,111,181,.35);color:var(--accent);
+    font-size:11px;font-weight:700;padding:6px 8px;border-radius:7px;cursor:pointer;white-space:nowrap;}
+  .rows-editor .date-btn{width:34px;height:32px;border:1.5px solid var(--line);border-radius:8px;
+    background:var(--card);color:var(--accent);font-size:15px;cursor:pointer;}
+  .rows-editor .unit-tag{font-size:10.5px;color:var(--ink-soft);font-weight:700;padding:0 2px;}
+  .rows-editor .phone-hint{font-size:10px;color:var(--danger);display:none;margin-top:2px;}
   .rows-editor .row-item.phone-invalid .phone-hint{display:block;}
   .rows-editor .row-item.phone-invalid input[type=tel]{border-color:var(--danger);}
-  .rows-editor .row-item .unit-tag{font-size:10.5px;color:var(--ink-soft);font-weight:700;}
-  .rows-editor .auto-badge{font-size:9.5px;background:rgba(47,111,181,.15);color:var(--accent);font-weight:800;border-radius:6px;padding:1px 5px;margin-inline-start:4px;}
+  .rows-editor .auto-badge{font-size:9.5px;background:rgba(47,111,181,.15);color:var(--accent);
+    font-weight:800;border-radius:6px;padding:1px 5px;margin-inline-start:4px;}
 
-  .add-row-btn,.add-photo-textbtn{width:100%;padding:10px;border:1.5px dashed var(--line);border-radius:10px;background:transparent;color:var(--accent);font-weight:700;font-size:13px;margin-top:4px;cursor:pointer;}
+  .add-row-btn,.add-photo-textbtn{width:100%;padding:10px;border:1.5px dashed var(--line);border-radius:10px;
+    background:transparent;color:var(--accent);font-weight:700;font-size:13px;margin-top:4px;cursor:pointer;}
 
-  .delete-slide-btn{width:100%;padding:10px;margin-top:14px;border:1.5px solid rgba(214,72,63,.35);border-radius:10px;background:rgba(214,72,63,.08);color:var(--danger);font-weight:700;font-size:13px;cursor:pointer;}
+  .delete-slide-btn{width:100%;padding:10px;margin-top:14px;border:1.5px solid rgba(214,72,63,.35);
+    border-radius:10px;background:rgba(214,72,63,.08);color:var(--danger);font-weight:700;font-size:13px;cursor:pointer;}
 
-  .fab{position:fixed;left:18px;bottom:calc(18px + var(--safe-b));z-index:30;width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;
-    background:linear-gradient(135deg,var(--primary),var(--primary-deep));color:#fff;font-size:26px;box-shadow:0 6px 18px rgba(0,140,70,.4);display:flex;align-items:center;justify-content:center;}
+  .fab{position:fixed;left:18px;bottom:calc(18px + var(--safe-b));z-index:30;width:56px;height:56px;
+    border-radius:50%;border:none;cursor:pointer;background:linear-gradient(135deg,var(--primary),var(--primary-deep));
+    color:#fff;font-size:26px;box-shadow:0 6px 18px rgba(0,140,70,.4);display:flex;align-items:center;justify-content:center;}
   .fab:active{transform:scale(.94);}
-  .bottombar{position:fixed;right:0;left:0;bottom:0;z-index:25;padding:9px 12px calc(9px + var(--safe-b));background:var(--card);border-top:1px solid var(--line);display:flex;gap:8px;}
+  .bottombar{position:fixed;right:0;left:0;bottom:0;z-index:25;padding:9px 12px calc(9px + var(--safe-b));
+    background:var(--card);border-top:1px solid var(--line);display:flex;gap:8px;}
   .bottombar button{flex:1;padding:12px 6px;border-radius:12px;border:none;font-weight:800;font-size:13px;cursor:pointer;}
   .bottombar .btn-preview{background:var(--accent-soft);color:var(--accent);}
   .bottombar .btn-html{background:var(--paper);color:var(--ink);border:1.5px solid var(--line);}
   .bottombar .btn-export{background:linear-gradient(135deg,var(--primary),var(--primary-deep));color:#fff;}
   .bottombar button:disabled{opacity:.5;}
 
-  .sheet-overlay{position:fixed;inset:0;background:rgba(10,12,16,.55);z-index:50;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .18s ease;}
+  .sheet-overlay{position:fixed;inset:0;background:rgba(10,12,16,.55);z-index:50;display:flex;align-items:flex-end;
+    opacity:0;pointer-events:none;transition:opacity .18s ease;}
   .sheet-overlay.open{opacity:1;pointer-events:auto;}
-  .sheet{background:var(--card);width:100%;max-width:640px;margin:0 auto;border-radius:18px 18px 0 0;padding:16px 16px calc(16px + var(--safe-b));max-height:84vh;overflow:auto;transform:translateY(100%);transition:transform .22s ease;}
+  .sheet{background:var(--card);width:100%;max-width:640px;margin:0 auto;border-radius:18px 18px 0 0;
+    padding:16px 16px calc(16px + var(--safe-b));max-height:84vh;overflow:auto;
+    transform:translateY(100%);transition:transform .22s ease;}
   .sheet-overlay.open .sheet{transform:translateY(0);}
   .sheet .sheet-handle{width:40px;height:4px;background:var(--line);border-radius:3px;margin:0 auto 14px;}
   .sheet h3{margin:0 0 14px;font-size:16px;font-weight:800;}
 
-  .full-preview{position:fixed;inset:0;background:var(--paper);z-index:60;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .22s ease;}
+  .full-preview{position:fixed;inset:0;background:var(--paper);z-index:60;display:flex;flex-direction:column;
+    transform:translateY(100%);transition:transform .22s ease;}
   .full-preview.open{transform:translateY(0);}
-  .fp-head{padding:calc(12px + var(--safe-t)) 14px 12px;background:var(--card);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;}
+  .fp-head{padding:calc(12px + var(--safe-t)) 14px 12px;background:var(--card);border-bottom:1px solid var(--line);
+    display:flex;align-items:center;gap:10px;}
   .fp-head b{flex:1;font-size:15px;}
-  .fp-head button{width:36px;height:36px;border:none;background:var(--paper);border-radius:10px;font-size:15px;color:var(--ink);cursor:pointer;}
+  .fp-head button{width:36px;height:36px;border:none;background:var(--paper);border-radius:10px;
+    font-size:15px;color:var(--ink);cursor:pointer;}
   .fp-body{flex:1;overflow:auto;padding:16px 14px calc(16px + var(--safe-b));}
   .fp-body .board-wrap{margin-bottom:18px;}
   .fp-body .fp-idx{font-size:11.5px;color:var(--ink-soft);margin-bottom:6px;font-weight:700;}
@@ -179,35 +213,46 @@
   .empty-state b{display:block;color:var(--ink);font-size:15px;margin-bottom:4px;}
   .empty-state span{font-size:13px;line-height:1.7;}
 
-  .toast{position:fixed;bottom:calc(84px + var(--safe-b));left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:10px;font-size:13px;z-index:80;opacity:0;transition:all .25s ease;pointer-events:none;white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis;}
+  .toast{position:fixed;bottom:calc(84px + var(--safe-b));left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:10px;font-size:13px;
+    z-index:80;opacity:0;transition:all .25s ease;pointer-events:none;white-space:nowrap;max-width:90vw;
+    overflow:hidden;text-overflow:ellipsis;}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
-  .lightbox{position:fixed;inset:0;background:rgba(8,10,14,.92);z-index:90;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .18s ease;}
+  .lightbox{position:fixed;inset:0;background:rgba(8,10,14,.92);z-index:90;display:flex;
+    align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .18s ease;}
   .lightbox.open{opacity:1;pointer-events:auto;}
   .lightbox img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;}
-  .lightbox .lb-close{position:absolute;top:calc(16px + var(--safe-t));right:16px;width:40px;height:40px;border-radius:12px;border:none;background:rgba(255,255,255,.16);color:#fff;font-size:18px;cursor:pointer;}
+  .lightbox .lb-close{position:absolute;top:calc(16px + var(--safe-t));right:16px;width:40px;height:40px;
+    border-radius:12px;border:none;background:rgba(255,255,255,.16);color:#fff;font-size:18px;cursor:pointer;}
 
-  input[type=file]{display:none;} .hidden{display:none !important;}
+  input[type=file]{display:none;}
+  .hidden{display:none !important;}
   .kbd-hint{font-size:10.5px;color:var(--ink-soft);text-align:center;margin-top:8px;}
 
-  /* ========== Jalali date picker ========== */
-  .jdp-overlay{position:fixed;inset:0;background:rgba(10,12,16,.5);z-index:95;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .18s;}
+  /* Jalali date picker */
+  .jdp-overlay{position:fixed;inset:0;background:rgba(10,12,16,.5);z-index:95;display:flex;
+    align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .18s;}
   .jdp-overlay.open{opacity:1;pointer-events:auto;}
-  .jdp{background:var(--card);border-radius:14px;width:min(340px,92vw);padding:14px;box-shadow:0 10px 40px rgba(0,0,0,.3);direction:rtl;}
+  .jdp{background:var(--card);border-radius:14px;width:min(340px,92vw);padding:14px;
+    box-shadow:0 10px 40px rgba(0,0,0,.3);direction:rtl;}
   .jdp-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:6px;}
-  .jdp-head button{width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer;font-size:14px;}
-  .jdp-head .jdp-title{font-weight:800;font-size:14px;flex:1;text-align:center;}
-  .jdp-months{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:6px;font-size:11px;color:var(--ink-soft);font-weight:700;text-align:center;}
+  .jdp-head button{width:32px;height:32px;border-radius:8px;border:1px solid var(--line);
+    background:var(--paper);color:var(--ink);cursor:pointer;font-size:14px;}
+  .jdp-title{font-weight:800;font-size:14px;flex:1;text-align:center;}
+  .jdp-week{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:6px;
+    font-size:11px;color:var(--ink-soft);font-weight:700;text-align:center;}
   .jdp-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
-  .jdp-grid button{aspect-ratio:1;border:none;background:var(--paper);color:var(--ink);border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;padding:0;}
+  .jdp-grid button{aspect-ratio:1;border:none;background:var(--paper);color:var(--ink);border-radius:8px;
+    font-size:12.5px;font-weight:600;cursor:pointer;padding:0;}
   .jdp-grid button:hover{background:var(--accent-soft);color:var(--accent);}
   .jdp-grid button.today{outline:2px solid var(--accent);outline-offset:-2px;}
   .jdp-grid button.selected{background:var(--accent);color:#fff;}
   .jdp-grid button.empty{background:transparent;cursor:default;}
   .jdp-actions{display:flex;gap:8px;margin-top:12px;}
   .jdp-actions button{flex:1;padding:9px;border-radius:10px;border:none;font-weight:700;cursor:pointer;font-size:12.5px;}
-  .jdp-actions .jdp-clear{background:var(--paper);color:var(--ink);border:1.5px solid var(--line);}
-  .jdp-actions .jdp-ok{background:var(--accent);color:#fff;}
+  .jdp-clear{background:var(--paper);color:var(--ink);border:1.5px solid var(--line);}
+  .jdp-ok{background:var(--accent);color:#fff;}
 </style>
 </head>
 <body>
@@ -215,13 +260,13 @@
 <header class="appbar">
   <button class="icon-btn" id="btnSettings" aria-label="تنظیمات">⚙️</button>
   <div class="brand">
-    <b>قالب‌ساز گزارش پاورپوینت <span style="opacity:.7;font-size:11px;">v2.1</span></b>
+    <b>قالب‌ساز گزارش پاورپوینت <span style="opacity:.7;font-size:11px;">v3</span></b>
     <span id="brandSub">ساخت اسلاید با تصویر و متن، خروجی HTML و PPTX</span>
   </div>
-  <button class="icon-btn" id="btnUndo" aria-label="واگرد" title="واگرد (Ctrl+Z)">↶</button>
-  <button class="icon-btn" id="btnRedo" aria-label="ازنو" title="ازنو (Ctrl+Y)">↷</button>
+  <button class="icon-btn" id="btnUndo" aria-label="واگرد">↶</button>
+  <button class="icon-btn" id="btnRedo" aria-label="ازنو">↷</button>
   <button class="icon-btn" id="btnTheme" aria-label="پوسته">🌓</button>
-  <button class="icon-btn" id="btnFullPreview" aria-label="پیش‌نمایش کامل">👁️</button>
+  <button class="icon-btn" id="btnFullPreview" aria-label="پیش‌نمایش">👁️</button>
 </header>
 
 <div class="toolbar" id="toolbar">
@@ -239,12 +284,12 @@
       <input type="text" id="projectTitle" placeholder="مثلاً: گزارش نصب باتری سایت">
     </div>
     <div class="field">
-      <label>زیرعنوان پیش‌فرض (برای روی جلد)</label>
+      <label>زیرعنوان پیش‌فرض</label>
       <input type="text" id="projectSubtitle" placeholder="مثلاً: گزارش نصب و تست باتری">
     </div>
     <div class="row2">
       <div class="field">
-        <label>رنگ اصلی (نوار بالا و پایین)</label>
+        <label>رنگ اصلی</label>
         <div class="color-row"><input type="color" id="colorPrimary"><span id="colorPrimaryVal"></span></div>
       </div>
       <div class="field">
@@ -274,7 +319,7 @@
       <div class="switch" id="swFooter"></div>
     </div>
     <div class="toggle-row" id="tgMarks">
-      <span>نمایش نشان «وضعیت تکمیل» روی اسلایدها</span>
+      <span>نمایش نشان «وضعیت تکمیل»</span>
       <div class="switch" id="swMarks"></div>
     </div>
     <div class="sub-h">مدیریت پروژه</div>
@@ -295,10 +340,10 @@
     <div class="es-ic">🗂️</div>
     <b>هنوز اسلایدی اضافه نکرده‌اید</b>
     <span>با دکمه سبز پایین صفحه، اولین اسلاید را اضافه کنید<br>یا تمپلیت آماده نصب باتری را بارگذاری کنید.</span>
-    <button id="btnLoadBatteryTpl" style="margin-top:16px;padding:12px 22px;border:none;border-radius:12px;background:linear-gradient(135deg,#00A651,#00823f);color:#fff;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;">
-      🔋 بارگذاری تمپلیت نصب باتری
-    </button>
-    <div class="kbd-hint">میان‌بر: Ctrl+Z واگرد • Ctrl+Y ازنو • Esc بستن پنجره‌ها</div>
+    <button id="btnLoadBatteryTpl" style="margin-top:16px;padding:12px 22px;border:none;border-radius:12px;
+      background:linear-gradient(135deg,#00A651,#00823f);color:#fff;font-weight:800;font-size:14px;
+      cursor:pointer;font-family:inherit;">🔋 بارگذاری تمپلیت نصب باتری</button>
+    <div class="kbd-hint">میان‌بر: Ctrl+Z واگرد • Ctrl+Y ازنو • Esc بستن</div>
   </div>
 </main>
 
@@ -320,7 +365,7 @@
       <div class="lp-item" data-layout="photos"><div class="lp-ic">🖼️</div><b>گالری تصاویر</b><span>تا ۸ عکس با زیرنویس</span></div>
       <div class="lp-item" data-layout="text"><div class="lp-ic">📝</div><b>متن توضیحی</b><span>پاراگراف آزاد</span></div>
       <div class="lp-item" data-layout="checklist"><div class="lp-ic">✅</div><b>چک‌لیست</b><span>موارد تیک‌دار</span></div>
-      <div class="lp-item" data-layout="photos-bulk"><div class="lp-ic">🧩</div><b>۵ اسلاید عکس خالی</b><span>ساخت سریع ساختار گزارش</span></div>
+      <div class="lp-item" data-layout="photos-bulk"><div class="lp-ic">🧩</div><b>۵ اسلاید عکس خالی</b><span>ساخت سریع ساختار</span></div>
     </div>
     <div class="lp-extra">
       <button class="btn-mini btn-block btn-plain" id="btnDuplicateLast">⧉ تکثیر آخرین اسلاید</button>
@@ -342,19 +387,16 @@
   <img id="lbImg" alt="">
 </div>
 
-<!-- Jalali Date Picker modal -->
 <div class="jdp-overlay" id="jdpOverlay">
   <div class="jdp">
     <div class="jdp-head">
-      <button id="jdpPrevYear" title="سال قبل">«</button>
-      <button id="jdpPrevMonth" title="ماه قبل">‹</button>
+      <button id="jdpPrevYear">«</button>
+      <button id="jdpPrevMonth">‹</button>
       <div class="jdp-title" id="jdpTitle">—</div>
-      <button id="jdpNextMonth" title="ماه بعد">›</button>
-      <button id="jdpNextYear" title="سال بعد">»</button>
+      <button id="jdpNextMonth">›</button>
+      <button id="jdpNextYear">»</button>
     </div>
-    <div class="jdp-months">
-      <span>ش</span><span>ی</span><span>د</span><span>س</span><span>چ</span><span>پ</span><span>ج</span>
-    </div>
+    <div class="jdp-week"><span>ش</span><span>ی</span><span>د</span><span>س</span><span>چ</span><span>پ</span><span>ج</span></div>
     <div class="jdp-grid" id="jdpGrid"></div>
     <div class="jdp-actions">
       <button class="jdp-clear" id="jdpClear">پاک کردن</button>
@@ -366,109 +408,36 @@
 <input type="file" id="fileLogoLeft" accept="image/*">
 <input type="file" id="fileLogoRight" accept="image/*">
 <input type="file" id="fileProject" accept=".json,application/json">
-
 <div class="toast" id="toast"></div>
 
 <script>
 /* ====================== لوگوهای پیش‌فرض ====================== */
-window.LOGO_LEFT_DEFAULT = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%2300A651'/><text x='50' y='66' font-size='44' font-family='Vazirmatn,Arial' fill='white' text-anchor='middle' font-weight='800'>گ</text></svg>";
-window.LOGO_RIGHT_DEFAULT = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='6' y='6' width='88' height='88' rx='14' fill='%232F6FB5'/><text x='50' y='66' font-size='44' font-family='Vazirmatn,Arial' fill='white' text-anchor='middle' font-weight='800'>R</text></svg>";
+window.LOGO_LEFT_DEFAULT = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%2300A651'/><text x='50' y='68' font-size='48' font-family='Arial' fill='white' text-anchor='middle' font-weight='800'>G</text></svg>";
+window.LOGO_RIGHT_DEFAULT = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='6' y='6' width='88' height='88' rx='14' fill='%232F6FB5'/><text x='50' y='68' font-size='48' font-family='Arial' fill='white' text-anchor='middle' font-weight='800'>R</text></svg>";
+</script>
 
-/* ====================== توابع تقویم شمسی (بدون CDN) ====================== */
-function _div(a,b){return ~~(a/b);}
-function _mod(a,b){return a - ~~(a/b)*b;}
-function _jalCal(jy, withoutLeap){
-  var breaks = [-61, 9, 38, 199, 426, 686, 756, 818, 1111, 1181, 1210, 1635, 2060, 2097, 2192, 2262, 2324, 2394, 2456, 3178];
-  var bl = breaks.length, gy = jy + 621, leapJ = -14, jp = breaks[0], jm, jump, leap, leapG, march, n, i;
-  if (jy < jp || jy >= breaks[bl - 1]) throw new Error('Invalid Jalaali year ' + jy);
-  for (i = 1; i < bl; i += 1){
-    jm = breaks[i]; jump = jm - jp;
-    if (jy < jm) break;
-    leapJ = leapJ + _div(jump, 33) * 8 + _div(_mod(jump, 33), 4);
-    jp = jm;
-  }
-  n = jy - jp;
-  leapJ = leapJ + _div(n, 33) * 8 + _div(_mod(n, 33) + 3, 4);
-  if (_mod(jump, 33) === 4 && jump - n === 4) leapJ += 1;
-  leapG = _div(gy, 4) - _div((_div(gy, 100) + 1) * 3, 4) - 150;
-  march = 20 + leapJ - leapG;
-  if (!withoutLeap){
-    if (jump - n < 6) n = n - jump + _div(jump + 4, 33) * 33;
-    leap = _mod(_mod(n + 1, 33) - 1, 4);
-    if (leap === -1) leap = 4;
-  }
-  return { leap: leap, gy: gy, march: march };
-}
-function _g2d(gy, gm, gd){
-  var d = _div((gy + _div(gm - 8, 6) + 100100) * 1461, 4) + _div(153 * _mod(gm + 9, 12) + 2, 5) + gd - 34840408;
-  d = d - _div(_div(gy + 100100 + _div(gm - 8, 6), 100) * 3, 4) + 752;
-  return d;
-}
-function _d2g(jdn){
-  var j, i, gd, gm, gy;
-  j = 4 * jdn + 139361631;
-  j = j + _div(_div(4 * jdn + 183187720, 146097) * 3, 4) * 4 - 3908;
-  i = _div(_mod(j, 1461), 4) * 5 + 308;
-  gd = _div(_mod(i, 153), 5) + 1;
-  gm = _mod(_div(i, 153), 12) + 1;
-  gy = _div(j, 1461) - 100100 + _div(8 - gm, 6);
-  return { gy: gy, gm: gm, gd: gd };
-}
-function _j2d(jy, jm, jd){
-  var r = _jalCal(jy, true);
-  return _g2d(r.gy, 3, r.march) + (jm - 1) * 31 - _div(jm, 7) * (jm - 7) + jd - 1;
-}
-function _d2j(jdn){
-  var gy = _d2g(jdn).gy, jy = gy - 621, r = _jalCal(jy, false), jdn1f = _g2d(gy, 3, r.march), jd, jm, k;
-  k = jdn - jdn1f;
-  if (k >= 0){
-    if (k <= 185){ jm = 1 + _div(k, 31); jd = _mod(k, 31) + 1; return { jy: jy, jm: jm, jd: jd }; }
-    else { k -= 186; }
-  } else { jy -= 1; k += 179; if (r.leap === 1) k += 1; }
-  jm = 7 + _div(k, 30); jd = _mod(k, 30) + 1;
-  return { jy: jy, jm: jm, jd: jd };
-}
-function toJalaali(gy, gm, gd){ return _d2j(_g2d(gy, gm, gd)); }
-function toGregorian(jy, jm, jd){ return _d2g(_j2d(jy, jm, jd)); }
-function jalaaliMonthLength(jy, jm){
-  if (jm <= 6) return 31;
-  if (jm <= 11) return 30;
-  if (_jalCal(jy, false).leap === 0) return 30;
-  return 29;
-}
-function faDigits(s){ return String(s).replace(/[0-9]/g, d => "۰۱۲۳۴۵۶۷۸۹"[d]); }
-function enDigits(s){ return String(s).replace(/[۰-۹]/g, d => "۰۱۲۳۴۵۶۷۸۹".indexOf(d)); }
-function todayJalali(){
-  const d = new Date();
-  return toJalaali(d.getFullYear(), d.getMonth()+1, d.getDate());
-}
-function formatJalali(jy, jm, jd){
-  return faDigits(`${jy}/${String(jm).padStart(2,"0")}/${String(jd).padStart(2,"0")}`);
-}
-function parseJalali(str){
-  if(!str) return null;
-  const s = enDigits(String(str)).replace(/[^\d]/g,"/");
-  const m = s.match(/(\d{4})\/(\d{1,2})\/(\d{1,2})/);
-  if(!m) return null;
-  const jy = +m[1], jm = +m[2], jd = +m[3];
-  if(jy < 1300 || jy > 1500 || jm < 1 || jm > 12 || jd < 1 || jd > 31) return null;
-  return { jy, jm, jd };
-}
+<script>
+/* ============================================================================
+   قالب‌ساز گزارش پاورپوینت — نسخه ۳ (با ورودی‌های هوشمند)
+   ============================================================================ */
+(function(){
+"use strict";
 
-/* ====================== ثابت‌های ورودی ====================== */
-const FIELD = {
+/* ---------- ثابت‌های انواع ورودی ---------- */
+var FIELD = {
   TEXT:"text", NUMBER:"number", DECIMAL:"decimal", DATE:"date", TEL:"tel",
   SELECT:"select", PROVINCE:"province", CITY:"city", LOCATION:"location",
   BRAND:"brand", AUTO:"auto"
 };
-const FIELD_LABELS = {
+var FIELD_LABELS = {
   text:"متن", number:"عدد صحیح", decimal:"عدد اعشاری", date:"تاریخ (شمسی)",
-  tel:"تلفن", select:"انتخابی", province:"استان", city:"شهر", location:"موقعیت GPS",
-  brand:"برند باتری", auto:"خودکار"
+  tel:"شماره تلفن", select:"انتخابی", province:"استان", city:"شهر",
+  location:"موقعیت (GPS)", brand:"برند باتری", auto:"خودکار"
 };
 
-const IRAN_PROVINCES = {
-  "تهران":["تهران","اسلامشهر","بهارستان","پاکدشت","پردیس","پیشوا","رباط‌کریم","رودهن","ری","شهریار","فیروزکوه","قدس","قرچک","گلستان","لواسان","ملارد","نسیم‌شهر","ورامین","وحیدیه","چهاردانگه","باقرشهر","صالحیه","صفادشت","شمشک","فرون‌آباد"],
+/* ---------- داده استان/شهر ---------- */
+var IRAN_PROVINCES = {
+  "تهران":["تهران","اسلامشهر","بهارستان","پاکدشت","پردیس","پیشوا","رباط‌کریم","رودهن","ری","شهریار","فیروزکوه","قدس","قرچک","گلستان","لواسان","ملارد","نسیم‌شهر","ورامین","وحیدیه","چهاردانگه","باقرشهر","صالحیه","صفادشت","شمشک"],
   "البرز":["کرج","فردیس","نظرآباد","هشتگرد","اشتهارد","طالقان","چهارباغ","کوهسار"],
   "اصفهان":["اصفهان","کاشان","خمینی‌شهر","نجف‌آباد","شهرضا","شاهین‌شهر","فولادشهر","زرین‌شهر","نطنز","اردستان","گلپایگان"],
   "فارس":["شیراز","مرودشت","کازرون","جهرم","فسا","داراب","لار","آباده","نی‌ریز","صدرا"],
@@ -480,7 +449,7 @@ const IRAN_PROVINCES = {
   "مازندران":["ساری","بابل","آمل","قائم‌شهر","بهشهر","چالوس","نوشهر","تنکابن","رامسر","نکا"],
   "کرمان":["کرمان","رفسنجان","سیرجان","بم","جیرفت","زرند","کهنوج","بردسیر"],
   "سیستان و بلوچستان":["زاهدان","زابل","چابهار","ایرانشهر","سراوان","خاش","کنارک"],
-  "کرمانشاه":["کرمانشاه","اسلام‌آباد غرب","هرسين","سنقر","پاوه","کنگاور","صحنه"],
+  "کرمانشاه":["کرمانشاه","اسلام‌آباد غرب","هرسین","سنقر","پاوه","کنگاور","صحنه"],
   "گلستان":["گرگان","گنبد کاووس","علی‌آباد","بندر ترکمن","آق‌قلا","کردکوی","مینودشت"],
   "هرمزگان":["بندرعباس","میناب","بندرلنگه","قشم","کیش","بستک","حاجی‌آباد"],
   "مرکزی":["اراک","ساوه","خمین","محلات","دلیجان","تفرش","شازند"],
@@ -493,331 +462,506 @@ const IRAN_PROVINCES = {
   "سمنان":["سمنان","شاهرود","گرمسار","دامغان","مهدی‌شهر"],
   "یزد":["یزد","میبد","اردکان","بافق","مهریز","ابرکوه","تفت"],
   "اردبیل":["اردبیل","پارس‌آباد","مشکین‌شهر","خلخال","گرمی","بیله‌سوار"],
-  "بوشهر":["بوشهر","برازجان","بندر گناوه","کنگان","جم","دیر","دیلم"],
+  "بوشهر":["بوشهر","برازجان","گناوه","کنگان","جم","دیر","دیلم"],
   "چهارمحال و بختیاری":["شهرکرد","بروجن","فارسان","لردگان","سامان","فرخ‌شهر"],
   "خراسان شمالی":["بجنورد","شیروان","اسفراین","آشخانه","گرمه","جاجرم"],
   "خراسان جنوبی":["بیرجند","قائن","فردوس","نهبندان","طبس","سربیشه"],
   "ایلام":["ایلام","دهلران","آبدانان","ایوان","مهران","دره‌شهر"],
   "کهگیلویه و بویراحمد":["یاسوج","دوگنبدان","دهدشت","سی‌سخت","لیکک"]
 };
-const BATTERY_BRANDS = ["Nian","Sanat","Saba"];
+var BATTERY_BRANDS = ["Nian","Sanat","Saba"];
 
-/* ====================== توابع کمکی ورودی‌ها ====================== */
-function calcBanks(batteryCount){ const n = Number(enDigits(String(batteryCount||"")))||0; return Math.max(0, Math.ceil(n/4)); }
+/* ---------- توابع کمکی ورودی ---------- */
+function faDigits(s){ return String(s).replace(/[0-9]/g, function(d){ return "۰۱۲۳۴۵۶۷۸۹"[d]; }); }
+function enDigits(s){ return String(s).replace(/[۰-۹]/g, function(d){ return "0123456789"["۰۱۲۳۴۵۶۷۸۹".indexOf(d)]; }); }
+function calcBanks(n){ var v = parseInt(enDigits(String(n||"")),10); if(isNaN(v)||v<0) v=0; return Math.max(0, Math.ceil(v/4)); }
 function isValidIranPhone(v){ return /^09\d{9}$/.test(enDigits(String(v||"")).replace(/\D/g,"")); }
 function getGPSLocation(){
-  return new Promise(resolve=>{
-    if(!navigator.geolocation) return resolve(null);
+  return new Promise(function(resolve){
+    if(!navigator.geolocation){ resolve(null); return; }
     navigator.geolocation.getCurrentPosition(
-      p=>resolve(`${p.coords.latitude.toFixed(6)}, ${p.coords.longitude.toFixed(6)}`),
-      ()=>resolve(null),
+      function(p){ resolve(p.coords.latitude.toFixed(6)+", "+p.coords.longitude.toFixed(6)); },
+      function(){ resolve(null); },
       {enableHighAccuracy:true, timeout:12000, maximumAge:0}
     );
   });
 }
 function buildVoltageTestRows(bankCount, cellsPerBank){
   cellsPerBank = cellsPerBank || 4;
-  const rows = [];
-  for(let b=1; b<=bankCount; b++){
-    rows.push({ label:`BANK ${b} Total (0 min)`,  type:FIELD.DECIMAL, value:"", unit:"V" });
-    rows.push({ label:`BANK ${b} Total (5 min)`,  type:FIELD.DECIMAL, value:"", unit:"V" });
-    rows.push({ label:`BANK ${b} Total (30 min)`, type:FIELD.DECIMAL, value:"", unit:"V" });
-    for(let c=1; c<=cellsPerBank; c++){
-      rows.push({ label:`BANK ${b} Cell ${c} (0/5/30)`, type:FIELD.TEXT, value:"", placeholder:"0 / 5 / 30" });
+  var rows = [];
+  for(var b=1; b<=bankCount; b++){
+    rows.push({ label:"BANK "+b+" Total (0 min)",  type:FIELD.DECIMAL, value:"", unit:"V" });
+    rows.push({ label:"BANK "+b+" Total (5 min)",  type:FIELD.DECIMAL, value:"", unit:"V" });
+    rows.push({ label:"BANK "+b+" Total (30 min)", type:FIELD.DECIMAL, value:"", unit:"V" });
+    for(var c=1; c<=cellsPerBank; c++){
+      rows.push({ label:"BANK "+b+" Cell "+c+" (0/5/30)", type:FIELD.TEXT, value:"", placeholder:"0 / 5 / 30" });
     }
   }
   return rows;
 }
 
-/* ====================== CSS بورد ====================== */
-const BOARD_CSS = `
-.board-wrap{ width:100%; }
-.board{ position:relative; width:100%; aspect-ratio:4/3; background:#ffffff; border-radius:6px; overflow:hidden;
-  box-shadow:0 1px 6px rgba(0,0,0,.18); direction:rtl; font-family:'Vazirmatn',Tahoma,sans-serif; }
-.board .bar-top{ position:absolute; top:0; left:0; right:0; height:5.6%; background:var(--b-primary); }
-.board .bar-bottom{ position:absolute; bottom:0; left:0; right:0; height:3%; background:var(--b-primary); }
-.board .logo{ position:absolute; top:7.2%; width:9%; aspect-ratio:1; background:#fff; border-radius:18%; box-shadow:0 1px 4px rgba(0,0,0,.16); }
-.board .logo img{ position:absolute; inset:8%; width:84%; height:84%; object-fit:contain; }
-.board .logo.l{ left:2.6%; } .board .logo.r{ right:2.6%; }
-.board .b-title{ position:absolute; top:7%; left:13%; right:13%; text-align:center; font-weight:800; color:var(--b-accent); line-height:1.35; font-size:4.6%; }
-.board .b-note{ position:absolute; left:6%; right:6%; text-align:center; color:#5c6470; font-size:2.7%; line-height:1.55; font-weight:500; }
-.board .b-content{ position:absolute; left:5%; right:5%; bottom:6%; overflow:hidden; }
-.board .b-table{ width:100%; border-collapse:collapse; font-size:3.05%; }
-.board .b-table td{ border:1px solid #d5dbe3; padding:1.6% 2%; }
-.board .b-table td.lab{ background:var(--b-accent-soft); font-weight:700; color:#213041; width:22%; }
-.board .b-table td.val{ background:#fff; color:#333; width:28%; text-align:center; }
-.board .b-photos{ display:grid; gap:2%; height:100%; }
-.board .b-photo{ position:relative; background:#eef0f3; border-radius:5px; overflow:hidden; border:1px solid #dfe3e9; }
-.board .b-photo img{ width:100%; height:100%; object-fit:cover; }
-.board .b-photo .ph-empty{ width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#a6adba; font-size:9px; }
-.board .b-photo .ph-cap{ position:absolute; bottom:0; left:0; right:0; background:rgba(20,25,35,.62); color:#fff; font-size:2.3%; padding:1.5% 2%; text-align:center; }
-.board .b-photo-empty{ grid-column:1/-1; grid-row:1/-1; border:2px dashed #c6ced9; border-radius:6px; background:#f7f9fb; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2%; color:#98a2b0; text-align:center; padding:4%; }
-.board .b-photo-empty .pe-ic{ font-size:5.5%; }
-.board .b-photo-empty .pe-tx{ font-size:2.6%; font-weight:700; color:#7b8794; }
-.board .b-photo-empty .pe-sub{ font-size:2.1%; color:#a6adba; }
-.board .b-body{ font-size:3.15%; line-height:1.85; color:#333; text-align:justify; white-space:pre-wrap; }
-.board .b-chk{ display:flex; flex-direction:column; gap:1.6%; font-size:3%; color:#333; }
-.board .b-chk .ci{ display:flex; align-items:flex-start; gap:1.6%; line-height:1.7; }
-.board .b-chk .ci .bx{ flex:0 0 auto; width:4.2%; aspect-ratio:1; border-radius:4px; border:1px solid #cbd3dd; background:#fff; display:flex; align-items:center; justify-content:center; font-size:2.4%; color:#fff; font-weight:800; }
-.board .b-chk .ci.done .bx{ background:var(--b-primary); border-color:var(--b-primary); }
-.board .b-chk .ci.done span{ color:#7b8794; text-decoration:line-through; }
-.board .b-footer{ position:absolute; bottom:3.6%; left:5%; right:5%; display:flex; align-items:center; justify-content:space-between; font-size:2.2%; color:#9aa3b0; font-weight:600; }
-.board.cover .b-title{ top:38%; font-size:6.2%; }
-.board.cover .b-note{ top:52%; font-size:3.6%; color:#3a4250; }
-.board.cover .b-extra{ position:absolute; top:60%; left:10%; right:10%; text-align:center; font-size:3%; color:#7c8390; }
-.board.cover .b-mark{ position:absolute; top:24%; left:50%; transform:translateX(-50%); width:14%; aspect-ratio:1; border-radius:50%; background:var(--b-accent-soft); display:flex; align-items:center; justify-content:center; font-size:6%; }
-`;
+/* ---------- توابع تقویم شمسی ---------- */
+function _div(a,b){ return Math.floor(a/b); }
+function _mod(a,b){ return a - Math.floor(a/b)*b; }
+function jalCal(jy){
+  var breaks = [-61,9,38,199,426,686,756,818,1111,1181,1210,1635,2060,2097,2192,2262,2324,2394,2456,3178];
+  var bl = breaks.length, gy = jy+621, leapJ = -14, jp = breaks[0], jm, jump, leap, leapG, march, n, i;
+  if(jy < jp || jy >= breaks[bl-1]) throw new Error("Invalid Jalaali year");
+  for(i=1; i<bl; i+=1){
+    jm = breaks[i]; jump = jm - jp;
+    if(jy < jm) break;
+    leapJ = leapJ + _div(jump,33)*8 + _div(_mod(jump,33),4);
+    jp = jm;
+  }
+  n = jy - jp;
+  leapJ = leapJ + _div(n,33)*8 + _div(_mod(n,33)+3,4);
+  if(_mod(jump,33) === 4 && jump - n === 4) leapJ += 1;
+  leapG = _div(gy,4) - _div((_div(gy,100)+1)*3,4) - 150;
+  march = 20 + leapJ - leapG;
+  if(jump - n < 6) n = n - jump + _div(jump+4,33)*33;
+  leap = _mod(_mod(n+1,33)-1,4);
+  if(leap === -1) leap = 4;
+  return { leap:leap, gy:gy, march:march };
+}
+function g2d(gy,gm,gd){
+  var d = _div((gy + _div(gm-8,6) + 100100)*1461,4) + _div(153*_mod(gm+9,12)+2,5) + gd - 34840408;
+  d = d - _div(_div(gy+100100+_div(gm-8,6),100)*3,4) + 752;
+  return d;
+}
+function d2g(jdn){
+  var j, i, gd, gm, gy;
+  j = 4*jdn + 139361631;
+  j = j + _div(_div(4*jdn + 183187720,146097)*3,4)*4 - 3908;
+  i = _div(_mod(j,1461),4)*5 + 308;
+  gd = _div(_mod(i,153),5) + 1;
+  gm = _mod(_div(i,153),12) + 1;
+  gy = _div(j,1461) - 100100 + _div(8-gm,6);
+  return { gy:gy, gm:gm, gd:gd };
+}
+function j2d(jy,jm,jd){
+  var r = jalCal(jy);
+  return g2d(r.gy, 3, r.march) + (jm-1)*31 - _div(jm,7)*(jm-7) + jd - 1;
+}
+function d2j(jdn){
+  var gy = d2g(jdn).gy, jy = gy - 621, r = jalCal(jy), jdn1f = g2d(gy,3,r.march), jd, jm, k;
+  k = jdn - jdn1f;
+  if(k >= 0){
+    if(k <= 185){ jm = 1 + _div(k,31); jd = _mod(k,31) + 1; return { jy:jy, jm:jm, jd:jd }; }
+    k -= 186;
+  } else { jy -= 1; k += 179; if(r.leap === 1) k += 1; }
+  jm = 7 + _div(k,30); jd = _mod(k,30) + 1;
+  return { jy:jy, jm:jm, jd:jd };
+}
+function toJalaali(gy,gm,gd){ return d2j(g2d(gy,gm,gd)); }
+function toGregorian(jy,jm,jd){ return d2g(j2d(jy,jm,jd)); }
+function jalaaliMonthLength(jy,jm){
+  if(jm <= 6) return 31;
+  if(jm <= 11) return 30;
+  if(jalCal(jy).leap === 0) return 30;
+  return 29;
+}
+function todayJalali(){
+  var d = new Date();
+  return toJalaali(d.getFullYear(), d.getMonth()+1, d.getDate());
+}
+function formatJalali(jy,jm,jd){
+  return faDigits(jy+"/"+(jm<10?"0":"")+jm+"/"+(jd<10?"0":"")+jd);
+}
+function parseJalali(str){
+  if(!str) return null;
+  var s = enDigits(String(str)).replace(/[^\d]/g,"/");
+  var m = s.match(/(\d{4})\/(\d{1,2})\/(\d{1,2})/);
+  if(!m) return null;
+  var jy = +m[1], jm = +m[2], jd = +m[3];
+  if(jy < 1300 || jy > 1500 || jm < 1 || jm > 12 || jd < 1 || jd > 31) return null;
+  return { jy:jy, jm:jm, jd:jd };
+}
+
+/* ---------- توابع عمومی ---------- */
+function uid(){ return "s" + Math.random().toString(36).slice(2,10) + Date.now().toString(36); }
+function escapeHTML(s){
+  return String(s==null?"":s).replace(/[&<>"']/g, function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+  });
+}
+function hexToRgb(hex){
+  var m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex||"");
+  if(!m) return null;
+  return { r:parseInt(m[1],16), g:parseInt(m[2],16), b:parseInt(m[3],16) };
+}
+function hexToSoft(hex){
+  var rgb = hexToRgb(hex);
+  if(!rgb) return "rgba(47,111,181,.12)";
+  return "rgba("+rgb.r+","+rgb.g+","+rgb.b+",0.12)";
+}
+function hexNoHash(h){ return (h||"#000000").replace("#",""); }
+function softHexForPptx(hex){
+  var rgb = hexToRgb(hex);
+  if(!rgb) return "EAF2FB";
+  function blend(c){ return Math.round(c + (255-c)*0.85); }
+  function toHex(n){ return n.toString(16).padStart(2,"0").toUpperCase(); }
+  return toHex(blend(rgb.r)) + toHex(blend(rgb.g)) + toHex(blend(rgb.b));
+}
+function deepClone(o){ return JSON.parse(JSON.stringify(o)); }
+function fmtBytes(n){
+  if(n < 1024) return n + " B";
+  if(n < 1024*1024) return (n/1024).toFixed(1) + " KB";
+  return (n/1024/1024).toFixed(2) + " MB";
+}
+
+/* ---------- CSS بورد اسلاید ---------- */
+var BOARD_CSS = [
+  ".board-wrap{width:100%;}",
+  ".board{position:relative;width:100%;aspect-ratio:4/3;background:#fff;border-radius:6px;overflow:hidden;",
+  "box-shadow:0 1px 6px rgba(0,0,0,.18);direction:rtl;font-family:Vazirmatn,Tahoma,sans-serif;}",
+  ".board .bar-top{position:absolute;top:0;left:0;right:0;height:5.6%;background:var(--b-primary);}",
+  ".board .bar-bottom{position:absolute;bottom:0;left:0;right:0;height:3%;background:var(--b-primary);}",
+  ".board .logo{position:absolute;top:7.2%;width:9%;aspect-ratio:1;background:#fff;border-radius:18%;box-shadow:0 1px 4px rgba(0,0,0,.16);}",
+  ".board .logo img{position:absolute;inset:8%;width:84%;height:84%;object-fit:contain;}",
+  ".board .logo.l{left:2.6%;}",
+  ".board .logo.r{right:2.6%;}",
+  ".board .b-title{position:absolute;top:7%;left:13%;right:13%;text-align:center;font-weight:800;color:var(--b-accent);line-height:1.35;font-size:4.6%;}",
+  ".board .b-note{position:absolute;left:6%;right:6%;text-align:center;color:#5c6470;font-size:2.7%;line-height:1.55;font-weight:500;}",
+  ".board .b-content{position:absolute;left:5%;right:5%;bottom:6%;overflow:hidden;}",
+  ".board .b-table{width:100%;border-collapse:collapse;font-size:3.05%;}",
+  ".board .b-table td{border:1px solid #d5dbe3;padding:1.6% 2%;}",
+  ".board .b-table td.lab{background:var(--b-accent-soft);font-weight:700;color:#213041;width:22%;}",
+  ".board .b-table td.val{background:#fff;color:#333;width:28%;text-align:center;}",
+  ".board .b-photos{display:grid;gap:2%;height:100%;}",
+  ".board .b-photo{position:relative;background:#eef0f3;border-radius:5px;overflow:hidden;border:1px solid #dfe3e9;}",
+  ".board .b-photo img{width:100%;height:100%;object-fit:cover;}",
+  ".board .b-photo .ph-cap{position:absolute;bottom:0;left:0;right:0;background:rgba(20,25,35,.62);color:#fff;font-size:2.3%;padding:1.5% 2%;text-align:center;}",
+  ".board .b-photo-empty{grid-column:1/-1;grid-row:1/-1;border:2px dashed #c6ced9;border-radius:6px;background:#f7f9fb;",
+  "display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2%;color:#98a2b0;text-align:center;padding:4%;}",
+  ".board .b-photo-empty .pe-ic{font-size:5.5%;}",
+  ".board .b-photo-empty .pe-tx{font-size:2.6%;font-weight:700;color:#7b8794;}",
+  ".board .b-photo-empty .pe-sub{font-size:2.1%;color:#a6adba;}",
+  ".board .b-body{font-size:3.15%;line-height:1.85;color:#333;text-align:justify;white-space:pre-wrap;}",
+  ".board .b-chk{display:flex;flex-direction:column;gap:1.6%;font-size:3%;color:#333;}",
+  ".board .b-chk .ci{display:flex;align-items:flex-start;gap:1.6%;line-height:1.7;}",
+  ".board .b-chk .ci .bx{flex:0 0 auto;width:4.2%;aspect-ratio:1;border-radius:4px;border:1px solid #cbd3dd;background:#fff;",
+  "display:flex;align-items:center;justify-content:center;font-size:2.4%;color:#fff;font-weight:800;}",
+  ".board .b-chk .ci.done .bx{background:var(--b-primary);border-color:var(--b-primary);}",
+  ".board .b-chk .ci.done span{color:#7b8794;text-decoration:line-through;}",
+  ".board .b-footer{position:absolute;bottom:3.6%;left:5%;right:5%;display:flex;align-items:center;justify-content:space-between;",
+  "font-size:2.2%;color:#9aa3b0;font-weight:600;}",
+  ".board.cover .b-title{top:38%;font-size:6.2%;}",
+  ".board.cover .b-note{top:52%;font-size:3.6%;color:#3a4250;}",
+  ".board.cover .b-extra{position:absolute;top:60%;left:10%;right:10%;text-align:center;font-size:3%;color:#7c8390;}",
+  ".board.cover .b-mark{position:absolute;top:24%;left:50%;transform:translateX(-50%);width:14%;aspect-ratio:1;",
+  "border-radius:50%;background:var(--b-accent-soft);display:flex;align-items:center;justify-content:center;font-size:6%;}"
+].join("");
 (function injectBoardCSS(){
-  const st = document.createElement("style");
+  var st = document.createElement("style");
   st.id = "board-css";
   st.textContent = BOARD_CSS;
   document.head.appendChild(st);
 })();
 
-/* ====================== متادیتا و ابزارها ====================== */
-const LAYOUT_META = {
-  cover:     { label:"روی جلد",        type:"روی جلد",        icon:"🏳️" },
-  table:     { label:"جدول اطلاعات",   type:"جدول اطلاعات",   icon:"📋" },
-  photos:    { label:"گالری تصاویر",   type:"گالری تصاویر",   icon:"🖼️" },
-  text:      { label:"متن توضیحی",     type:"متن توضیحی",     icon:"📝" },
-  checklist: { label:"چک‌لیست",        type:"چک‌لیست",        icon:"✅" }
+/* ---------- متادیتا ---------- */
+var LAYOUT_META = {
+  cover:     { label:"روی جلد",      type:"روی جلد",      icon:"🏳️" },
+  table:     { label:"جدول اطلاعات", type:"جدول اطلاعات", icon:"📋" },
+  photos:    { label:"گالری تصاویر", type:"گالری تصاویر", icon:"🖼️" },
+  text:      { label:"متن توضیحی",   type:"متن توضیحی",   icon:"📝" },
+  checklist: { label:"چک‌لیست",      type:"چک‌لیست",      icon:"✅" }
 };
-function uid(){ return "s" + Math.random().toString(36).slice(2,10) + Date.now().toString(36); }
-function escapeHTML(s){ return String(s==null?"":s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
-function hexToRgb(hex){ const m=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex||""); if(!m) return null; return { r:parseInt(m[1],16), g:parseInt(m[2],16), b:parseInt(m[3],16) }; }
-function hexToSoft(hex){ const rgb=hexToRgb(hex); if(!rgb) return "rgba(47,111,181,.12)"; return `rgba(${rgb.r},${rgb.g},${rgb.b},0.12)`; }
-function hexNoHash(h){ return (h||"#000000").replace("#",""); }
-function softHexForPptx(hex){ const rgb=hexToRgb(hex); if(!rgb) return "EAF2FB"; const blend=c=>Math.round(c+(255-c)*0.85); const toHex=n=>n.toString(16).padStart(2,"0").toUpperCase(); return toHex(blend(rgb.r))+toHex(blend(rgb.g))+toHex(blend(rgb.b)); }
-function deepClone(o){ return JSON.parse(JSON.stringify(o)); }
-function fmtBytes(n){ if(n<1024) return n+" B"; if(n<1024*1024) return (n/1024).toFixed(1)+" KB"; return (n/1024/1024).toFixed(2)+" MB"; }
 
-/* ====================== وضعیت ====================== */
+/* ---------- وضعیت ---------- */
+var STORAGE_KEY = "pptxbuilder_state_v3";
+var LEGACY_KEY = "pptxbuilder_state_v2";
+var MAX_IMAGES = 8;
+var SOFT_LIMIT = 4.5 * 1024 * 1024;
+
 function defaultState(){
   return {
-    version: 2,
+    version: 3,
     meta: {
-      projectTitle:"گزارش نصب باتری سایت",
-      projectSubtitle:"گزارش نصب و تست باتری",
-      primary:"#00A651", accent:"#2F6FB5",
-      logoLeft: window.LOGO_LEFT_DEFAULT, logoRight: window.LOGO_RIGHT_DEFAULT,
-      showFooter:true, showMarks:true, theme:"auto"
+      projectTitle: "گزارش نصب باتری سایت",
+      projectSubtitle: "گزارش نصب و تست باتری",
+      primary: "#00A651", accent: "#2F6FB5",
+      logoLeft: window.LOGO_LEFT_DEFAULT,
+      logoRight: window.LOGO_RIGHT_DEFAULT,
+      showFooter: true, showMarks: true, theme: "auto"
     },
-    slides:[]
+    slides: []
   };
 }
 function normalizeRow(r){
-  const out = { label:r.label||"", value:r.value||"" };
-  if(r.type)        out.type        = r.type;
-  if(r.options)     out.options     = Array.isArray(r.options) ? r.options.slice() : [];
-  if(r.key)         out.key         = r.key;
-  if(r.unit)        out.unit        = r.unit;
-  if(r.placeholder) out.placeholder = r.placeholder;
-  if(r.dependsOn)   out.dependsOn   = r.dependsOn;
-  return out;
+  var o = { label: r.label||"", value: r.value||"" };
+  if(r.type) o.type = r.type;
+  if(r.options) o.options = r.options.slice();
+  if(r.key) o.key = r.key;
+  if(r.unit) o.unit = r.unit;
+  if(r.placeholder) o.placeholder = r.placeholder;
+  if(r.dependsOn) o.dependsOn = r.dependsOn;
+  if(r.formula) o.formula = r.formula;
+  return o;
 }
 function migrateState(parsed){
-  const base = defaultState();
-  if(!parsed || typeof parsed!=="object") return base;
-  const out = {
-    version:2,
-    meta:Object.assign({}, base.meta, parsed.meta||{}),
-    slides:Array.isArray(parsed.slides)?parsed.slides:[]
+  var base = defaultState();
+  if(!parsed || typeof parsed !== "object") return base;
+  var out = {
+    version: 3,
+    meta: Object.assign({}, base.meta, parsed.meta||{}),
+    slides: Array.isArray(parsed.slides) ? parsed.slides : []
   };
-  out.meta.logoLeft  = out.meta.logoLeft  || window.LOGO_LEFT_DEFAULT;
+  out.meta.logoLeft = out.meta.logoLeft || window.LOGO_LEFT_DEFAULT;
   out.meta.logoRight = out.meta.logoRight || window.LOGO_RIGHT_DEFAULT;
-  out.slides = out.slides.map(s=>({
-    id: s.id || uid(),
-    layout: LAYOUT_META[s.layout] ? s.layout : "text",
-    title: s.title || "", note: s.note || "", body: s.body || "",
-    rows: Array.isArray(s.rows) ? s.rows.map(normalizeRow) : [],
-    images: Array.isArray(s.images) ? s.images.map(i=>({data:i.data||"", caption:i.caption||""})) : [],
-    checklist: Array.isArray(s.checklist) ? s.checklist.map(c=>({text:c.text||"", done:!!c.done})) : [],
-    autoFromBatteryCount: !!s.autoFromBatteryCount
-  }));
+  out.slides = out.slides.map(function(s){
+    return {
+      id: s.id || uid(),
+      layout: LAYOUT_META[s.layout] ? s.layout : "text",
+      title: s.title || "",
+      note: s.note || "",
+      body: s.body || "",
+      rows: Array.isArray(s.rows) ? s.rows.map(normalizeRow) : [],
+      images: Array.isArray(s.images) ? s.images.map(function(i){ return { data:i.data||"", caption:i.caption||"" }; }) : [],
+      checklist: Array.isArray(s.checklist) ? s.checklist.map(function(c){ return { text:c.text||"", done:!!c.done }; }) : [],
+      autoFromBatteryCount: !!s.autoFromBatteryCount
+    };
+  });
   return out;
 }
 function loadState(){
   try{
-    let raw = localStorage.getItem(STORAGE_KEY);
+    var raw = localStorage.getItem(STORAGE_KEY);
     if(!raw) raw = localStorage.getItem(LEGACY_KEY);
     if(raw) return migrateState(JSON.parse(raw));
   }catch(e){ console.warn("state load failed", e); }
   return defaultState();
 }
-const APP_VERSION="2.1", STORAGE_KEY="pptxbuilder_state_v2", LEGACY_KEY="pptxbuilder_state_v1", MAX_IMAGES=8, SOFT_LIMIT=4.5*1024*1024;
 
-let state = loadState();
-let openId = null;
-let searchQuery = "";
+var state = loadState();
+var openId = null;
+var searchQuery = "";
 
 function saveState(){
-  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); updateStorageMeter(); }
-  catch(e){ console.warn("ذخیره‌سازی محلی ناموفق:", e); showToast("حافظه مرورگر پر است"); }
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    updateStorageMeter();
+  }catch(e){
+    console.warn("ذخیره ناموفق:", e);
+    showToast("حافظه مرورگر پر است — تصاویر کمتری استفاده کنید");
+  }
 }
 
-/* ====================== Undo/Redo ====================== */
-let history=[], future=[], commitTimer=null;
-function snapshot(){ return JSON.stringify(state); }
-function initHistory(){ history=[snapshot()]; future=[]; }
+/* ---------- Undo/Redo ---------- */
+var history = [];
+var future = [];
+var commitTimer = null;
+function snap(){ return JSON.stringify(state); }
+function initHistory(){ history = [snap()]; future = []; }
 function commit(){
-  const s = snapshot();
-  if(history[history.length-1] !== s){ history.push(s); if(history.length>80) history.shift(); future.length=0; }
-  saveState(); updateUndoButtons();
+  var s = snap();
+  if(history[history.length-1] !== s){
+    history.push(s);
+    if(history.length > 80) history.shift();
+    future.length = 0;
+  }
+  saveState();
+  updateUndoButtons();
 }
-function scheduleCommit(){ clearTimeout(commitTimer); commitTimer = setTimeout(commit, 650); }
+function scheduleCommit(){
+  clearTimeout(commitTimer);
+  commitTimer = setTimeout(commit, 650);
+}
 function undo(){
-  if(history.length<2){ showToast("چیزی برای واگرد نیست"); return; }
-  future.push(history.pop()); state = JSON.parse(history[history.length-1]);
-  openId=null; render(); saveState(); updateUndoButtons(); showToast("واگرد انجام شد");
+  if(history.length < 2){ showToast("چیزی برای واگرد نیست"); return; }
+  future.push(history.pop());
+  state = JSON.parse(history[history.length-1]);
+  openId = null;
+  render();
+  saveState();
+  updateUndoButtons();
+  showToast("واگرد انجام شد");
 }
 function redo(){
   if(!future.length){ showToast("چیزی برای ازنو نیست"); return; }
-  const s = future.pop(); history.push(s); state = JSON.parse(s);
-  openId=null; render(); saveState(); updateUndoButtons(); showToast("ازنو انجام شد");
+  var s = future.pop();
+  history.push(s);
+  state = JSON.parse(s);
+  openId = null;
+  render();
+  saveState();
+  updateUndoButtons();
+  showToast("ازنو انجام شد");
 }
 function updateUndoButtons(){
-  const u=document.getElementById("btnUndo"), r=document.getElementById("btnRedo");
-  if(u) u.style.opacity = history.length>1?"1":".45";
-  if(r) r.style.opacity = future.length?"1":".45";
+  var u = document.getElementById("btnUndo");
+  var r = document.getElementById("btnRedo");
+  if(u) u.style.opacity = history.length > 1 ? "1" : ".45";
+  if(r) r.style.opacity = future.length ? "1" : ".45";
 }
 
-/* ====================== Toast ====================== */
-let toastTimer=null;
+/* ---------- Toast ---------- */
+var toastTimer = null;
 function showToast(msg){
-  const t=document.getElementById("toast");
-  t.textContent=msg; t.classList.add("show");
-  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"), 2400);
+  var t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ t.classList.remove("show"); }, 2400);
 }
 
-/* ====================== تصویر ====================== */
+/* ---------- فشرده‌سازی تصویر ---------- */
 function fileToCompressedDataURL(file, maxDim, quality){
-  maxDim=maxDim||1400; quality=quality||0.82;
-  return new Promise((resolve,reject)=>{
-    const reader=new FileReader();
-    reader.onerror=()=>reject(new Error("خواندن فایل ناموفق بود"));
-    reader.onload=()=>{
-      const img=new Image();
-      img.onerror=()=>reject(new Error("بارگذاری تصویر ناموفق بود"));
-      img.onload=()=>{
-        let w=img.naturalWidth, h=img.naturalHeight;
-        if(w>maxDim||h>maxDim){ if(w>=h){ h=Math.round(h*(maxDim/w)); w=maxDim; } else { w=Math.round(w*(maxDim/h)); h=maxDim; } }
-        const canvas=document.createElement("canvas"); canvas.width=w; canvas.height=h;
-        const ctx=canvas.getContext("2d"); ctx.fillStyle="#ffffff"; ctx.fillRect(0,0,w,h); ctx.drawImage(img,0,0,w,h);
-        try{ resolve(canvas.toDataURL("image/jpeg", quality)); }catch(e){ reject(e); }
+  maxDim = maxDim || 1400; quality = quality || 0.82;
+  return new Promise(function(resolve, reject){
+    var reader = new FileReader();
+    reader.onerror = function(){ reject(new Error("خواندن فایل ناموفق")); };
+    reader.onload = function(){
+      var img = new Image();
+      img.onerror = function(){ reject(new Error("بارگذاری تصویر ناموفق")); };
+      img.onload = function(){
+        var w = img.naturalWidth, h = img.naturalHeight;
+        if(w > maxDim || h > maxDim){
+          if(w >= h){ h = Math.round(h*(maxDim/w)); w = maxDim; }
+          else { w = Math.round(w*(maxDim/h)); h = maxDim; }
+        }
+        var c = document.createElement("canvas");
+        c.width = w; c.height = h;
+        var ctx = c.getContext("2d");
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0,0,w,h);
+        ctx.drawImage(img,0,0,w,h);
+        try{ resolve(c.toDataURL("image/jpeg", quality)); }
+        catch(e){ reject(e); }
       };
-      img.src=reader.result;
+      img.src = reader.result;
     };
     reader.readAsDataURL(file);
   });
 }
 
-/* ====================== رندر بورد ====================== */
+/* ---------- رندر بورد اسلاید ---------- */
 function boardHTML(slide, meta, opts){
   opts = opts || {};
-  const vars = `--b-primary:${meta.primary}; --b-accent:${meta.accent}; --b-accent-soft:${hexToSoft(meta.accent)};`;
-  const coverCls = slide.layout==="cover" ? " cover" : "";
-  let inner = "";
-  inner += `<div class="bar-top"></div><div class="bar-bottom"></div>`;
-  inner += `<div class="logo l"><img src="${meta.logoLeft||''}" alt=""></div>`;
-  inner += `<div class="logo r"><img src="${meta.logoRight||''}" alt=""></div>`;
+  var vars = "--b-primary:" + meta.primary + "; --b-accent:" + meta.accent +
+             "; --b-accent-soft:" + hexToSoft(meta.accent) + ";";
+  var coverCls = slide.layout === "cover" ? " cover" : "";
+  var inner = "";
 
-  if(slide.layout==="cover"){
-    inner += `<div class="b-mark">📄</div>`;
-    inner += `<div class="b-title">${escapeHTML(slide.title||"عنوان گزارش")}</div>`;
-    if(slide.note) inner += `<div class="b-note">${escapeHTML(slide.note)}</div>`;
-    if(slide.body) inner += `<div class="b-extra">${escapeHTML(slide.body)}</div>`;
+  inner += '<div class="bar-top"></div><div class="bar-bottom"></div>';
+  inner += '<div class="logo l"><img src="' + (meta.logoLeft||"") + '" alt=""></div>';
+  inner += '<div class="logo r"><img src="' + (meta.logoRight||"") + '" alt=""></div>';
+
+  if(slide.layout === "cover"){
+    inner += '<div class="b-mark">📄</div>';
+    inner += '<div class="b-title">' + escapeHTML(slide.title || "عنوان گزارش") + '</div>';
+    if(slide.note) inner += '<div class="b-note">' + escapeHTML(slide.note) + '</div>';
+    if(slide.body) inner += '<div class="b-extra">' + escapeHTML(slide.body) + '</div>';
   } else {
-    inner += `<div class="b-title">${escapeHTML(slide.title||"(بدون عنوان)")}</div>`;
-    let contentTop = "top:17%;";
-    if(slide.note){ inner += `<div class="b-note" style="top:14.2%;">${escapeHTML(slide.note)}</div>`; contentTop = "top:21.5%;"; }
-    inner += `<div class="b-content" style="${contentTop} bottom:8%;">`;
-    if(slide.layout==="table")          inner += tableHTML(slide.rows);
-    else if(slide.layout==="photos")    inner += photosHTML(slide.images, slide);
-    else if(slide.layout==="checklist") inner += checklistHTML(slide.checklist);
-    else if(slide.layout==="text")      inner += `<div class="b-body">${escapeHTML(slide.body||"متن توضیحی خود را وارد کنید…")}</div>`;
-    inner += `</div>`;
+    inner += '<div class="b-title">' + escapeHTML(slide.title || "(بدون عنوان)") + '</div>';
+    var contentTop = "top:17%;";
+    if(slide.note){
+      inner += '<div class="b-note" style="top:14.2%;">' + escapeHTML(slide.note) + '</div>';
+      contentTop = "top:21.5%;";
+    }
+    inner += '<div class="b-content" style="' + contentTop + ' bottom:8%;">';
+    if(slide.layout === "table")          inner += tableHTML(slide.rows);
+    else if(slide.layout === "photos")    inner += photosHTML(slide.images, slide);
+    else if(slide.layout === "checklist") inner += checklistHTML(slide.checklist);
+    else if(slide.layout === "text")      inner += '<div class="b-body">' + escapeHTML(slide.body || "متن توضیحی…") + '</div>';
+    inner += '</div>';
   }
+
   if(meta.showFooter && !opts.noFooter){
-    const idxTxt = opts.index!=null ? `${opts.index+1} / ${opts.total||"?"}` : "";
-    inner += `<div class="b-footer"><span>${escapeHTML(idxTxt)}</span><span>${escapeHTML(meta.projectTitle||"")}</span></div>`;
+    var idxTxt = opts.index != null ? (opts.index+1) + " / " + (opts.total||"?") : "";
+    inner += '<div class="b-footer"><span>' + escapeHTML(idxTxt) + '</span><span>' +
+             escapeHTML(meta.projectTitle||"") + '</span></div>';
   }
-  return `<div class="board${coverCls}" style="${vars}">${inner}</div>`;
+  return '<div class="board' + coverCls + '" style="' + vars + '">' + inner + '</div>';
 }
+
 function tableHTML(rows){
-  rows = (rows||[]).filter(r=>(r.label&&r.label.trim())||(r.value&&r.value.trim()));
-  if(!rows.length) return `<div style="font-size:3.2%;color:#a6adba;text-align:center;padding-top:8%;">ردیف‌های جدول را در ویرایشگر اضافه کنید</div>`;
-  let html = `<table class="b-table">`;
-  for(let i=0;i<rows.length;i+=2){
-    const a=rows[i], b=rows[i+1];
-    html += `<tr>`;
-    html += `<td class="lab">${escapeHTML(a.label||"")}</td><td class="val">${escapeHTML(a.value||"")}</td>`;
-    if(b) html += `<td class="lab">${escapeHTML(b.label||"")}</td><td class="val">${escapeHTML(b.value||"")}</td>`;
-    else  html += `<td class="lab"></td><td class="val"></td>`;
-    html += `</tr>`;
+  rows = (rows||[]).filter(function(r){ return (r.label && r.label.trim()) || (r.value && r.value.trim()); });
+  if(!rows.length) return '<div style="font-size:3.2%;color:#a6adba;text-align:center;padding-top:8%;">ردیف جدول اضافه نشده</div>';
+  var h = '<table class="b-table">';
+  for(var i=0; i<rows.length; i+=2){
+    var a = rows[i], b = rows[i+1];
+    h += '<tr>';
+    h += '<td class="lab">' + escapeHTML(a.label||"") + '</td><td class="val">' + escapeHTML(a.value||"") + '</td>';
+    if(b) h += '<td class="lab">' + escapeHTML(b.label||"") + '</td><td class="val">' + escapeHTML(b.value||"") + '</td>';
+    else  h += '<td class="lab"></td><td class="val"></td>';
+    h += '</tr>';
   }
-  html += `</table>`;
-  return html;
+  h += '</table>';
+  return h;
 }
 function photosHTML(images, slide){
-  images = (images||[]).filter(i=>i&&i.data);
+  images = (images||[]).filter(function(i){ return i && i.data; });
   if(!images.length){
-    const t = slide && slide.title ? escapeHTML(slide.title) : "تصاویر این بخش";
-    return `<div class="b-photos" style="grid-template-columns:1fr;grid-template-rows:1fr;">
-      <div class="b-photo-empty"><div class="pe-ic">📷</div><div class="pe-tx">${t}</div>
-      <div class="pe-sub">هنوز تصویری برای این اسلاید اضافه نشده است</div></div></div>`;
+    var t = slide && slide.title ? escapeHTML(slide.title) : "تصاویر این بخش";
+    return '<div class="b-photos" style="grid-template-columns:1fr;grid-template-rows:1fr;">' +
+      '<div class="b-photo-empty"><div class="pe-ic">📷</div><div class="pe-tx">' + t + '</div>' +
+      '<div class="pe-sub">هنوز تصویری اضافه نشده</div></div></div>';
   }
-  const n = images.length;
-  const cols = n===1?1:(n===2?2:(n<=4?2:4));
-  const rows = Math.ceil(n/cols);
-  let html = `<div class="b-photos" style="grid-template-columns:repeat(${cols},1fr); grid-template-rows:repeat(${rows},1fr);">`;
-  images.forEach(im=>{
-    html += `<div class="b-photo"><img src="${im.data}" alt="">`;
-    if(im.caption) html += `<div class="ph-cap">${escapeHTML(im.caption)}</div>`;
-    html += `</div>`;
+  var n = images.length;
+  var cols = n === 1 ? 1 : (n === 2 ? 2 : (n <= 4 ? 2 : 4));
+  var rows = Math.ceil(n / cols);
+  var h = '<div class="b-photos" style="grid-template-columns:repeat(' + cols + ',1fr); grid-template-rows:repeat(' + rows + ',1fr);">';
+  images.forEach(function(im){
+    h += '<div class="b-photo"><img src="' + im.data + '" alt="">';
+    if(im.caption) h += '<div class="ph-cap">' + escapeHTML(im.caption) + '</div>';
+    h += '</div>';
   });
-  html += `</div>`;
-  return html;
+  h += '</div>';
+  return h;
 }
 function checklistHTML(items){
-  items = (items||[]).filter(i=>i.text&&i.text.trim());
-  if(!items.length) return `<div style="font-size:3.2%;color:#a6adba;text-align:center;padding-top:8%;">موارد چک‌لیست را در ویرایشگر اضافه کنید</div>`;
-  let html = `<div class="b-chk">`;
-  items.forEach(i=>{ html += `<div class="ci ${i.done?'done':''}"><div class="bx">${i.done?'✓':''}</div><span>${escapeHTML(i.text)}</span></div>`; });
-  html += `</div>`;
-  return html;
+  items = (items||[]).filter(function(i){ return i.text && i.text.trim(); });
+  if(!items.length) return '<div style="font-size:3.2%;color:#a6adba;text-align:center;padding-top:8%;">موردی اضافه نشده</div>';
+  var h = '<div class="b-chk">';
+  items.forEach(function(i){
+    h += '<div class="ci ' + (i.done?"done":"") + '"><div class="bx">' + (i.done?"✓":"") + '</div><span>' + escapeHTML(i.text) + '</span></div>';
+  });
+  h += '</div>';
+  return h;
 }
 
-/* ====================== اسلاید جدید ====================== */
+/* ---------- اسلاید جدید و پیشرفت ---------- */
 function newSlide(layout){
-  const s = { id:uid(), layout, title:"", note:"", body:"", rows:[], images:[], checklist:[] };
-  if(layout==="cover"){ s.title = state.meta.projectTitle||"عنوان گزارش"; s.note = state.meta.projectSubtitle||""; }
-  if(layout==="table")     s.rows = [{label:"",value:"",type:FIELD.TEXT},{label:"",value:"",type:FIELD.TEXT}];
-  if(layout==="checklist") s.checklist = [{text:"",done:false},{text:"",done:false}];
-  if(layout==="photos")    s.title = "گالری تصاویر";
+  var s = { id: uid(), layout: layout, title:"", note:"", body:"", rows:[], images:[], checklist:[] };
+  if(layout === "cover"){ s.title = state.meta.projectTitle || "عنوان گزارش"; s.note = state.meta.projectSubtitle || ""; }
+  if(layout === "table"){ s.rows = [{label:"",value:"",type:FIELD.TEXT},{label:"",value:"",type:FIELD.TEXT}]; }
+  if(layout === "checklist"){ s.checklist = [{text:"",done:false},{text:"",done:false}]; }
+  if(layout === "photos"){ s.title = "گالری تصاویر"; }
   return s;
 }
 function slideProgress(s){
-  switch(s.layout){
-    case "cover": return { ok:!!(s.title&&s.title.trim()), txt: s.title?"آماده":"بدون عنوان" };
-    case "table": { const n=(s.rows||[]).filter(r=>(r.label&&r.label.trim())||(r.value&&r.value.trim())).length; return { ok:n>0, txt:n+" ردیف" }; }
-    case "photos": { const n=(s.images||[]).filter(i=>i.data).length; return { ok:n>0, txt:n+"/"+MAX_IMAGES+" عکس" }; }
-    case "text": return { ok:!!(s.body&&s.body.trim().length>2), txt: s.body?(s.body.length+" کاراکتر"):"خالی" };
-    case "checklist": { const n=(s.checklist||[]).filter(c=>c.text&&c.text.trim()).length; return { ok:n>0, txt:n+" مورد" }; }
-    default: return { ok:true, txt:"" };
+  if(s.layout === "cover") return { ok: !!(s.title && s.title.trim()), txt: s.title ? "آماده" : "بدون عنوان" };
+  if(s.layout === "table"){
+    var n = (s.rows||[]).filter(function(r){ return (r.label && r.label.trim()) || (r.value && r.value.trim()); }).length;
+    return { ok: n > 0, txt: n + " ردیف" };
   }
+  if(s.layout === "photos"){
+    var c = (s.images||[]).filter(function(i){ return i.data; }).length;
+    return { ok: c > 0, txt: c + "/" + MAX_IMAGES + " عکس" };
+  }
+  if(s.layout === "text") return { ok: !!(s.body && s.body.trim().length > 2), txt: s.body ? (s.body.length + " کاراکتر") : "خالی" };
+  if(s.layout === "checklist"){
+    var k = (s.checklist||[]).filter(function(c){ return c.text && c.text.trim(); }).length;
+    return { ok: k > 0, txt: k + " مورد" };
+  }
+  return { ok: true, txt: "" };
 }
 
-/* ====================== رندر ====================== */
-function render(){ renderSettings(); renderSlidesList(); updateStats(); updateStorageMeter(); }
-
+/* ---------- رندر ---------- */
+function render(){
+  renderSettings();
+  renderSlidesList();
+  updateStats();
+  updateStorageMeter();
+}
 function renderSettings(){
-  document.getElementById("projectTitle").value    = state.meta.projectTitle;
+  document.getElementById("projectTitle").value = state.meta.projectTitle;
   document.getElementById("projectSubtitle").value = state.meta.projectSubtitle || "";
-  document.getElementById("colorPrimary").value    = state.meta.primary;
+  document.getElementById("colorPrimary").value = state.meta.primary;
   document.getElementById("colorPrimaryVal").textContent = (state.meta.primary||"").toUpperCase();
-  document.getElementById("colorAccent").value     = state.meta.accent;
-  document.getElementById("colorAccentVal").textContent  = (state.meta.accent||"").toUpperCase();
-  document.getElementById("logoLeftThumb").src  = state.meta.logoLeft || "";
+  document.getElementById("colorAccent").value = state.meta.accent;
+  document.getElementById("colorAccentVal").textContent = (state.meta.accent||"").toUpperCase();
+  document.getElementById("logoLeftThumb").src = state.meta.logoLeft || "";
   document.getElementById("logoRightThumb").src = state.meta.logoRight || "";
   document.getElementById("swFooter").classList.toggle("on", !!state.meta.showFooter);
   document.getElementById("swMarks").classList.toggle("on", !!state.meta.showMarks);
@@ -826,70 +970,82 @@ function renderSettings(){
 function slideMatches(s, q){
   if(!q) return true;
   q = q.toLowerCase();
-  const hay = [s.title, s.note, s.body,
-    ...(s.rows||[]).map(r=>(r.label||"")+" "+(r.value||"")),
-    ...(s.checklist||[]).map(c=>c.text||"")].join(" ").toLowerCase();
-  return hay.includes(q);
+  var hay = [s.title, s.note, s.body]
+    .concat((s.rows||[]).map(function(r){ return (r.label||"") + " " + (r.value||""); }))
+    .concat((s.checklist||[]).map(function(c){ return c.text||""; }))
+    .join(" ").toLowerCase();
+  return hay.indexOf(q) >= 0;
 }
 function renderSlidesList(){
-  const list=document.getElementById("slidesList"), empty=document.getElementById("emptyState");
+  var list = document.getElementById("slidesList");
+  var empty = document.getElementById("emptyState");
   list.innerHTML = "";
-  if(!state.slides.length){ empty.style.display=""; return; }
-  empty.style.display="none";
+  if(!state.slides.length){ empty.style.display = ""; return; }
+  empty.style.display = "none";
 
-  let visibleCount = 0;
-  state.slides.forEach((slide, idx)=>{
+  var visibleCount = 0;
+  state.slides.forEach(function(slide, idx){
     if(!slideMatches(slide, searchQuery)) return;
     visibleCount++;
 
-    const card=document.createElement("div");
-    card.className="slide-card"; card.dataset.id = slide.id;
-    const isOpen = openId===slide.id;
-    const meta = LAYOUT_META[slide.layout] || LAYOUT_META.text;
-    const prog = slideProgress(slide);
+    var card = document.createElement("div");
+    card.className = "slide-card";
+    card.dataset.id = slide.id;
 
-    const head=document.createElement("div");
-    head.className="sc-head";
-    head.innerHTML = `
-      <div class="sc-badge">${idx+1}</div>
-      <div class="sc-info">
-        <div class="sc-type">
-          <span>${meta.icon} ${meta.type}</span>
-          ${state.meta.showMarks ? `<span class="sc-flag ${prog.ok?'':'warn'}">${escapeHTML(prog.txt)}</span>` : ``}
-        </div>
-        <div class="sc-title">${escapeHTML(slide.title||"بدون عنوان")}</div>
-      </div>
-      <div class="sc-actions">
-        <button data-act="up"   title="انتقال به بالا" ${idx===0?"disabled":""}>▲</button>
-        <button data-act="down" title="انتقال به پایین" ${idx===state.slides.length-1?"disabled":""}>▼</button>
-        <button data-act="dup"  title="تکثیر اسلاید">⧉</button>
-        <button data-act="toggle" title="ویرایش">${isOpen?"◀":"✎"}</button>
-      </div>`;
-    head.addEventListener("click", e=>{
-      const btn = e.target.closest("button");
-      const act = btn && btn.dataset.act;
-      if(act==="up"){ moveSlide(idx,-1); return; }
-      if(act==="down"){ moveSlide(idx,1); return; }
-      if(act==="dup"){ duplicateSlide(idx); return; }
+    var isOpen = openId === slide.id;
+    var meta = LAYOUT_META[slide.layout] || LAYOUT_META.text;
+    var prog = slideProgress(slide);
+
+    var head = document.createElement("div");
+    head.className = "sc-head";
+    head.innerHTML =
+      '<div class="sc-badge">' + (idx+1) + '</div>' +
+      '<div class="sc-info">' +
+        '<div class="sc-type">' +
+          '<span>' + meta.icon + ' ' + meta.type + '</span>' +
+          (state.meta.showMarks ? '<span class="sc-flag ' + (prog.ok?"":"warn") + '">' + escapeHTML(prog.txt) + '</span>' : '') +
+        '</div>' +
+        '<div class="sc-title">' + escapeHTML(slide.title || "بدون عنوان") + '</div>' +
+      '</div>' +
+      '<div class="sc-actions">' +
+        '<button data-act="up" ' + (idx===0?"disabled":"") + '>▲</button>' +
+        '<button data-act="down" ' + (idx===state.slides.length-1?"disabled":"") + '>▼</button>' +
+        '<button data-act="dup">⧉</button>' +
+        '<button data-act="toggle">' + (isOpen?"◀":"✎") + '</button>' +
+      '</div>';
+    head.addEventListener("click", function(e){
+      var btn = e.target.closest("button");
+      var act = btn ? btn.dataset.act : null;
+      if(act === "up"){ moveSlide(idx,-1); return; }
+      if(act === "down"){ moveSlide(idx,1); return; }
+      if(act === "dup"){ duplicateSlide(idx); return; }
       openId = isOpen ? null : slide.id;
       renderSlidesList();
     });
     card.appendChild(head);
 
     if(isOpen){
-      const body=document.createElement("div"); body.className="sc-body";
-      const inner=document.createElement("div"); inner.className="sc-body-inner";
+      var body = document.createElement("div");
+      body.className = "sc-body";
+      var inner = document.createElement("div");
+      inner.className = "sc-body-inner";
       inner.appendChild(buildEditor(slide));
 
-      const mp=document.createElement("div"); mp.className="mini-preview";
-      mp.innerHTML = `<div class="mp-label">پیش‌نمایش زنده</div><div class="board-wrap">${boardHTML(slide, state.meta, {index:idx, total:state.slides.length})}</div>`;
+      var mp = document.createElement("div");
+      mp.className = "mini-preview";
+      mp.innerHTML = '<div class="mp-label">پیش‌نمایش زنده</div><div class="board-wrap">' +
+        boardHTML(slide, state.meta, {index:idx, total:state.slides.length}) + '</div>';
       inner.appendChild(mp);
 
-      const delBtn=document.createElement("button"); delBtn.className="delete-slide-btn"; delBtn.textContent="🗑 حذف این اسلاید";
-      delBtn.addEventListener("click", ()=>{
+      var delBtn = document.createElement("button");
+      delBtn.className = "delete-slide-btn";
+      delBtn.textContent = "🗑 حذف این اسلاید";
+      delBtn.addEventListener("click", function(){
         if(confirm("این اسلاید حذف شود؟")){
-          state.slides = state.slides.filter(s=>s.id!==slide.id);
-          openId=null; commit(); render();
+          state.slides = state.slides.filter(function(s){ return s.id !== slide.id; });
+          openId = null;
+          commit();
+          render();
         }
       });
       inner.appendChild(delBtn);
@@ -899,615 +1055,606 @@ function renderSlidesList(){
     list.appendChild(card);
   });
 
-  if(visibleCount===0){
-    list.innerHTML = `<div class="panel" style="text-align:center;color:var(--ink-soft);font-size:13px;">نتیجه‌ای برای «${escapeHTML(searchQuery)}» یافت نشد.</div>`;
+  if(visibleCount === 0){
+    list.innerHTML = '<div class="panel" style="text-align:center;color:var(--ink-soft);font-size:13px;">' +
+      'نتیجه‌ای برای «' + escapeHTML(searchQuery) + '» یافت نشد.</div>';
   }
 }
 function moveSlide(idx, dir){
-  const j = idx+dir;
-  if(j<0||j>=state.slides.length) return;
-  const arr = state.slides;
-  [arr[idx], arr[j]] = [arr[j], arr[idx]];
+  var j = idx + dir;
+  if(j < 0 || j >= state.slides.length) return;
+  var arr = state.slides;
+  var tmp = arr[idx]; arr[idx] = arr[j]; arr[j] = tmp;
   commit(); render();
 }
 function duplicateSlide(idx){
-  const copy = deepClone(state.slides[idx]);
-  copy.id = uid(); copy.title = (copy.title||"") + " (کپی)";
+  var copy = deepClone(state.slides[idx]);
+  copy.id = uid();
+  copy.title = (copy.title || "") + " (کپی)";
   state.slides.splice(idx+1, 0, copy);
-  openId = copy.id; commit(); render(); showToast("اسلاید تکثیر شد");
+  openId = copy.id;
+  commit(); render();
+  showToast("اسلاید تکثیر شد");
 }
 function refreshOpenCardLive(slide){
-  const card = document.querySelector(`.slide-card[data-id="${slide.id}"]`);
+  var card = document.querySelector('.slide-card[data-id="' + slide.id + '"]');
   if(card){
-    const titleEl = card.querySelector(".sc-title");
+    var titleEl = card.querySelector(".sc-title");
     if(titleEl) titleEl.textContent = slide.title || "بدون عنوان";
-    const flagEl = card.querySelector(".sc-flag");
-    if(flagEl){ const p = slideProgress(slide); flagEl.textContent = p.txt; flagEl.classList.toggle("warn", !p.ok); }
-    const wrap = card.querySelector(".board-wrap");
-    const idx = state.slides.findIndex(s=>s.id===slide.id);
-    if(wrap) wrap.innerHTML = boardHTML(slide, state.meta, {index:idx, total:state.slides.length});
+    var flagEl = card.querySelector(".sc-flag");
+    if(flagEl){
+      var p = slideProgress(slide);
+      flagEl.textContent = p.txt;
+      flagEl.classList.toggle("warn", !p.ok);
+    }
+    var wrap = card.querySelector(".board-wrap");
+    var ix = state.slides.findIndex(function(s){ return s.id === slide.id; });
+    if(wrap) wrap.innerHTML = boardHTML(slide, state.meta, {index:ix, total:state.slides.length});
   }
-  updateStats(); scheduleCommit();
+  updateStats();
+  scheduleCommit();
+}
+function renderOpenCardsIfAny(){
+  if(openId){
+    var slide = state.slides.find(function(s){ return s.id === openId; });
+    if(slide) refreshOpenCardLive(slide);
+  }
 }
 
-/* ====================== ویرایشگر اسلاید ====================== */
-function buildEditor(slide){
-  const wrap = document.createElement("div");
-  wrap.appendChild(fieldText("عنوان اسلاید", slide.title,
-    v=>{ slide.title=v; refreshOpenCardLive(slide); }, "مثلاً: چک‌لیست باتری‌ها"));
-
-  if(slide.layout==="cover"){
-    wrap.appendChild(fieldTextarea("زیرعنوان", slide.note, v=>{ slide.note=v; refreshOpenCardLive(slide); }, "مثلاً: نام سایت، شناسه سایت و..."));
-    wrap.appendChild(fieldText("خط توضیح اضافه (اختیاری)", slide.body, v=>{ slide.body=v; refreshOpenCardLive(slide); }, "مثلاً: تاریخ گزارش"));
-  } else {
-    wrap.appendChild(fieldTextarea("توضیح زیر عنوان (اختیاری)", slide.note, v=>{ slide.note=v; refreshOpenCardLive(slide); }, "یک خط توضیح کوتاه زیر عنوان"));
-  }
-
-  if(slide.layout==="table")          wrap.appendChild(buildRowsEditor(slide));
-  else if(slide.layout==="photos")    wrap.appendChild(buildPhotosEditor(slide));
-  else if(slide.layout==="checklist") wrap.appendChild(buildChecklistEditor(slide));
-  else if(slide.layout==="text"){
-    wrap.appendChild(fieldTextarea("متن اصلی اسلاید", slide.body, v=>{ slide.body=v; refreshOpenCardLive(slide); }, "متن کامل را اینجا بنویسید…", 7));
-  }
-  return wrap;
-}
+/* ---------- ویرایشگر ---------- */
 function fieldText(label, value, onChange, placeholder){
-  const div=document.createElement("div"); div.className="field";
-  const id="f_"+Math.random().toString(36).slice(2,8);
-  div.innerHTML = `<label for="${id}">${escapeHTML(label)}</label><input type="text" id="${id}" placeholder="${escapeHTML(placeholder||"")}">`;
-  const input = div.querySelector("input");
-  input.value = value||"";
-  input.addEventListener("input", ()=>onChange(input.value));
+  var div = document.createElement("div");
+  div.className = "field";
+  var id = "f_" + Math.random().toString(36).slice(2,8);
+  div.innerHTML = '<label for="' + id + '">' + escapeHTML(label) + '</label>' +
+    '<input type="text" id="' + id + '" placeholder="' + escapeHTML(placeholder||"") + '">';
+  var input = div.querySelector("input");
+  input.value = value || "";
+  input.addEventListener("input", function(){ onChange(input.value); });
   return div;
 }
 function fieldTextarea(label, value, onChange, placeholder, rows){
-  const div=document.createElement("div"); div.className="field";
-  const id="f_"+Math.random().toString(36).slice(2,8);
-  div.innerHTML = `<label for="${id}">${escapeHTML(label)}</label><textarea id="${id}" rows="${rows||2}" placeholder="${escapeHTML(placeholder||"")}"></textarea>`;
-  const ta = div.querySelector("textarea");
-  ta.value = value||"";
-  ta.addEventListener("input", ()=>onChange(ta.value));
+  var div = document.createElement("div");
+  div.className = "field";
+  var id = "f_" + Math.random().toString(36).slice(2,8);
+  div.innerHTML = '<label for="' + id + '">' + escapeHTML(label) + '</label>' +
+    '<textarea id="' + id + '" rows="' + (rows||2) + '" placeholder="' + escapeHTML(placeholder||"") + '"></textarea>';
+  var ta = div.querySelector("textarea");
+  ta.value = value || "";
+  ta.addEventListener("input", function(){ onChange(ta.value); });
   return div;
 }
 
-/* ====================== ویرایشگر ردیف‌های جدول (با انواع ورودی) ====================== */
-function getRowByLabel(slide, label){
-  return (slide.rows||[]).find(r => r.label===label);
+function buildEditor(slide){
+  var wrap = document.createElement("div");
+  wrap.appendChild(fieldText("عنوان اسلاید", slide.title,
+    function(v){ slide.title = v; refreshOpenCardLive(slide); }, "مثلاً: چک‌لیست باتری‌ها"));
+
+  if(slide.layout === "cover"){
+    wrap.appendChild(fieldTextarea("زیرعنوان", slide.note,
+      function(v){ slide.note = v; refreshOpenCardLive(slide); }, "نام سایت، شناسه و…"));
+    wrap.appendChild(fieldText("خط توضیح اضافه (اختیاری)", slide.body,
+      function(v){ slide.body = v; refreshOpenCardLive(slide); }, "تاریخ گزارش"));
+  } else {
+    wrap.appendChild(fieldTextarea("توضیح زیر عنوان (اختیاری)", slide.note,
+      function(v){ slide.note = v; refreshOpenCardLive(slide); }, "یک خط توضیح کوتاه"));
+  }
+
+  if(slide.layout === "table")          wrap.appendChild(buildRowsEditor(slide));
+  else if(slide.layout === "photos")    wrap.appendChild(buildPhotosEditor(slide));
+  else if(slide.layout === "checklist") wrap.appendChild(buildChecklistEditor(slide));
+  else if(slide.layout === "text"){
+    wrap.appendChild(fieldTextarea("متن اصلی اسلاید", slide.body,
+      function(v){ slide.body = v; refreshOpenCardLive(slide); }, "متن کامل را بنویسید…", 7));
+  }
+  return wrap;
 }
 
+/* ---------- ویرایشگر ردیف‌های جدول با انواع ورودی ---------- */
 function buildRowsEditor(slide){
-  const wrap=document.createElement("div"); wrap.className="field rows-editor";
-  wrap.innerHTML = `<label>ردیف‌های جدول — با نوع ورودی مناسب هر فیلد</label>`;
-
-  const list=document.createElement("div");
-  slide.rows.forEach((row, i)=>{
+  var wrap = document.createElement("div");
+  wrap.className = "field rows-editor";
+  wrap.innerHTML = '<label>ردیف‌های جدول — نوع ورودی هر ردیف قابل تغییر است</label>';
+  var list = document.createElement("div");
+  slide.rows.forEach(function(row, i){
     list.appendChild(buildRowItem(slide, row, i));
   });
   wrap.appendChild(list);
 
-  const addBtn=document.createElement("button");
-  addBtn.className="add-row-btn"; addBtn.textContent="+ افزودن ردیف";
-  addBtn.addEventListener("click", ()=>{
+  var addBtn = document.createElement("button");
+  addBtn.className = "add-row-btn";
+  addBtn.textContent = "+ افزودن ردیف";
+  addBtn.addEventListener("click", function(){
     slide.rows.push({label:"", value:"", type:FIELD.TEXT});
-    openId=slide.id; commit(); renderSlidesList();
+    openId = slide.id;
+    commit(); renderSlidesList();
   });
   wrap.appendChild(addBtn);
 
-  const bulkBtn=document.createElement("button");
-  bulkBtn.className="add-row-btn"; bulkBtn.textContent="⇩ افزودن ۵ ردیف یکجا";
-  bulkBtn.addEventListener("click", ()=>{
-    for(let k=0;k<5;k++) slide.rows.push({label:"", value:"", type:FIELD.TEXT});
-    openId=slide.id; commit(); renderSlidesList();
+  var bulkBtn = document.createElement("button");
+  bulkBtn.className = "add-row-btn";
+  bulkBtn.textContent = "⇩ افزودن ۵ ردیف یکجا";
+  bulkBtn.addEventListener("click", function(){
+    for(var k=0; k<5; k++) slide.rows.push({label:"", value:"", type:FIELD.TEXT});
+    openId = slide.id;
+    commit(); renderSlidesList();
   });
   wrap.appendChild(bulkBtn);
   return wrap;
 }
 
 function buildRowItem(slide, row, i){
-  const line = document.createElement("div");
+  var line = document.createElement("div");
   line.className = "row-item";
 
-  /* Label cell */
-  const labCell = document.createElement("div");
+  /* Label */
+  var labCell = document.createElement("div");
   labCell.className = "cell";
-  labCell.innerHTML = `<label>برچسب</label>`;
-  const labIn = document.createElement("input");
+  var lLab = document.createElement("label"); lLab.textContent = "برچسب";
+  var labIn = document.createElement("input");
   labIn.type = "text"; labIn.value = row.label||""; labIn.placeholder = "برچسب";
-  labIn.addEventListener("input", ()=>{ row.label = labIn.value; refreshOpenCardLive(slide); });
-  labCell.appendChild(labIn);
+  labIn.addEventListener("input", function(){ row.label = labIn.value; refreshOpenCardLive(slide); });
+  labCell.appendChild(lLab); labCell.appendChild(labIn);
   line.appendChild(labCell);
 
-  /* Type cell */
-  const typeCell = document.createElement("div");
+  /* Type */
+  var typeCell = document.createElement("div");
   typeCell.className = "cell";
-  typeCell.innerHTML = `<label>نوع ورودی</label>`;
-  const typeSel = document.createElement("select");
-  Object.keys(FIELD_LABELS).forEach(k=>{
-    const opt = document.createElement("option");
+  var lTyp = document.createElement("label"); lTyp.textContent = "نوع ورودی";
+  var typeSel = document.createElement("select");
+  Object.keys(FIELD_LABELS).forEach(function(k){
+    var opt = document.createElement("option");
     opt.value = k; opt.textContent = FIELD_LABELS[k];
     if((row.type||FIELD.TEXT) === k) opt.selected = true;
     typeSel.appendChild(opt);
   });
-  typeSel.addEventListener("change", ()=>{
+  typeSel.addEventListener("change", function(){
     row.type = typeSel.value;
-    if(row.type===FIELD.PROVINCE && !row.value){ row.value = "تهران"; }
-    if(row.type===FIELD.BRAND && !row.value){ row.value = "Nian"; }
-    openId=slide.id; commit(); renderSlidesList();
+    if(row.type === FIELD.PROVINCE && !row.value) row.value = "تهران";
+    if(row.type === FIELD.BRAND && !row.value) row.value = "Nian";
+    openId = slide.id;
+    commit(); renderSlidesList();
   });
-  typeCell.appendChild(typeSel);
+  typeCell.appendChild(lTyp); typeCell.appendChild(typeSel);
   line.appendChild(typeCell);
 
-  /* Value cell */
-  const valCell = document.createElement("div");
-  valCell.className = "cell val-cell";
-  valCell.innerHTML = `<label>مقدار ${row.key==="batteryCount"?'<span class="auto-badge">کلید محاسبه</span>':''}</label>`;
+  /* Value */
+  var valCell = document.createElement("div");
+  valCell.className = "cell";
+  var lVal = document.createElement("label");
+  lVal.innerHTML = "مقدار" + (row.key === "batteryCount" ? ' <span class="auto-badge">کلید محاسبه بانک</span>' : '');
+  valCell.appendChild(lVal);
   valCell.appendChild(buildValueInput(slide, row));
   line.appendChild(valCell);
 
-  /* Remove button */
-  const rm = document.createElement("button");
-  rm.className="rm-btn"; rm.title="حذف"; rm.textContent="✕";
-  rm.addEventListener("click", ()=>{
-    slide.rows.splice(i,1); openId=slide.id; commit(); renderSlidesList();
+  /* Remove */
+  var rm = document.createElement("button");
+  rm.className = "rm-btn"; rm.title = "حذف"; rm.textContent = "✕";
+  rm.addEventListener("click", function(){
+    slide.rows.splice(i,1);
+    openId = slide.id;
+    commit(); renderSlidesList();
   });
   line.appendChild(rm);
 
-  if(row.type===FIELD.TEL && row.value && !isValidIranPhone(row.value)){
+  if(row.type === FIELD.TEL && row.value && !isValidIranPhone(row.value)){
     line.classList.add("phone-invalid");
   }
   return line;
 }
 
 function buildValueInput(slide, row){
-  const type = row.type || FIELD.TEXT;
-  const frag = document.createDocumentFragment();
-  const v = row.value || "";
+  var type = row.type || FIELD.TEXT;
+  var v = row.value || "";
+  var wrapper = document.createElement("div");
+  wrapper.className = "val-wrap";
 
-  const triggerUpdate = ()=>refreshOpenCardLive(slide);
+  if(type === FIELD.NUMBER || type === FIELD.DECIMAL){
+    var numInp = document.createElement("input");
+    numInp.type = "number";
+    numInp.min = "0";
+    numInp.step = (type === FIELD.NUMBER) ? "1" : "any";
+    numInp.value = enDigits(v);
+    numInp.addEventListener("input", function(){
+      row.value = numInp.value;
+      if(row.key === "batteryCount") recalcBanks(slide);
+      refreshOpenCardLive(slide);
+    });
+    wrapper.appendChild(numInp);
+    if(row.unit){
+      var u = document.createElement("span"); u.className = "unit-tag"; u.textContent = row.unit;
+      wrapper.appendChild(u);
+    }
+    return wrapper;
+  }
 
-  switch(type){
-    case FIELD.NUMBER: {
-      const inp = document.createElement("input");
-      inp.type = "number"; inp.min = "0"; inp.step = "1"; inp.value = enDigits(v);
-      inp.addEventListener("input", ()=>{
-        row.value = inp.value;
-        if(row.key==="batteryCount") recalcBanks(slide, slide.rows);
-        triggerUpdate();
-      });
-      frag.appendChild(inp);
-      if(row.unit){
-        const tag = document.createElement("div"); tag.className="unit-tag"; tag.textContent=row.unit;
-        frag.appendChild(tag);
-      }
-      break;
-    }
-    case FIELD.DECIMAL: {
-      const inp = document.createElement("input");
-      inp.type = "number"; inp.min = "0"; inp.step = "any"; inp.value = enDigits(v);
-      inp.addEventListener("input", ()=>{ row.value = inp.value; triggerUpdate(); });
-      frag.appendChild(inp);
-      if(row.unit){
-        const tag = document.createElement("div"); tag.className="unit-tag"; tag.textContent=row.unit;
-        frag.appendChild(tag);
-      }
-      break;
-    }
-    case FIELD.DATE: {
-      const wrap = document.createElement("div"); wrap.className="date-wrap";
-      const inp = document.createElement("input");
-      inp.type = "text"; inp.readOnly = true; inp.value = v || ""; inp.placeholder="۱۴۰۵/۰۴/۰۶";
-      const btn = document.createElement("button"); btn.type="button"; btn.className="pick-btn"; btn.textContent="📅";
-      const open = ()=>openJalaliPicker(inp.value, (picked)=>{
+  if(type === FIELD.DATE){
+    var dateInp = document.createElement("input");
+    dateInp.type = "text"; dateInp.readOnly = true; dateInp.value = v; dateInp.placeholder = "۱۴۰۵/۰۴/۰۶";
+    dateInp.addEventListener("click", function(){
+      openJalaliPicker(dateInp.value, function(picked){
         row.value = picked || "";
-        inp.value = picked || "";
-        triggerUpdate();
+        dateInp.value = picked || "";
+        refreshOpenCardLive(slide);
       });
-      inp.addEventListener("click", open);
-      btn.addEventListener("click", open);
-      wrap.appendChild(inp); wrap.appendChild(btn);
-      frag.appendChild(wrap);
-      break;
-    }
-    case FIELD.TEL: {
-      const inp = document.createElement("input");
-      inp.type = "tel"; inp.inputMode = "numeric"; inp.maxLength = 11;
-      inp.placeholder = row.placeholder || "09xxxxxxxxx";
-      inp.value = enDigits(v);
-      inp.addEventListener("input", ()=>{
-        inp.value = enDigits(inp.value).replace(/\D/g,"").slice(0,11);
-        row.value = inp.value;
-        const line = inp.closest(".row-item");
-        if(isValidIranPhone(inp.value)) line.classList.remove("phone-invalid");
-        else if(inp.value.length===11) line.classList.add("phone-invalid");
-        else line.classList.remove("phone-invalid");
-        triggerUpdate();
-      });
-      frag.appendChild(inp);
-      const hint = document.createElement("div"); hint.className="phone-hint"; hint.textContent="شماره باید با ۰۹ شروع شده و ۱۱ رقم باشد";
-      frag.appendChild(hint);
-      break;
-    }
-    case FIELD.PROVINCE: {
-      const sel = document.createElement("select");
-      const provinces = Object.keys(IRAN_PROVINCES);
-      const current = v || "تهران";
-      provinces.forEach(p=>{
-        const o = document.createElement("option"); o.value=p; o.textContent=p;
-        if(p===current) o.selected=true;
-        sel.appendChild(o);
-      });
-      sel.addEventListener("change", ()=>{
-        row.value = sel.value;
-        // به‌روزرسانی شهر وابسته در همان اسلاید
-        const cityRow = (slide.rows||[]).find(r => r.type===FIELD.CITY && r.dependsOn===row.label);
-        if(cityRow){
-          const cities = IRAN_PROVINCES[sel.value] || [];
-          cityRow.options = cities.slice();
-          cityRow.value = cities[0] || "";
-          // به‌روزرسانی DOM سلکت شهر
-          const cityCard = document.querySelector(`.slide-card[data-id="${slide.id}"]`);
-          if(cityCard){
-            const citySelects = cityCard.querySelectorAll(".rows-editor .row-item select");
-            citySelects.forEach(cs=>{
-              if(cs.dataset.for==="city-"+cityRow.label){
-                cs.innerHTML = "";
-                cities.forEach(c=>{ const o=document.createElement("option"); o.value=c; o.textContent=c; cs.appendChild(o); });
-                if(cities[0]) cs.value = cities[0];
-              }
-            });
-          }
-        }
-        triggerUpdate();
-      });
-      frag.appendChild(sel);
-      break;
-    }
-    case FIELD.CITY: {
-      const sel = document.createElement("select");
-      sel.dataset.for = "city-" + (row.dependsOn || "Province / استان");
-      // پیدا کردن مقدار استان وابسته
-      let provVal = "تهران";
-      if(row.dependsOn){
-        const provRow = getRowByLabel(slide, row.dependsOn);
-        if(provRow && provRow.value) provVal = provRow.value;
-      } else {
-        // اگر dependsOn نداریم، اولین ردیف استان را پیدا کن
-        const provRow = (slide.rows||[]).find(r => r.type===FIELD.PROVINCE);
-        if(provRow && provRow.value) provVal = provRow.value;
-      }
-      const cities = IRAN_PROVINCES[provVal] || [];
-      row.options = cities.slice();
-      cities.forEach(c=>{
-        const o = document.createElement("option"); o.value=c; o.textContent=c;
-        if(c===v) o.selected = true;
-        sel.appendChild(o);
-      });
-      if(!v && cities[0]) row.value = cities[0];
-      sel.addEventListener("change", ()=>{ row.value = sel.value; triggerUpdate(); });
-      frag.appendChild(sel);
-      break;
-    }
-    case FIELD.LOCATION: {
-      const inp = document.createElement("input");
-      inp.type = "text"; inp.value = v; inp.placeholder = row.placeholder || "از GPS یا دستی";
-      inp.style.paddingLeft = "62px";
-      inp.addEventListener("input", ()=>{ row.value = inp.value; triggerUpdate(); });
-      frag.appendChild(inp);
+    });
+    var dateBtn = document.createElement("button");
+    dateBtn.type = "button"; dateBtn.className = "date-btn"; dateBtn.textContent = "📅";
+    dateBtn.addEventListener("click", function(){ dateInp.click(); });
+    wrapper.appendChild(dateInp); wrapper.appendChild(dateBtn);
+    return wrapper;
+  }
 
-      const gpsBtn = document.createElement("button");
-      gpsBtn.type = "button"; gpsBtn.className = "loc-btn"; gpsBtn.textContent = "📍 GPS";
-      gpsBtn.addEventListener("click", async ()=>{
-        showToast("در حال دریافت موقعیت…");
-        const loc = await getGPSLocation();
-        if(!loc){ showToast("دسترسی به GPS ممکن نشد — دستی وارد کنید"); return; }
-        row.value = loc; inp.value = loc; triggerUpdate();
+  if(type === FIELD.TEL){
+    var telInp = document.createElement("input");
+    telInp.type = "tel"; telInp.inputMode = "numeric"; telInp.maxLength = 11;
+    telInp.placeholder = row.placeholder || "09xxxxxxxxx";
+    telInp.value = enDigits(v);
+    var hint = document.createElement("div");
+    hint.className = "phone-hint"; hint.textContent = "شماره باید ۱۱ رقم و با ۰۹ شروع شود";
+    telInp.addEventListener("input", function(){
+      telInp.value = enDigits(telInp.value).replace(/\D/g,"").slice(0,11);
+      row.value = telInp.value;
+      var lineItem = telInp.closest(".row-item");
+      if(lineItem){
+        if(telInp.value.length === 11 && !isValidIranPhone(telInp.value)){
+          lineItem.classList.add("phone-invalid");
+        } else {
+          lineItem.classList.remove("phone-invalid");
+        }
+      }
+      refreshOpenCardLive(slide);
+    });
+    wrapper.appendChild(telInp); wrapper.appendChild(hint);
+    return wrapper;
+  }
+
+  if(type === FIELD.PROVINCE){
+    var provSel = document.createElement("select");
+    var provs = Object.keys(IRAN_PROVINCES);
+    var curProv = v || "تهران";
+    if(!v){ row.value = "تهران"; }
+    provs.forEach(function(p){
+      var o = document.createElement("option"); o.value = p; o.textContent = p;
+      if(p === curProv) o.selected = true;
+      provSel.appendChild(o);
+    });
+    provSel.addEventListener("change", function(){
+      row.value = provSel.value;
+      var cityRow = (slide.rows||[]).find(function(r){ return r.type === FIELD.CITY; });
+      if(cityRow){
+        var cities = IRAN_PROVINCES[provSel.value] || [];
+        cityRow.value = cities[0] || "";
+      }
+      openId = slide.id;
+      commit(); renderSlidesList();
+    });
+    wrapper.appendChild(provSel);
+    return wrapper;
+  }
+
+  if(type === FIELD.CITY){
+    var citySel = document.createElement("select");
+    var provName = "تهران";
+    if(row.dependsOn){
+      var pr = (slide.rows||[]).find(function(r){ return r.label === row.dependsOn; });
+      if(pr && pr.value) provName = pr.value;
+    } else {
+      var pr2 = (slide.rows||[]).find(function(r){ return r.type === FIELD.PROVINCE; });
+      if(pr2 && pr2.value) provName = pr2.value;
+    }
+    var cities = IRAN_PROVINCES[provName] || [];
+    if(!v && cities[0]) row.value = cities[0];
+    cities.forEach(function(c){
+      var o = document.createElement("option"); o.value = c; o.textContent = c;
+      if(c === v) o.selected = true;
+      citySel.appendChild(o);
+    });
+    citySel.addEventListener("change", function(){ row.value = citySel.value; refreshOpenCardLive(slide); });
+    wrapper.appendChild(citySel);
+    return wrapper;
+  }
+
+  if(type === FIELD.LOCATION){
+    var locInp = document.createElement("input");
+    locInp.type = "text"; locInp.value = v; locInp.placeholder = row.placeholder || "از GPS یا دستی";
+    locInp.addEventListener("input", function(){ row.value = locInp.value; refreshOpenCardLive(slide); });
+    var gpsBtn = document.createElement("button");
+    gpsBtn.type = "button"; gpsBtn.className = "loc-btn"; gpsBtn.textContent = "📍 GPS";
+    gpsBtn.addEventListener("click", function(){
+      showToast("در حال دریافت موقعیت…");
+      getGPSLocation().then(function(loc){
+        if(!loc){ showToast("GPS در دسترس نیست — دستی وارد کنید"); return; }
+        row.value = loc; locInp.value = loc;
+        refreshOpenCardLive(slide);
         showToast("موقعیت ثبت شد 📍");
       });
-      const valCell = inp.parentElement;
-      valCell.appendChild(gpsBtn);
-      break;
-    }
-    case FIELD.BRAND: {
-      const wrap = document.createElement("div"); wrap.style.display="flex"; wrap.style.gap="4px"; wrap.style.flexDirection="column";
-      const sel = document.createElement("select");
-      BATTERY_BRANDS.forEach(b=>{
-        const o = document.createElement("option"); o.value=b; o.textContent=b;
-        if(b===v) o.selected = true;
-        sel.appendChild(o);
-      });
-      const other = document.createElement("option");
-      other.value = "__other__"; other.textContent = "سایر (دستی)";
-      if(v && !BATTERY_BRANDS.includes(v)) other.selected = true;
-      sel.appendChild(other);
-
-      const manualInp = document.createElement("input");
-      manualInp.type = "text"; manualInp.placeholder = "برند دستی…";
-      manualInp.value = BATTERY_BRANDS.includes(v) ? "" : v;
-      manualInp.style.display = (BATTERY_BRANDS.includes(v) && v) ? "none" : (v ? "" : "none");
-
-      sel.addEventListener("change", ()=>{
-        if(sel.value === "__other__"){
-          manualInp.style.display = "";
-          manualInp.focus();
-          row.value = manualInp.value || "";
-        } else {
-          manualInp.style.display = "none";
-          row.value = sel.value;
-        }
-        triggerUpdate();
-      });
-      manualInp.addEventListener("input", ()=>{ row.value = manualInp.value; triggerUpdate(); });
-      wrap.appendChild(sel); wrap.appendChild(manualInp);
-      frag.appendChild(wrap);
-      break;
-    }
-    case FIELD.AUTO: {
-      const inp = document.createElement("input");
-      inp.type = "text"; inp.readOnly = true; inp.value = v;
-      frag.appendChild(inp);
-      break;
-    }
-    case FIELD.SELECT: {
-      const sel = document.createElement("select");
-      const opts = (row.options && row.options.length ? row.options : [""]).slice();
-      if(!opts.includes("")) opts.unshift("");
-      opts.forEach(o=>{
-        const opt = document.createElement("option"); opt.value=o; opt.textContent = o || "— انتخاب کنید —";
-        if(o===v) opt.selected = true;
-        sel.appendChild(opt);
-      });
-      sel.addEventListener("change", ()=>{ row.value = sel.value; triggerUpdate(); });
-      frag.appendChild(sel);
-      break;
-    }
-    default: {
-      const inp = document.createElement("input");
-      inp.type = "text"; inp.value = v; inp.placeholder = row.placeholder || "مقدار";
-      inp.addEventListener("input", ()=>{ row.value = inp.value; triggerUpdate(); });
-      frag.appendChild(inp);
-    }
+    });
+    wrapper.appendChild(locInp); wrapper.appendChild(gpsBtn);
+    return wrapper;
   }
-  return frag;
+
+  if(type === FIELD.BRAND){
+    var brandWrap = document.createElement("div");
+    brandWrap.style.display = "flex"; brandWrap.style.flexDirection = "column"; brandWrap.style.gap = "4px";
+    brandWrap.style.width = "100%";
+    var brandSel = document.createElement("select");
+    var isManual = v && BATTERY_BRANDS.indexOf(v) === -1;
+    BATTERY_BRANDS.forEach(function(b){
+      var o = document.createElement("option"); o.value = b; o.textContent = b;
+      if(b === v) o.selected = true;
+      brandSel.appendChild(o);
+    });
+    var otherOpt = document.createElement("option");
+    otherOpt.value = "__other__"; otherOpt.textContent = "سایر (دستی)";
+    if(isManual) otherOpt.selected = true;
+    brandSel.appendChild(otherOpt);
+
+    var manualInp = document.createElement("input");
+    manualInp.type = "text"; manualInp.placeholder = "برند دستی…";
+    manualInp.value = isManual ? v : "";
+    manualInp.style.display = isManual ? "" : "none";
+    manualInp.addEventListener("input", function(){ row.value = manualInp.value; refreshOpenCardLive(slide); });
+    brandSel.addEventListener("change", function(){
+      if(brandSel.value === "__other__"){
+        manualInp.style.display = ""; manualInp.focus();
+        row.value = manualInp.value || "";
+      } else {
+        manualInp.style.display = "none";
+        row.value = brandSel.value;
+      }
+      refreshOpenCardLive(slide);
+    });
+    brandWrap.appendChild(brandSel); brandWrap.appendChild(manualInp);
+    wrapper.appendChild(brandWrap);
+    return wrapper;
+  }
+
+  if(type === FIELD.AUTO){
+    var autoInp = document.createElement("input");
+    autoInp.type = "text"; autoInp.readOnly = true; autoInp.value = v;
+    wrapper.appendChild(autoInp);
+    return wrapper;
+  }
+
+  if(type === FIELD.SELECT){
+    var selS = document.createElement("select");
+    var opts = (row.options && row.options.length ? row.options : [""]).slice();
+    if(opts.indexOf("") === -1) opts.unshift("");
+    opts.forEach(function(o){
+      var opt = document.createElement("option"); opt.value = o; opt.textContent = o || "— انتخاب کنید —";
+      if(o === v) opt.selected = true;
+      selS.appendChild(opt);
+    });
+    selS.addEventListener("change", function(){ row.value = selS.value; refreshOpenCardLive(slide); });
+    wrapper.appendChild(selS);
+    return wrapper;
+  }
+
+  /* default: text */
+  var txt = document.createElement("input");
+  txt.type = "text"; txt.value = v; txt.placeholder = row.placeholder || "مقدار";
+  txt.addEventListener("input", function(){ row.value = txt.value; refreshOpenCardLive(slide); });
+  wrapper.appendChild(txt);
+  return wrapper;
 }
 
-/* ====================== محاسبه خودکار بانک‌ها ====================== */
-function recalcBanks(infoSlide, rows){
-  // پیدا کردن مقدار batteryCount
-  const bcRow = (rows||[]).find(r => r.key === "batteryCount");
-  const count = bcRow ? Number(enDigits(String(bcRow.value||""))) || 0 : 0;
-  const banks = calcBanks(count);
+/* ---------- محاسبه خودکار بانک‌ها ---------- */
+function recalcBanks(infoSlide){
+  var bcRow = (infoSlide.rows||[]).find(function(r){ return r.key === "batteryCount"; });
+  var count = bcRow ? (parseInt(enDigits(String(bcRow.value||"")),10) || 0) : 0;
+  var banks = calcBanks(count);
 
-  // به‌روزرسانی ردیف AUTO در جدول اطلاعات
-  const autoRow = (rows||[]).find(r => r.type === FIELD.AUTO);
+  /* به‌روزرسانی ردیف AUTO در همان اسلاید */
+  var autoRow = (infoSlide.rows||[]).find(function(r){ return r.type === FIELD.AUTO; });
   if(autoRow){
     autoRow.value = String(banks);
-    // به‌روزرسانی DOM همان input
-    const card = document.querySelector(`.slide-card[data-id="${infoSlide.id}"]`);
+    var card = document.querySelector('.slide-card[data-id="' + infoSlide.id + '"]');
     if(card){
-      const autoInputs = card.querySelectorAll(".rows-editor .row-item input[readonly]");
-      // فقط اولین readonly را که متعلق به ردیف AUTO است پیدا می‌کنیم
-      // راه دقیق‌تر: از طریق سلکتور روی مقدار قبلی
-      // این‌جا ساده می‌گیریم — چون تنها یک AUTO در تمپلیت داریم
-      autoInputs.forEach(inp => {
-        // بررسی مقدار منطبق با ردیف AUTO
-        if(inp.previousSibling === null && inp.parentElement.previousElementSibling === null){ /* noop */ }
-      });
-      // جایگزین ساده: بازسازی لیست ردیف‌ها در صورت نیاز نکن — چون تایپ AUTO نادر است
+      var ro = card.querySelectorAll('.rows-editor input[readonly]');
+      for(var k=0; k<ro.length; k++) ro[k].value = autoRow.value;
     }
   }
 
-  // بازسازی جدول تست ولتاژ (اسلاید autoFromBatteryCount)
-  const vSlide = state.slides.find(s => s.autoFromBatteryCount);
+  /* بازسازی جدول تست ولتاژ (اسلاید autoFromBatteryCount) */
+  var vSlide = state.slides.find(function(s){ return s.autoFromBatteryCount; });
   if(vSlide){
-    const oldValues = {};
-    (vSlide.rows||[]).forEach(r => { oldValues[r.label] = r.value; });
-    vSlide.rows = buildVoltageTestRows(banks, 4).map(r=>({ ...r, value: oldValues[r.label] ?? "" }));
-  }
-
-  // اگر اسلاید AUTO در حال ویرایش است، مقدار DOM را مستقیم به‌روز کنیم
-  if(autoRow){
-    const card = document.querySelector(`.slide-card[data-id="${infoSlide.id}"]`);
-    if(card){
-      // آخرین input خواندنی در همان کارت را با مقدار جدید ست کن
-      const allReadonly = card.querySelectorAll('.rows-editor .row-item input[readonly]');
-      allReadonly.forEach(inp=>{ inp.value = autoRow.value; });
-    }
+    var old = {};
+    (vSlide.rows||[]).forEach(function(r){ old[r.label] = r.value; });
+    vSlide.rows = buildVoltageTestRows(banks, 4).map(function(r){
+      r.value = old[r.label] || "";
+      return r;
+    });
   }
   scheduleCommit();
 }
 
-/* ====================== ویرایشگر چک‌لیست ====================== */
+/* ---------- ویرایشگر چک‌لیست ---------- */
 function buildChecklistEditor(slide){
-  const wrap=document.createElement("div"); wrap.className="field chk-editor";
-  wrap.innerHTML=`<label>موارد چک‌لیست</label>`;
-  const list=document.createElement("div");
-  slide.checklist.forEach((item, i)=>{
-    const line=document.createElement("div"); line.className="chk-item";
-    line.innerHTML = `<button class="chk-box ${item.done?"on":""}" title="تیک">✓</button>
-                      <input type="text" placeholder="مورد چک‌لیست">
-                      <button title="حذف">✕</button>`;
-    const box = line.querySelector(".chk-box");
-    const inp = line.querySelector("input");
-    inp.value = item.text||"";
-    box.addEventListener("click", ()=>{
-      item.done = !item.done; box.classList.toggle("on", item.done); refreshOpenCardLive(slide);
+  var wrap = document.createElement("div");
+  wrap.className = "field";
+  wrap.innerHTML = '<label>موارد چک‌لیست</label>';
+  var list = document.createElement("div");
+  slide.checklist.forEach(function(item, i){
+    var line = document.createElement("div");
+    line.className = "chk-item";
+    line.style.display = "flex"; line.style.gap = "8px"; line.style.marginBottom = "8px";
+    var box = document.createElement("button");
+    box.className = "chk-box" + (item.done ? " on" : "");
+    box.textContent = "✓";
+    box.addEventListener("click", function(){
+      item.done = !item.done;
+      box.classList.toggle("on", item.done);
+      refreshOpenCardLive(slide);
     });
-    inp.addEventListener("input", ()=>{ item.text = inp.value; refreshOpenCardLive(slide); });
-    line.querySelectorAll("button")[1].addEventListener("click", ()=>{
-      slide.checklist.splice(i,1); openId=slide.id; commit(); renderSlidesList();
+    var inp = document.createElement("input");
+    inp.type = "text"; inp.value = item.text || ""; inp.placeholder = "مورد چک‌لیست";
+    inp.style.flex = "1";
+    inp.addEventListener("input", function(){ item.text = inp.value; refreshOpenCardLive(slide); });
+    var rm = document.createElement("button");
+    rm.className = "rm-btn"; rm.textContent = "✕";
+    rm.addEventListener("click", function(){
+      slide.checklist.splice(i,1);
+      openId = slide.id; commit(); renderSlidesList();
     });
+    line.appendChild(box); line.appendChild(inp); line.appendChild(rm);
     list.appendChild(line);
   });
   wrap.appendChild(list);
-  const addBtn=document.createElement("button"); addBtn.className="add-row-btn"; addBtn.textContent="+ افزودن مورد";
-  addBtn.addEventListener("click", ()=>{ slide.checklist.push({text:"",done:false}); openId=slide.id; commit(); renderSlidesList(); });
-  wrap.appendChild(addBtn);
+  var add = document.createElement("button");
+  add.className = "add-row-btn"; add.textContent = "+ افزودن مورد";
+  add.addEventListener("click", function(){
+    slide.checklist.push({text:"", done:false});
+    openId = slide.id; commit(); renderSlidesList();
+  });
+  wrap.appendChild(add);
   return wrap;
 }
 
-/* ====================== ویرایشگر عکس ====================== */
+/* ---------- ویرایشگر عکس ---------- */
 function buildPhotosEditor(slide){
-  const wrap=document.createElement("div"); wrap.className="field";
-  wrap.innerHTML = `<label>تصاویر (حداکثر ${MAX_IMAGES} عکس)</label>`;
-  const grid=document.createElement("div"); grid.className="img-grid";
+  var wrap = document.createElement("div");
+  wrap.className = "field";
+  wrap.innerHTML = '<label>تصاویر (حداکثر ' + MAX_IMAGES + ' عکس)</label>';
+  var grid = document.createElement("div");
+  grid.className = "img-grid";
 
-  slide.images.forEach((im, i)=>{
-    const item=document.createElement("div"); item.className="img-item";
-    item.innerHTML = `
-      <div class="img-box">
-        <img src="${im.data}" alt="">
-        <button class="rm" title="حذف">✕</button>
-        <div class="img-move">
-          <button data-mv="-1" title="جابجایی به راست" ${i===0?"disabled":""}>▶</button>
-          <button data-mv="1"  title="جابجایی به چپ" ${i===slide.images.length-1?"disabled":""}>◀</button>
-        </div>
-      </div>
-      <div class="img-cap"><input type="text" placeholder="زیرنویس (اختیاری)"></div>`;
-    item.querySelector(".rm").addEventListener("click", ()=>{
-      slide.images.splice(i,1); openId=slide.id; commit(); renderSlidesList();
+  slide.images.forEach(function(im, i){
+    var item = document.createElement("div");
+    item.className = "img-item";
+    item.innerHTML =
+      '<div class="img-box">' +
+        '<img src="' + im.data + '" alt="">' +
+        '<button class="rm" title="حذف">✕</button>' +
+        '<div class="img-move">' +
+          '<button data-mv="-1" title="راست" ' + (i===0?"disabled":"") + '>▶</button>' +
+          '<button data-mv="1" title="چپ" ' + (i===slide.images.length-1?"disabled":"") + '>◀</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="img-cap"><input type="text" placeholder="زیرنویس (اختیاری)"></div>';
+
+    item.querySelector(".rm").addEventListener("click", function(){
+      slide.images.splice(i,1);
+      openId = slide.id; commit(); renderSlidesList();
     });
-    item.querySelectorAll(".img-move button").forEach(b=>{
-      b.addEventListener("click", ()=>{
-        const dir=parseInt(b.dataset.mv,10); const j=i+dir;
-        if(j<0||j>=slide.images.length) return;
-        [slide.images[i], slide.images[j]]=[slide.images[j], slide.images[i]];
-        openId=slide.id; commit(); renderSlidesList();
+    item.querySelectorAll(".img-move button").forEach(function(b){
+      b.addEventListener("click", function(){
+        var dir = parseInt(b.dataset.mv,10);
+        var j = i + dir;
+        if(j < 0 || j >= slide.images.length) return;
+        var tmp = slide.images[i]; slide.images[i] = slide.images[j]; slide.images[j] = tmp;
+        openId = slide.id; commit(); renderSlidesList();
       });
     });
-    item.querySelector(".img-box img").addEventListener("click", ()=>openLightbox(im.data));
-    const capInput=item.querySelector(".img-cap input");
-    capInput.value = im.caption||"";
-    capInput.addEventListener("input", ()=>{ im.caption=capInput.value; refreshOpenCardLive(slide); });
+    item.querySelector(".img-box img").addEventListener("click", function(){ openLightbox(im.data); });
+    var capInput = item.querySelector(".img-cap input");
+    capInput.value = im.caption || "";
+    capInput.addEventListener("input", function(){ im.caption = capInput.value; refreshOpenCardLive(slide); });
     grid.appendChild(item);
   });
 
   if(slide.images.length < MAX_IMAGES){
-    const addTile=document.createElement("label"); addTile.className="add-photo-btn";
-    addTile.innerHTML = `<span style="font-size:22px;">📷</span><span>افزودن عکس</span><span style="font-size:10px;opacity:.75;">چند فایل همزمان مجاز است</span>`;
-    const inp=document.createElement("input"); inp.type="file"; inp.accept="image/*"; inp.multiple=true;
-    inp.addEventListener("change", ()=>handlePhotoFiles(slide, Array.from(inp.files||[])));
-    addTile.appendChild(inp); grid.appendChild(addTile);
+    var addTile = document.createElement("label");
+    addTile.className = "add-photo-btn";
+    addTile.innerHTML = '<span style="font-size:22px;">📷</span><span>افزودن عکس</span>' +
+      '<span style="font-size:10px;opacity:.75;">چند فایل همزمان مجاز است</span>';
+    var fi = document.createElement("input");
+    fi.type = "file"; fi.accept = "image/*"; fi.multiple = true;
+    fi.addEventListener("change", function(){ handlePhotoFiles(slide, Array.prototype.slice.call(fi.files||[])); });
+    addTile.appendChild(fi);
+    grid.appendChild(addTile);
   }
-  grid.addEventListener("dragover", e=>{ e.preventDefault(); grid.classList.add("dropping"); });
-  grid.addEventListener("dragleave", ()=>grid.classList.remove("dropping"));
-  grid.addEventListener("drop", e=>{
+
+  grid.addEventListener("dragover", function(e){ e.preventDefault(); grid.classList.add("dropping"); });
+  grid.addEventListener("dragleave", function(){ grid.classList.remove("dropping"); });
+  grid.addEventListener("drop", function(e){
     e.preventDefault(); grid.classList.remove("dropping");
-    const files = Array.from(e.dataTransfer&&e.dataTransfer.files||[]).filter(f=>f.type.startsWith("image/"));
+    var files = Array.prototype.slice.call((e.dataTransfer && e.dataTransfer.files) || [])
+      .filter(function(f){ return f.type.indexOf("image/") === 0; });
     handlePhotoFiles(slide, files);
   });
+
   wrap.appendChild(grid);
-  const info=document.createElement("div");
-  info.style.cssText="font-size:11px;color:var(--ink-soft);margin-top:8px;line-height:1.7;";
-  info.textContent="می‌توانید فایل‌ها را روی این ناحیه بکشید و رها کنید. ترتیب عکس‌ها با دکمه‌های ◀ ▶ تغییر می‌کند.";
+
+  var info = document.createElement("div");
+  info.style.cssText = "font-size:11px;color:var(--ink-soft);margin-top:8px;line-height:1.7;";
+  info.textContent = "می‌توانید فایل‌ها را روی ناحیه بکشید و رها کنید. ترتیب عکس با ◀ ▶ تغییر می‌کند.";
   wrap.appendChild(info);
   return wrap;
 }
-async function handlePhotoFiles(slide, files){
-  if(!files||!files.length) return;
-  const remaining = MAX_IMAGES - slide.images.length;
-  const toProcess = files.slice(0, remaining);
+function handlePhotoFiles(slide, files){
+  if(!files || !files.length) return;
+  var remaining = MAX_IMAGES - slide.images.length;
+  var toProcess = files.slice(0, remaining);
   if(!toProcess.length){ showToast("حداکثر تعداد عکس پر شده است"); return; }
-  showToast(`در حال پردازش ${toProcess.length} تصویر…`);
-  let added=0;
-  for(const f of toProcess){
-    try{ const dataUrl = await fileToCompressedDataURL(f); slide.images.push({data:dataUrl, caption:""}); added++; }
-    catch(e){ console.warn(e); }
+
+  showToast("در حال پردازش " + toProcess.length + " تصویر…");
+  var added = 0;
+  var idx = 0;
+  function next(){
+    if(idx >= toProcess.length){
+      openId = slide.id;
+      commit(); renderSlidesList();
+      showToast(added ? (added + " تصویر اضافه شد") : "افزودن تصویر ناموفق بود");
+      return;
+    }
+    var f = toProcess[idx++];
+    fileToCompressedDataURL(f).then(function(url){
+      slide.images.push({ data:url, caption:"" });
+      added++;
+      next();
+    }).catch(function(){
+      next();
+    });
   }
-  openId=slide.id; commit(); renderSlidesList();
-  showToast(added?`${added} تصویر اضافه شد`:"افزودن تصویر ناموفق بود");
+  next();
 }
 
-/* ====================== Jalali Date Picker ====================== */
-let jdpState = { jy:0, jm:0, jd:0, callback:null };
+/* ---------- تقویم شمسی ---------- */
+var jdpState = { jy:0, jm:0, jd:0, cb:null };
+var JP_MONTHS = ["فروردین","اردیبهشت","خرداد","تیر","مرداد","شهریور","مهر","آبان","آذر","دی","بهمن","اسفند"];
 
 function openJalaliPicker(currentValue, callback){
-  const parsed = parseJalali(currentValue) || todayJalali();
+  var parsed = parseJalali(currentValue) || todayJalali();
   jdpState.jy = parsed.jy; jdpState.jm = parsed.jm; jdpState.jd = parsed.jd;
-  jdpState.callback = callback;
-  renderJDP();
+  jdpState.cb = callback;
+  renderJdp();
   document.getElementById("jdpOverlay").classList.add("open");
 }
 function closeJalaliPicker(){ document.getElementById("jdpOverlay").classList.remove("open"); }
-
-function renderJDP(){
-  const { jy, jm, jd } = jdpState;
-  const monthNames = ["فروردین","اردیبهشت","خرداد","تیر","مرداد","شهریور","مهر","آبان","آذر","دی","بهمن","اسفند"];
-  document.getElementById("jdpTitle").textContent = `${monthNames[jm-1]} ${faDigits(jy)}`;
-
-  // محاسبه روز هفته اول ماه
-  const g = toGregorian(jy, jm, 1);
-  const gDate = new Date(g.gy, g.gm-1, g.gd);
-  // شنبه = 0 در تقویم ایرانی → معادل day=6 در JavaScript
-  const jsDay = gDate.getDay(); // 0=Sun..6=Sat
-  const startCol = (jsDay + 1) % 7; // Sat→0, Sun→1, ..., Fri→6
-
-  const daysInMonth = jalaaliMonthLength(jy, jm);
-  const grid = document.getElementById("jdpGrid");
+function renderJdp(){
+  var s = jdpState;
+  document.getElementById("jdpTitle").textContent = JP_MONTHS[s.jm-1] + " " + faDigits(s.jy);
+  var g = toGregorian(s.jy, s.jm, 1);
+  var gDate = new Date(g.gy, g.gm-1, g.gd);
+  var jsDay = gDate.getDay();
+  var startCol = (jsDay + 1) % 7;
+  var len = jalaaliMonthLength(s.jy, s.jm);
+  var today = todayJalali();
+  var grid = document.getElementById("jdpGrid");
   grid.innerHTML = "";
-
-  for(let i=0;i<startCol;i++){
-    const b = document.createElement("button");
-    b.className = "empty"; b.disabled = true;
-    grid.appendChild(b);
+  var i;
+  for(i=0; i<startCol; i++){
+    var e = document.createElement("button");
+    e.className = "empty"; e.disabled = true;
+    grid.appendChild(e);
   }
-  const today = todayJalali();
-  for(let d=1; d<=daysInMonth; d++){
-    const b = document.createElement("button");
-    b.textContent = faDigits(d);
-    if(today.jy===jy && today.jm===jm && today.jd===d) b.classList.add("today");
-    if(jd===d) b.classList.add("selected");
-    b.addEventListener("click", ()=>{
-      jdpState.jd = d;
-      if(jdpState.callback) jdpState.callback(formatJalali(jy, jm, d));
-      closeJalaliPicker();
-    });
-    grid.appendChild(b);
+  for(i=1; i<=len; i++){
+    (function(d){
+      var b = document.createElement("button");
+      b.textContent = faDigits(d);
+      if(today.jy === s.jy && today.jm === s.jm && today.jd === d) b.classList.add("today");
+      if(s.jd === d) b.classList.add("selected");
+      b.addEventListener("click", function(){
+        if(s.cb) s.cb(formatJalali(s.jy, s.jm, d));
+        closeJalaliPicker();
+      });
+      grid.appendChild(b);
+    })(i);
   }
 }
-document.getElementById("jdpPrevMonth").addEventListener("click", ()=>{
-  jdpState.jm--; if(jdpState.jm<1){ jdpState.jm=12; jdpState.jy--; }
-  const max = jalaaliMonthLength(jdpState.jy, jdpState.jm);
-  if(jdpState.jd > max) jdpState.jd = max;
-  renderJDP();
-});
-document.getElementById("jdpNextMonth").addEventListener("click", ()=>{
-  jdpState.jm++; if(jdpState.jm>12){ jdpState.jm=1; jdpState.jy++; }
-  const max = jalaaliMonthLength(jdpState.jy, jdpState.jm);
-  if(jdpState.jd > max) jdpState.jd = max;
-  renderJDP();
-});
-document.getElementById("jdpPrevYear").addEventListener("click", ()=>{
-  jdpState.jy--; renderJDP();
-});
-document.getElementById("jdpNextYear").addEventListener("click", ()=>{
-  jdpState.jy++; renderJDP();
-});
-document.getElementById("jdpClear").addEventListener("click", ()=>{
-  if(jdpState.callback) jdpState.callback("");
-  closeJalaliPicker();
-});
-document.getElementById("jdpToday").addEventListener("click", ()=>{
-  const t = todayJalali();
-  jdpState.jy=t.jy; jdpState.jm=t.jm; jdpState.jd=t.jd;
-  if(jdpState.callback) jdpState.callback(formatJalali(t.jy, t.jm, t.jd));
-  closeJalaliPicker();
-});
-document.getElementById("jdpOverlay").addEventListener("click", e=>{
-  if(e.target.id === "jdpOverlay") closeJalaliPicker();
-});
 
-/* ====================== پیش‌نمایش / لایت‌باکس / شیت ====================== */
-function openFullPreview(){
-  const body=document.getElementById("fpBody");
-  if(!state.slides.length){ body.innerHTML = `<div class="empty-state"><div class="es-ic">🗂️</div><b>اسلایدی برای نمایش وجود ندارد</b></div>`; }
-  else {
-    body.innerHTML = state.slides.map((s,i)=>`
-      <div class="fp-idx">اسلاید ${i+1} از ${state.slides.length} — ${(LAYOUT_META[s.layout]||{}).type||""}</div>
-      <div class="board-wrap">${boardHTML(s, state.meta, {index:i, total:state.slides.length})}</div>`).join("");
-  }
-  document.getElementById("fullPreview").classList.add("open");
-}
-function closeFullPreview(){ document.getElementById("fullPreview").classList.remove("open"); }
+/* ---------- Lightbox / Sheet / Preview ---------- */
 function openLightbox(src){
   document.getElementById("lbImg").src = src;
   document.getElementById("lightbox").classList.add("open");
@@ -1518,290 +1665,404 @@ function closeLightbox(){
 }
 function openLayoutSheet(){ document.getElementById("layoutSheet").classList.add("open"); }
 function closeLayoutSheet(){ document.getElementById("layoutSheet").classList.remove("open"); }
+function openFullPreview(){
+  var body = document.getElementById("fpBody");
+  if(!state.slides.length){
+    body.innerHTML = '<div class="empty-state"><div class="es-ic">🗂️</div><b>اسلایدی برای نمایش نیست</b></div>';
+  } else {
+    var html = "";
+    state.slides.forEach(function(s, i){
+      html += '<div class="fp-idx">اسلاید ' + (i+1) + ' از ' + state.slides.length + ' — ' +
+        ((LAYOUT_META[s.layout]||{}).type||"") + '</div>' +
+        '<div class="board-wrap">' + boardHTML(s, state.meta, {index:i, total:state.slides.length}) + '</div>';
+    });
+    body.innerHTML = html;
+  }
+  document.getElementById("fullPreview").classList.add("open");
+}
+function closeFullPreview(){ document.getElementById("fullPreview").classList.remove("open"); }
 
-/* ====================== خروجی PPTX ====================== */
+/* ---------- آمار و حافظه ---------- */
+function updateStats(){
+  var el = document.getElementById("stats");
+  if(!el) return;
+  var slides = state.slides.length;
+  var photos = state.slides.reduce(function(a, s){
+    return a + (s.images||[]).filter(function(i){ return i.data; }).length;
+  }, 0);
+  el.textContent = slides + " اسلاید · " + photos + " عکس";
+}
+function updateStorageMeter(){
+  var meter = document.getElementById("storageMeter");
+  var txt = document.getElementById("storageText");
+  if(!meter || !txt) return;
+  var size = 0;
+  try{ size = JSON.stringify(state).length; }catch(e){ size = 0; }
+  var pct = Math.min(100, (size / SOFT_LIMIT) * 100);
+  meter.querySelector("i").style.width = pct + "%";
+  meter.classList.toggle("warn", size > SOFT_LIMIT * 0.75);
+  txt.textContent = fmtBytes(size) + " از حدود " + fmtBytes(SOFT_LIMIT) + " — " +
+    (pct < 60 ? "وضعیت مناسب" : (pct < 90 ? "نزدیک به سقف" : "حافظه تقریباً پر است"));
+}
+
+/* ---------- تم ---------- */
+function applyTheme(){
+  var t = state.meta.theme || "auto";
+  var root = document.documentElement;
+  if(t === "auto") root.removeAttribute("data-theme");
+  else root.setAttribute("data-theme", t);
+}
+function toggleTheme(){
+  var order = ["auto","light","dark"];
+  var i = order.indexOf(state.meta.theme || "auto");
+  state.meta.theme = order[(i+1) % order.length];
+  applyTheme(); commit();
+  showToast("پوسته: " + (state.meta.theme === "auto" ? "خودکار" : state.meta.theme === "light" ? "روشن" : "تاریک"));
+}
+
+/* ---------- خروجی PPTX ---------- */
+function cellOpt(text, isLabel, softColor){
+  return {
+    text: text || "",
+    options: {
+      fill: { color: isLabel ? softColor : "FFFFFF" },
+      bold: !!isLabel,
+      color: isLabel ? "213041" : "333333",
+      align: isLabel ? "right" : "center",
+      valign: "middle",
+      fontSize: 11
+    }
+  };
+}
+function addPlaceholder(pres, s, x, y, w, h, title, sub){
+  s.addShape(pres.ShapeType.rect, {
+    x: x, y: y, w: w, h: h,
+    fill: { color: "F7F9FB" },
+    line: { color: "C6CED9", width: 1, dashType: "dash" }
+  });
+  s.addText(title || "", {
+    x: x, y: y + h/2 - 0.45, w: w, h: 0.45,
+    align: "center", valign: "middle", fontSize: 15, bold: true,
+    color: "7B8794", fontFace: "Arial", rtlMode: true
+  });
+  if(sub){
+    s.addText(sub, {
+      x: x, y: y + h/2 + 0.02, w: w, h: 0.4,
+      align: "center", valign: "middle", fontSize: 11,
+      color: "A6ADBA", fontFace: "Arial", rtlMode: true
+    });
+  }
+}
+function layoutPhotosOnSlide(pres, s, imgs, x, y, w, h){
+  var n = imgs.length;
+  var cols = n === 1 ? 1 : (n === 2 ? 2 : (n <= 4 ? 2 : 4));
+  var rows = Math.ceil(n / cols);
+  var gap = 0.14;
+  var cellW = (w - gap*(cols-1)) / cols;
+  var cellH = (h - gap*(rows-1)) / rows;
+  imgs.forEach(function(im, i){
+    var r = Math.floor(i / cols), c = i % cols;
+    var cx = x + c*(cellW+gap);
+    var cy = y + r*(cellH+gap);
+    var imgH = im.caption ? cellH - 0.26 : cellH;
+    s.addImage({
+      data: im.data,
+      x: cx, y: cy, w: cellW, h: imgH,
+      sizing: { type:"cover", w:cellW, h:imgH }
+    });
+    if(im.caption){
+      s.addText(im.caption, {
+        x: cx, y: cy + cellH - 0.26, w: cellW, h: 0.26,
+        align: "center", valign: "middle", fontSize: 9, color: "FFFFFF",
+        fill: { color: "2B3038" }, fontFace: "Arial", rtlMode: true
+      });
+    }
+  });
+}
 async function exportPPTX(){
   if(!state.slides.length){ showToast("ابتدا حداقل یک اسلاید اضافه کنید"); return; }
+  if(typeof PptxGenJS === "undefined"){ showToast("کتابخانه PPTX بارگذاری نشد"); return; }
   showToast("در حال ساخت فایل PPTX…");
   try{
-    const pres = new PptxGenJS();
-    pres.defineLayout({ name:"CUSTOM_4_3", width:10, height:7.5 });
+    var pres = new PptxGenJS();
+    pres.defineLayout({ name: "CUSTOM_4_3", width: 10, height: 7.5 });
     pres.layout = "CUSTOM_4_3";
     pres.author = "Battery Report Template Maker";
     pres.title = state.meta.projectTitle || "Battery Report";
     pres.company = state.meta.projectTitle || "";
 
-    const primary = hexNoHash(state.meta.primary);
-    const accent = hexNoHash(state.meta.accent);
-    const accentSoft = softHexForPptx(state.meta.accent);
-    const total = state.slides.length;
-    const showFooter = !!state.meta.showFooter;
+    var primary = hexNoHash(state.meta.primary);
+    var accent = hexNoHash(state.meta.accent);
+    var accentSoft = softHexForPptx(state.meta.accent);
+    var total = state.slides.length;
+    var showFooter = !!state.meta.showFooter;
 
-    state.slides.forEach((slide, si)=>{
-      const s = pres.addSlide();
-      s.background = { color:"FFFFFF" };
+    state.slides.forEach(function(slide, si){
+      var s = pres.addSlide();
+      s.background = { color: "FFFFFF" };
+
       s.addShape(pres.ShapeType.rect, { x:0, y:0, w:10, h:0.24, fill:{color:primary}, line:{type:"none"} });
       s.addShape(pres.ShapeType.rect, { x:0, y:7.5-0.13, w:10, h:0.13, fill:{color:primary}, line:{type:"none"} });
-      if(state.meta.logoLeft)  s.addImage({ data:state.meta.logoLeft,  x:0.28, y:0.32, w:0.55, h:0.55 });
-      if(state.meta.logoRight) s.addImage({ data:state.meta.logoRight, x:10-0.28-0.55, y:0.32, w:0.55, h:0.55 });
-      if(showFooter){
-        s.addText(`${si+1} / ${total}`, { x:0.3, y:7.02, w:1.6, h:0.3, fontSize:9, color:"9AA3B0", fontFace:"Arial", align:"left", valign:"middle" });
-        s.addText(state.meta.projectTitle||"", { x:2.0, y:7.02, w:6.0, h:0.3, fontSize:9, color:"9AA3B0", fontFace:"Arial", align:"center", valign:"middle", rtlMode:true });
+
+      if(state.meta.logoLeft){
+        try{ s.addImage({ data: state.meta.logoLeft, x:0.28, y:0.32, w:0.55, h:0.55 }); }catch(e){}
       }
-      if(slide.layout==="cover"){
-        s.addText(slide.title||"عنوان گزارش", { x:0.8, y:2.6, w:8.4, h:0.95, align:"center", valign:"middle", fontSize:32, bold:true, color:accent, fontFace:"Arial", rtlMode:true });
-        if(slide.note) s.addText(slide.note, { x:0.8, y:3.62, w:8.4, h:0.6, align:"center", valign:"middle", fontSize:16, color:"3A4250", fontFace:"Arial", rtlMode:true });
-        if(slide.body) s.addText(slide.body, { x:0.8, y:4.3, w:8.4, h:0.5, align:"center", valign:"middle", fontSize:12.5, color:"7C8390", fontFace:"Arial", rtlMode:true });
+      if(state.meta.logoRight){
+        try{ s.addImage({ data: state.meta.logoRight, x:10-0.28-0.55, y:0.32, w:0.55, h:0.55 }); }catch(e){}
+      }
+
+      if(showFooter){
+        s.addText((si+1) + " / " + total, {
+          x:0.3, y:7.02, w:1.6, h:0.3, fontSize:9,
+          color:"9AA3B0", fontFace:"Arial", align:"left", valign:"middle"
+        });
+        s.addText(state.meta.projectTitle || "", {
+          x:2.0, y:7.02, w:6.0, h:0.3, fontSize:9, color:"9AA3B0",
+          fontFace:"Arial", align:"center", valign:"middle", rtlMode:true
+        });
+      }
+
+      if(slide.layout === "cover"){
+        s.addText(slide.title || "عنوان گزارش", {
+          x:0.8, y:2.6, w:8.4, h:0.95, align:"center", valign:"middle",
+          fontSize:32, bold:true, color:accent, fontFace:"Arial", rtlMode:true
+        });
+        if(slide.note){
+          s.addText(slide.note, {
+            x:0.8, y:3.62, w:8.4, h:0.6, align:"center", valign:"middle",
+            fontSize:16, color:"3A4250", fontFace:"Arial", rtlMode:true
+          });
+        }
+        if(slide.body){
+          s.addText(slide.body, {
+            x:0.8, y:4.3, w:8.4, h:0.5, align:"center", valign:"middle",
+            fontSize:12.5, color:"7C8390", fontFace:"Arial", rtlMode:true
+          });
+        }
         return;
       }
-      s.addText(slide.title||"", { x:1.0, y:0.30, w:8.0, h:0.55, align:"center", valign:"middle", fontSize:19, bold:true, color:accent, fontFace:"Arial", rtlMode:true });
-      let contentTop = 1.02;
+
+      s.addText(slide.title || "", {
+        x:1.0, y:0.30, w:8.0, h:0.55, align:"center", valign:"middle",
+        fontSize:19, bold:true, color:accent, fontFace:"Arial", rtlMode:true
+      });
+
+      var contentTop = 1.02;
       if(slide.note){
-        s.addText(slide.note, { x:0.6, y:0.85, w:8.8, h:0.45, align:"center", valign:"middle", fontSize:12, color:"555555", fontFace:"Arial", rtlMode:true });
+        s.addText(slide.note, {
+          x:0.6, y:0.85, w:8.8, h:0.45, align:"center", valign:"middle",
+          fontSize:12, color:"555555", fontFace:"Arial", rtlMode:true
+        });
         contentTop = 1.34;
       }
-      const contentBottom = showFooter ? 6.95 : 7.20;
-      const contentHeight = contentBottom - contentTop;
+      var contentBottom = showFooter ? 6.95 : 7.20;
+      var contentHeight = contentBottom - contentTop;
 
-      if(slide.layout==="table"){
-        const rows = (slide.rows||[]).filter(r=>(r.label&&r.label.trim())||(r.value&&r.value.trim()));
+      if(slide.layout === "table"){
+        var rows = (slide.rows||[]).filter(function(r){ return (r.label && r.label.trim()) || (r.value && r.value.trim()); });
         if(rows.length){
-          const tblRows = [];
-          for(let i=0;i<rows.length;i+=2){
-            const a=rows[i], b=rows[i+1];
+          var tblRows = [];
+          for(var i=0; i<rows.length; i+=2){
+            var a = rows[i], b = rows[i+1];
             tblRows.push([
-              cell(a.label,true,accentSoft), cell(a.value,false,"FFFFFF"),
-              cell(b?b.label:"",true,accentSoft), cell(b?b.value:"",false,"FFFFFF")
+              cellOpt(a.label, true, accentSoft),
+              cellOpt(a.value, false, "FFFFFF"),
+              cellOpt(b ? b.label : "", true, accentSoft),
+              cellOpt(b ? b.value : "", false, "FFFFFF")
             ]);
           }
-          s.addTable(tblRows, { x:0.5, y:contentTop, w:9.0, colW:[1.9,2.6,1.9,2.6],
-            border:{type:"solid", color:"D5DBE3", pt:0.75}, fontFace:"Arial", fontSize:11, autoPage:false, rtlMode:true, valign:"middle" });
-        } else addPlaceholder(pres, s, 0.5, contentTop, 9.0, contentHeight, "جدول اطلاعات", "ردیف‌های جدول خالی است");
-      }
-      else if(slide.layout==="photos"){
-        const imgs=(slide.images||[]).filter(i=>i.data);
-        if(imgs.length) layoutPhotosOnSlide(pres, s, imgs, 0.5, contentTop, 9.0, contentHeight);
-        else addPlaceholder(pres, s, 0.5, contentTop, 9.0, contentHeight, slide.title||"تصویر", "هنوز تصویری برای این اسلاید اضافه نشده است");
-      }
-      else if(slide.layout==="checklist"){
-        const items=(slide.checklist||[]).filter(c=>c.text&&c.text.trim());
-        if(items.length){
-          s.addText(items.map(c=>({ text:(c.done?"☑  ":"☐  ")+c.text, options:{breakLine:true, color:c.done?"7B8794":"333333"} })), {
-            x:0.7, y:contentTop, w:8.6, h:contentHeight, fontSize:13, fontFace:"Arial", rtlMode:true, lineSpacingMultiple:1.45, valign:"top"
+          s.addTable(tblRows, {
+            x:0.5, y:contentTop, w:9.0, colW:[1.9,2.6,1.9,2.6],
+            border:{type:"solid", color:"D5DBE3", pt:0.75},
+            fontFace:"Arial", fontSize:11, autoPage:false, rtlMode:true, valign:"middle"
           });
-        } else addPlaceholder(pres, s, 0.5, contentTop, 9.0, contentHeight, "چک‌لیست", "موردی اضافه نشده است");
+        } else {
+          addPlaceholder(pres, s, 0.5, contentTop, 9.0, contentHeight, "جدول اطلاعات", "ردیف‌های جدول خالی است");
+        }
       }
-      else if(slide.layout==="text"){
+      else if(slide.layout === "photos"){
+        var imgs = (slide.images||[]).filter(function(i){ return i.data; });
+        if(imgs.length){
+          layoutPhotosOnSlide(pres, s, imgs, 0.5, contentTop, 9.0, contentHeight);
+        } else {
+          addPlaceholder(pres, s, 0.5, contentTop, 9.0, contentHeight, slide.title || "تصویر", "هنوز تصویری اضافه نشده است");
+        }
+      }
+      else if(slide.layout === "checklist"){
+        var items = (slide.checklist||[]).filter(function(c){ return c.text && c.text.trim(); });
+        if(items.length){
+          var arr = items.map(function(c){
+            return { text: (c.done ? "☑  " : "☐  ") + c.text, options: { breakLine:true, color: c.done ? "7B8794" : "333333" } };
+          });
+          s.addText(arr, {
+            x:0.7, y:contentTop, w:8.6, h:contentHeight, fontSize:13,
+            fontFace:"Arial", rtlMode:true, lineSpacingMultiple:1.45, valign:"top"
+          });
+        } else {
+          addPlaceholder(pres, s, 0.5, contentTop, 9.0, contentHeight, "چک‌لیست", "موردی اضافه نشده است");
+        }
+      }
+      else if(slide.layout === "text"){
         if(slide.body && slide.body.trim()){
-          s.addText(slide.body, { x:0.6, y:contentTop, w:8.8, h:contentHeight, align:"right", valign:"top", fontSize:14, color:"333333", fontFace:"Arial", rtlMode:true, lineSpacingMultiple:1.5 });
-        } else addPlaceholder(pres, s, 0.5, contentTop, 9.0, contentHeight, "متن توضیحی", "متن اسلاید خالی است");
+          s.addText(slide.body, {
+            x:0.6, y:contentTop, w:8.8, h:contentHeight,
+            align:"right", valign:"top", fontSize:14, color:"333333",
+            fontFace:"Arial", rtlMode:true, lineSpacingMultiple:1.5
+          });
+        } else {
+          addPlaceholder(pres, s, 0.5, contentTop, 9.0, contentHeight, "متن توضیحی", "متن اسلاید خالی است");
+        }
       }
     });
 
-    const fname = (state.meta.projectTitle||"presentation").trim().replace(/[\\/:*?"<>|]/g,"_") || "presentation";
+    var fname = (state.meta.projectTitle || "presentation").replace(/[\\/:*?"<>|]/g,"_") || "presentation";
     await pres.writeFile({ fileName: fname + ".pptx" });
     showToast("دانلود PPTX آغاز شد ✅");
-  }catch(e){ console.error(e); showToast("خطا در ساخت فایل PPTX"); }
-}
-function cell(text, isLabel, softColor){
-  return { text:text||"", options:{ fill:{color:isLabel?softColor:"FFFFFF"}, bold:!!isLabel, color:isLabel?"213041":"333333", align:isLabel?"right":"center", valign:"middle", fontSize:11 } };
-}
-function addPlaceholder(pres, s, x, y, w, h, title, sub){
-  s.addShape(pres.ShapeType.rect, { x, y, w, h, fill:{color:"F7F9FB"}, line:{color:"C6CED9", width:1, dashType:"dash"} });
-  s.addText(title||"", { x, y: y+h/2-0.45, w, h:0.45, align:"center", valign:"middle", fontSize:15, bold:true, color:"7B8794", fontFace:"Arial", rtlMode:true });
-  if(sub) s.addText(sub, { x, y: y+h/2+0.02, w, h:0.4, align:"center", valign:"middle", fontSize:11, color:"A6ADBA", fontFace:"Arial", rtlMode:true });
-}
-function layoutPhotosOnSlide(pres, s, imgs, x, y, w, h){
-  const n=imgs.length;
-  const cols = n===1?1:(n===2?2:(n<=4?2:4));
-  const rows = Math.ceil(n/cols);
-  const gap=0.14;
-  const cellW=(w-gap*(cols-1))/cols, cellH=(h-gap*(rows-1))/rows;
-  imgs.forEach((im,i)=>{
-    const r=Math.floor(i/cols), c=i%cols;
-    const cx=x+c*(cellW+gap), cy=y+r*(cellH+gap);
-    const imgH = im.caption ? cellH-0.26 : cellH;
-    s.addImage({ data:im.data, x:cx, y:cy, w:cellW, h:imgH, sizing:{type:"cover", w:cellW, h:imgH} });
-    if(im.caption) s.addText(im.caption, { x:cx, y:cy+cellH-0.26, w:cellW, h:0.26, align:"center", valign:"middle", fontSize:9, color:"FFFFFF", fill:{color:"2B3038"}, fontFace:"Arial", rtlMode:true });
-  });
+  }catch(e){
+    console.error(e);
+    showToast("خطا در ساخت فایل PPTX");
+  }
 }
 
-/* ====================== خروجی HTML ====================== */
+/* ---------- خروجی HTML ---------- */
 function buildExportHTML(){
-  const title = state.meta.projectTitle || "گزارش";
-  const pages = state.slides.map((s,i)=>`
-    <section class="page">
-      <div class="page-idx">اسلاید ${i+1} از ${state.slides.length} — ${escapeHTML((LAYOUT_META[s.layout]||{}).type||"")}</div>
-      <div class="board-wrap">${boardHTML(s, state.meta, {index:i, total:state.slides.length})}</div>
-    </section>`).join("");
-  return `<!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${escapeHTML(title)}</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
-  *{box-sizing:border-box;}
-  body{margin:0;background:#eef1f5;font-family:'Vazirmatn',Tahoma,sans-serif;direction:rtl;color:#1c2230;}
-  .head{background:linear-gradient(135deg,${state.meta.primary},${state.meta.primary});color:#fff;padding:22px 18px;text-align:center;}
-  .head h1{margin:0 0 6px;font-size:20px;font-weight:800;}
-  .head p{margin:0;font-size:13px;opacity:.9;}
-  .wrap{max-width:1000px;margin:0 auto;padding:22px 16px 60px;}
-  .page{margin-bottom:28px;}
-  .page-idx{font-size:12px;color:#67707d;font-weight:700;margin-bottom:8px;}
-  ${BOARD_CSS}
-  .board{box-shadow:0 4px 18px rgba(20,30,50,.14);border-radius:10px;}
-  .toolbar{position:sticky;top:0;z-index:9;background:rgba(255,255,255,.94);backdrop-filter:blur(6px);border-bottom:1px solid #dde2ea;padding:10px 16px;display:flex;gap:10px;justify-content:center;}
-  .toolbar button{font-family:inherit;font-size:13px;font-weight:700;padding:9px 18px;border-radius:10px;border:none;background:#1c2230;color:#fff;cursor:pointer;}
-  .toolbar button.alt{background:#e7ecf3;color:#1c2230;}
-  .foot{text-align:center;font-size:11.5px;color:#8b939f;padding:24px 0;}
-  @media print{
-    @page{ size:A4 landscape; margin:8mm; }
-    body{background:#fff;}
-    .head,.toolbar,.page-idx,.foot{display:none !important;}
-    .wrap{max-width:none;padding:0;}
-    .page{page-break-after:always;margin:0;display:flex;align-items:center;justify-content:center;height:100%;}
-    .page:last-child{page-break-after:auto;}
-    .board{box-shadow:none;border-radius:0;width:100%;}
-  }
-</style>
-</head>
-<body>
-<div class="head">
-  <h1>${escapeHTML(title)}</h1>
-  <p>${escapeHTML(state.meta.projectSubtitle||"")}</p>
-</div>
-<div class="toolbar">
-  <button onclick="window.print()">🖨 چاپ / ذخیره PDF</button>
-  <button class="alt" onclick="document.body.classList.toggle('compact')">تغییر نمایش</button>
-</div>
-<div class="wrap">${pages || '<p style="text-align:center;color:#8b939f;">اسلایدی موجود نیست.</p>'}</div>
-<div class="foot">ساخته‌شده با قالب‌ساز گزارش پاورپوینت — ${new Date().toLocaleDateString('fa-IR')}</div>
-</body>
-</html>`;
+  var title = state.meta.projectTitle || "گزارش";
+  var pages = state.slides.map(function(s, i){
+    return '<section class="page">' +
+      '<div class="page-idx">اسلاید ' + (i+1) + ' از ' + state.slides.length + ' — ' +
+      escapeHTML((LAYOUT_META[s.layout]||{}).type||"") + '</div>' +
+      '<div class="board-wrap">' + boardHTML(s, state.meta, {index:i, total:state.slides.length}) + '</div>' +
+      '</section>';
+  }).join("");
+
+  return '<!DOCTYPE html>' +
+    '<html lang="fa" dir="rtl"><head><meta charset="UTF-8">' +
+    '<meta name="viewport" content="width=device-width, initial-scale=1">' +
+    '<title>' + escapeHTML(title) + '</title>' +
+    '<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">' +
+    '<style>' +
+    '*{box-sizing:border-box;}' +
+    'body{margin:0;background:#eef1f5;font-family:Vazirmatn,Tahoma,sans-serif;direction:rtl;color:#1c2230;}' +
+    '.head{background:' + state.meta.primary + ';color:#fff;padding:22px 18px;text-align:center;}' +
+    '.head h1{margin:0 0 6px;font-size:20px;font-weight:800;}' +
+    '.head p{margin:0;font-size:13px;opacity:.9;}' +
+    '.wrap{max-width:1000px;margin:0 auto;padding:22px 16px 60px;}' +
+    '.page{margin-bottom:28px;}' +
+    '.page-idx{font-size:12px;color:#67707d;font-weight:700;margin-bottom:8px;}' +
+    BOARD_CSS +
+    '.board{box-shadow:0 4px 18px rgba(20,30,50,.14);border-radius:10px;}' +
+    '.toolbar{position:sticky;top:0;z-index:9;background:rgba(255,255,255,.94);border-bottom:1px solid #dde2ea;padding:10px 16px;text-align:center;}' +
+    '.toolbar button{font-family:inherit;font-size:13px;font-weight:700;padding:9px 18px;border-radius:10px;border:none;background:#1c2230;color:#fff;cursor:pointer;}' +
+    '@media print{@page{size:A4 landscape;margin:8mm;}body{background:#fff;}' +
+    '.head,.toolbar,.page-idx{display:none !important;}' +
+    '.wrap{max-width:none;padding:0;}' +
+    '.page{page-break-after:always;margin:0;}' +
+    '.board{box-shadow:none;width:100%;}}' +
+    '</style></head><body>' +
+    '<div class="head"><h1>' + escapeHTML(title) + '</h1><p>' + escapeHTML(state.meta.projectSubtitle||"") + '</p></div>' +
+    '<div class="toolbar"><button onclick="window.print()">🖨 چاپ / ذخیره PDF</button></div>' +
+    '<div class="wrap">' + (pages || '<p style="text-align:center;color:#8b939f;">اسلایدی موجود نیست.</p>') + '</div>' +
+    '</body></html>';
 }
 function exportHTML(){
   if(!state.slides.length){ showToast("ابتدا حداقل یک اسلاید اضافه کنید"); return; }
   try{
-    const html = buildExportHTML();
-    const blob = new Blob([html], { type:"text/html;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    const fname = (state.meta.projectTitle||"report").trim().replace(/[\\/:*?"<>|]/g,"_")||"report";
-    a.href = url; a.download = fname + ".html";
+    var html = buildExportHTML();
+    var blob = new Blob([html], { type: "text/html;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = (state.meta.projectTitle||"report").replace(/[\\/:*?"<>|]/g,"_") + ".html";
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    setTimeout(()=>URL.revokeObjectURL(url), 4000);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
     showToast("فایل HTML دانلود شد ✅");
-  }catch(e){ console.error(e); showToast("خطا در ساخت فایل HTML"); }
+  }catch(e){
+    console.error(e);
+    showToast("خطا در ساخت فایل HTML");
+  }
 }
 
-/* ====================== ذخیره/بارگذاری پروژه ====================== */
+/* ---------- ذخیره/بارگذاری پروژه ---------- */
 function saveProjectFile(){
   try{
-    const data = JSON.stringify(state, null, 1);
-    const blob = new Blob([data], { type:"application/json;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    const fname = (state.meta.projectTitle||"project").trim().replace(/[\\/:*?"<>|]/g,"_")||"project";
-    a.href = url; a.download = fname + ".json";
+    var data = JSON.stringify(state, null, 1);
+    var blob = new Blob([data], { type: "application/json;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = (state.meta.projectTitle||"project").replace(/[\\/:*?"<>|]/g,"_") + ".json";
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    setTimeout(()=>URL.revokeObjectURL(url), 4000);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
     showToast("پروژه ذخیره شد ✅");
-  }catch(e){ console.error(e); showToast("ذخیره پروژه ناموفق بود"); }
+  }catch(e){
+    console.error(e);
+    showToast("ذخیره پروژه ناموفق بود");
+  }
 }
 function loadProjectFile(file){
-  const reader = new FileReader();
-  reader.onerror = ()=>showToast("خواندن فایل ناموفق بود");
-  reader.onload = ()=>{
+  var reader = new FileReader();
+  reader.onerror = function(){ showToast("خواندن فایل ناموفق بود"); };
+  reader.onload = function(){
     try{
-      const parsed = JSON.parse(reader.result);
-      const next = migrateState(parsed);
+      var parsed = JSON.parse(reader.result);
+      var next = migrateState(parsed);
       if(!next.slides.length && !confirm("فایل بارگذاری‌شده اسلایدی ندارد. ادامه می‌دهید؟")) return;
-      state = next; openId=null; commit(); render(); showToast("پروژه بارگذاری شد ✅");
-    }catch(e){ console.error(e); showToast("فایل پروژه معتبر نیست"); }
+      state = next;
+      openId = null;
+      commit(); render();
+      showToast("پروژه بارگذاری شد ✅");
+    }catch(e){
+      console.error(e);
+      showToast("فایل پروژه معتبر نیست");
+    }
   };
   reader.readAsText(file);
 }
 
-/* ====================== آپلود لوگو ====================== */
+/* ---------- آپلود لوگو ---------- */
 function wireLogoUpload(inputId, key, thumbId){
-  const input = document.getElementById(inputId);
-  input.addEventListener("change", async ()=>{
-    const f = input.files && input.files[0];
+  var input = document.getElementById(inputId);
+  input.addEventListener("change", function(){
+    var f = input.files && input.files[0];
     if(!f) return;
-    try{
-      const dataUrl = await fileToCompressedDataURL(f, 400, 0.9);
+    fileToCompressedDataURL(f, 400, 0.9).then(function(dataUrl){
       state.meta[key] = dataUrl;
       document.getElementById(thumbId).src = dataUrl;
-      renderOpenCardsIfAny(); commit();
-    }catch(e){ showToast("بارگذاری لوگو ناموفق بود"); }
+      renderOpenCardsIfAny();
+      commit();
+    }).catch(function(){
+      showToast("بارگذاری لوگو ناموفق بود");
+    });
     input.value = "";
   });
 }
-function renderOpenCardsIfAny(){
-  if(openId){ const slide = state.slides.find(s=>s.id===openId); if(slide) refreshOpenCardLive(slide); }
-}
-
-/* ====================== آمار/حافظه ====================== */
-function updateStats(){
-  const el = document.getElementById("stats"); if(!el) return;
-  const slides = state.slides.length;
-  const photos = state.slides.reduce((a,s)=> a + (s.images||[]).filter(i=>i.data).length, 0);
-  el.textContent = `${slides} اسلاید · ${photos} عکس`;
-}
-function updateStorageMeter(){
-  const meter = document.getElementById("storageMeter"), txt = document.getElementById("storageText");
-  if(!meter||!txt) return;
-  let size = 0;
-  try{ size = JSON.stringify(state).length; }catch(e){ size = 0; }
-  const pct = Math.min(100, (size/SOFT_LIMIT)*100);
-  meter.querySelector("i").style.width = pct + "%";
-  meter.classList.toggle("warn", size > SOFT_LIMIT*0.75);
-  txt.textContent = `${fmtBytes(size)} از حدود ${fmtBytes(SOFT_LIMIT)} — ${pct<60?"وضعیت مناسب":(pct<90?"نزدیک به سقف":"حافظه تقریباً پر است")}`;
-}
-
-/* ====================== تم ====================== */
-function applyTheme(){
-  const t = state.meta.theme || "auto";
-  const root = document.documentElement;
-  if(t==="auto") root.removeAttribute("data-theme"); else root.setAttribute("data-theme", t);
-}
-function toggleTheme(){
-  const order = ["auto","light","dark"];
-  const i = order.indexOf(state.meta.theme||"auto");
-  state.meta.theme = order[(i+1)%order.length];
-  applyTheme(); commit();
-  showToast("پوسته: " + (state.meta.theme==="auto"?"خودکار":state.meta.theme==="light"?"روشن":"تاریک"));
-}
 
 /* ============================================================================
-   تمپلیت نصب باتری (با انواع ورودی هوشمند)
+   تمپلیت نصب باتری
    ============================================================================ */
 function loadBatteryTemplate(){
   if(state.slides.length && !confirm("اسلایدهای فعلی پاک شده و تمپلیت نصب باتری جایگزین می‌شود. ادامه می‌دهید؟")) return;
-  state.meta.projectTitle    = "گزارش نصب باتری — Batteries Check List";
+
+  state.meta.projectTitle = "گزارش نصب باتری — Batteries Check List";
   state.meta.projectSubtitle = "گزارش نصب و تست باتری سایت";
   state.meta.primary = "#00A651";
-  state.meta.accent  = "#2F6FB5";
+  state.meta.accent = "#2F6FB5";
 
-  const slides = [];
-  const DEFAULT_PROVINCE = "تهران";
-  const DEFAULT_CITY = "تهران";
+  var DEFAULT_PROVINCE = "تهران";
+  var DEFAULT_CITY = "تهران";
+  var slides = [];
 
-  /* روی جلد */
+  /* 1) روی جلد */
   slides.push({
-    id: uid(), layout:"cover",
-    title:"Batteries Check List",
-    note:"گزارش نصب و تست باتری سایت",
-    body:"Site ID: TH2484  |  تاریخ نصب: ۱۴۰۵/۰۴/۰۶",
-    rows:[], images:[], checklist:[]
+    id: uid(), layout: "cover",
+    title: "Batteries Check List",
+    note: "گزارش نصب و تست باتری سایت",
+    body: "Site ID: TH2484  |  تاریخ نصب: ۱۴۰۵/۰۴/۰۶",
+    rows: [], images: [], checklist: []
   });
 
-  /* جدول اطلاعات با انواع ورودی مناسب */
-  const infoRows = [
+  /* 2) جدول اطلاعات با انواع ورودی */
+  var infoRows = [
     { label:"Province / استان", type:FIELD.PROVINCE, value:DEFAULT_PROVINCE },
     { label:"City / شهر",       type:FIELD.CITY,     value:DEFAULT_CITY, dependsOn:"Province / استان" },
     { label:"Lat & Long",       type:FIELD.LOCATION, value:"", placeholder:"از GPS یا دستی" },
@@ -1812,76 +2073,76 @@ function loadBatteryTemplate(){
     { label:"Rectifier Type",   type:FIELD.TEXT,     value:"" },
     { label:"SMR Type",         type:FIELD.TEXT,     value:"" },
     { label:"Number of PSU",    type:FIELD.NUMBER,   value:"", unit:"عدد" },
-
     { label:"Amount of AC current", type:FIELD.DECIMAL, value:"", unit:"A" },
     { label:"Amount of DC current", type:FIELD.DECIMAL, value:"", unit:"A" },
     { label:"Main AC Fuse",         type:FIELD.NUMBER,  value:"", unit:"A" },
     { label:"Type & Number of Battery Fuses", type:FIELD.TEXT, value:"" },
     { label:"Floating voltage (FLM)",         type:FIELD.DECIMAL, value:"", unit:"V" },
     { label:"Equalize (charging voltage)",    type:FIELD.DECIMAL, value:"", unit:"V" },
-
     { label:"Batteries Type",   type:FIELD.SELECT, value:"", options:["VRLA","AGM","GEL","Li-Ion","Ni-Cd"] },
     { label:"Number of Battery", type:FIELD.NUMBER, value:"", unit:"عدد", key:"batteryCount" },
     { label:"Number of Battery Banks (auto)", type:FIELD.AUTO, value:"0" },
     { label:"Supplier",         type:FIELD.BRAND, value:"Nian" },
-
     { label:"Production date of Battery",   type:FIELD.DATE, value:"" },
     { label:"Installation Date",            type:FIELD.DATE, value:"" },
     { label:"Expiration date of Guarantee", type:FIELD.DATE, value:"" },
-
     { label:"Engineer Name", type:FIELD.TEXT, value:"" },
     { label:"Phone Number",  type:FIELD.TEL,  value:"", placeholder:"09xxxxxxxxx" }
   ];
   slides.push({
-    id: uid(), layout:"table",
-    title:"Batteries Check List",
-    note:"اطلاعات کلی سایت و مشخصات باتری",
-    body:"", rows: infoRows, images:[], checklist:[]
+    id: uid(), layout: "table",
+    title: "Batteries Check List",
+    note: "اطلاعات کلی سایت و مشخصات باتری",
+    body: "", rows: infoRows, images: [], checklist: []
   });
 
-  /* اسلایدهای عکس */
-  const photoSlides = [
+  /* 3) اسلایدهای عکس */
+  var photoSlides = [
     { title:"عکس از لیبل سایت", note:"لیبل شناسایی سایت باید واضح و خوانا باشد" },
     { title:"عکس محوطه سایت", note:"محوطه سایت با فاصله بعد از خارج کردن باتری‌های قدیمی — نصب باتری‌های جدید و تجهیزات مشخص باشد" },
     { title:"نمای کلی تجهیزات داخل رک (قبل و بعد)", note:"قبل از نصب + بعد از نصب باتری و لیبل (لیبل‌ها چاپ‌شده باشند)" },
     { title:"عکس از رک باتری بعد از خارج کردن باتری‌های قدیمی", note:"رک خالی بعد از برداشتن باتری‌های قدیمی" },
     { title:"نمای کامل نصب باتری جدید از روبرو", note:"بعد از نصب لیبل، بدون گارد، بعد از نصب درپوش سر باتری‌ها" },
     { title:"مشخصات روی کلیه سل‌های جدید", note:"لیبل‌های چاپ‌شده (تاریخ – سریال – برند – تایپ – شماره قرارداد) — واضح و با کیفیت" },
-    { title:"مشخصات روی باتری‌های قدیمی", note:"عکس به تعداد باتری‌ها و بدون گارد (تاریخ – سریال – برند – تایپ)" },
-    { title:"نصب کابل و شینه‌های مربوط به باتری", note:"برای هر بانک باتری یک عکس — تصویر کامل شینه‌ها، کابل‌های مثبت و منفی" },
+    { title:"مشخصات روی باتری‌های قدیمی", note:"عکس به تعداد باتری‌ها و بدون گارد" },
+    { title:"نصب کابل و شینه‌های مربوط به باتری", note:"برای هر بانک باتری یک عکس" },
     { title:"جریان مصرفی DC برای هر رکتی‌فایر یا BFU", note:"یک عکس به ازای هر رکتی‌فایر — رعایت بالانس بین رک‌ها الزامی است" },
-    { title:"وضعیت ایمن‌سازی رک باتری و حفاظ", note:"RBS Cage، محافظ جوشی — در صورت داشتن گارد حتماً بعد از نصب گارد عکس گرفته شود" },
-    { title:"اسکرین‌شات کلیه آلارم‌های سایت", note:"Battery Dis, Battery door, Door open, BBU Temp, Mains Fail, Module, Cooling و ... — عکس از صفحه لپ‌تاپ مورد تأیید نیست" },
-    { title:"تنظیمات رکتی‌فایر و Load ماژول‌ها", note:"بعد از نصب باتری — رعایت بالانس جریان مصرفی بین رک‌ها و ماژول‌ها الزامی است" },
+    { title:"وضعیت ایمن‌سازی رک باتری و حفاظ", note:"RBS Cage، محافظ جوشی" },
+    { title:"اسکرین‌شات کلیه آلارم‌های سایت", note:"Battery Dis, Battery door, Door open, BBU Temp, Mains Fail, Module, Cooling و ..." },
+    { title:"تنظیمات رکتی‌فایر و Load ماژول‌ها", note:"بالانس جریان مصرفی بین رک‌ها و ماژول‌ها الزامی است" },
     { title:"بروزرسانی تاریخ نصب باتری در سیستم", note:"اسکرین‌شات از سیستم پس از ثبت تاریخ نصب" },
     { title:"تست ولتاژ مجموع بانک‌ها", note:"قبل از تست / ۵ دقیقه / ۳۰ دقیقه — لیبل بانک مشخص باشد + تاریخ و ساعت" },
-    { title:"ولتاژ سل‌های باتری (تست)", note:"ولتاژ هر سل قبل از تست، ۵ دقیقه و ۳۰ دقیقه — لیبل هر سل در عکس مشخص باشد" },
+    { title:"ولتاژ سل‌های باتری (تست)", note:"ولتاژ هر سل قبل از تست، ۵ دقیقه و ۳۰ دقیقه" },
     { title:"محل قرارگیری سنسور باتری", note:"عکس محل نصب سنسور دما/باتری" },
     { title:"سیستم سرمایش رک باتری", note:"عکس سیستم سرمایش" },
     { title:"شناسنامه سایت", note:"عکس شناسنامه / پلاک سایت" }
   ];
-  photoSlides.forEach(p=>{
-    slides.push({ id:uid(), layout:"photos", title:p.title, note:p.note, body:"", rows:[], images:[], checklist:[] });
+  photoSlides.forEach(function(p){
+    slides.push({
+      id: uid(), layout: "photos",
+      title: p.title, note: p.note, body: "",
+      rows: [], images: [], checklist: []
+    });
   });
 
-  /* جدول تست ولتاژ — خودکار */
+  /* 4) جدول تست ولتاژ (خودکار) */
   slides.push({
-    id: uid(), layout:"table",
-    title:"جدول تست ولتاژ — Voltage Test Results",
-    note:"مقادیر ولتاژ بانک‌ها و سل‌ها (۰ / ۵ / ۳۰ دقیقه) — به‌صورت خودکار بر اساس تعداد باتری ساخته می‌شود",
-    body:"",
+    id: uid(), layout: "table",
+    title: "جدول تست ولتاژ — Voltage Test Results",
+    note: "مقادیر ولتاژ بانک‌ها و سل‌ها (۰ / ۵ / ۳۰ دقیقه) — به‌صورت خودکار بر اساس تعداد باتری ساخته می‌شود",
+    body: "",
     rows: buildVoltageTestRows(3, 4),
-    images:[], checklist:[],
+    images: [], checklist: [],
     autoFromBatteryCount: true
   });
 
-  /* چک‌لیست */
+  /* 5) چک‌لیست */
   slides.push({
-    id: uid(), layout:"checklist",
-    title:"چک‌لیست کنترل نهایی",
-    note:"قبل از تحویل گزارش، همه موارد باید تیک بخورند",
-    body:"", rows:[], images:[],
-    checklist:[
+    id: uid(), layout: "checklist",
+    title: "چک‌لیست کنترل نهایی",
+    note: "قبل از تحویل گزارش، همه موارد باید تیک بخورند",
+    body: "", rows: [], images: [],
+    checklist: [
       { text:"تمام عکس‌های الزامی گرفته و در اسلایدها قرار داده شده است", done:false },
       { text:"لیبل‌های باتری (تاریخ، سریال، برند، تایپ) واضح هستند", done:false },
       { text:"بالانس جریان بین رک‌ها و ماژول‌ها رعایت شده است", done:false },
@@ -1891,111 +2152,129 @@ function loadBatteryTemplate(){
     ]
   });
 
-  /* توضیحات */
-  slides.push({ id:uid(), layout:"text", title:"توضیحات / Notes", note:"", body:"", rows:[], images:[], checklist:[] });
+  /* 6) توضیحات */
+  slides.push({
+    id: uid(), layout: "text",
+    title: "توضیحات / Notes", note: "", body: "",
+    rows: [], images: [], checklist: []
+  });
 
   state.slides = slides;
   openId = null;
   commit(); render();
   showToast("تمپلیت نصب باتری بارگذاری شد ✅");
-  window.scrollTo({ top:0, behavior:"smooth" });
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 /* ============================================================================
    اتصال رخدادها
    ============================================================================ */
 function init(){
-  applyTheme(); initHistory(); updateUndoButtons();
+  applyTheme();
+  initHistory();
+  updateUndoButtons();
 
-  const b1 = document.getElementById("btnLoadBatteryTpl");
-  if(b1) b1.addEventListener("click", loadBatteryTemplate);
-  const b2 = document.getElementById("btnLoadBatteryTpl2");
-  if(b2) b2.addEventListener("click", loadBatteryTemplate);
+  document.getElementById("btnLoadBatteryTpl").addEventListener("click", loadBatteryTemplate);
+  document.getElementById("btnLoadBatteryTpl2").addEventListener("click", loadBatteryTemplate);
 
-  document.getElementById("btnSettings").addEventListener("click", ()=>{
-    const p = document.getElementById("settingsPanel");
-    p.style.display = p.style.display==="none" ? "" : "none";
-    if(p.style.display!=="none") updateStorageMeter();
+  document.getElementById("btnSettings").addEventListener("click", function(){
+    var p = document.getElementById("settingsPanel");
+    p.style.display = p.style.display === "none" ? "" : "none";
+    if(p.style.display !== "none") updateStorageMeter();
   });
-  document.getElementById("projectTitle").addEventListener("input", e=>{
+
+  document.getElementById("projectTitle").addEventListener("input", function(e){
     state.meta.projectTitle = e.target.value;
     document.getElementById("brandSub").textContent = e.target.value || "ساخت اسلاید با تصویر و متن، خروجی HTML و PPTX";
     scheduleCommit();
   });
-  document.getElementById("projectSubtitle").addEventListener("input", e=>{ state.meta.projectSubtitle = e.target.value; scheduleCommit(); });
-  document.getElementById("colorPrimary").addEventListener("input", e=>{
+  document.getElementById("projectSubtitle").addEventListener("input", function(e){
+    state.meta.projectSubtitle = e.target.value;
+    scheduleCommit();
+  });
+  document.getElementById("colorPrimary").addEventListener("input", function(e){
     state.meta.primary = e.target.value;
     document.getElementById("colorPrimaryVal").textContent = e.target.value.toUpperCase();
     renderOpenCardsIfAny(); scheduleCommit();
   });
-  document.getElementById("colorAccent").addEventListener("input", e=>{
+  document.getElementById("colorAccent").addEventListener("input", function(e){
     state.meta.accent = e.target.value;
     document.getElementById("colorAccentVal").textContent = e.target.value.toUpperCase();
     renderOpenCardsIfAny(); scheduleCommit();
   });
 
-  document.getElementById("btnLogoLeft").addEventListener("click", ()=>document.getElementById("fileLogoLeft").click());
-  document.getElementById("btnLogoRight").addEventListener("click", ()=>document.getElementById("fileLogoRight").click());
+  document.getElementById("btnLogoLeft").addEventListener("click", function(){ document.getElementById("fileLogoLeft").click(); });
+  document.getElementById("btnLogoRight").addEventListener("click", function(){ document.getElementById("fileLogoRight").click(); });
   wireLogoUpload("fileLogoLeft", "logoLeft", "logoLeftThumb");
   wireLogoUpload("fileLogoRight", "logoRight", "logoRightThumb");
 
-  document.getElementById("tgFooter").addEventListener("click", ()=>{
+  document.getElementById("tgFooter").addEventListener("click", function(){
     state.meta.showFooter = !state.meta.showFooter;
     document.getElementById("swFooter").classList.toggle("on", state.meta.showFooter);
     renderOpenCardsIfAny(); commit();
   });
-  document.getElementById("tgMarks").addEventListener("click", ()=>{
+  document.getElementById("tgMarks").addEventListener("click", function(){
     state.meta.showMarks = !state.meta.showMarks;
     document.getElementById("swMarks").classList.toggle("on", state.meta.showMarks);
     commit(); renderSlidesList();
   });
 
   document.getElementById("btnSaveProject").addEventListener("click", saveProjectFile);
-  document.getElementById("btnLoadProject").addEventListener("click", ()=>document.getElementById("fileProject").click());
-  document.getElementById("fileProject").addEventListener("change", e=>{
-    const f = e.target.files && e.target.files[0];
+  document.getElementById("btnLoadProject").addEventListener("click", function(){ document.getElementById("fileProject").click(); });
+  document.getElementById("fileProject").addEventListener("change", function(e){
+    var f = e.target.files && e.target.files[0];
     if(f) loadProjectFile(f);
     e.target.value = "";
   });
-  document.getElementById("btnClearAll").addEventListener("click", ()=>{
+  document.getElementById("btnClearAll").addEventListener("click", function(){
     if(!state.slides.length){ showToast("لیست خالی است"); return; }
-    if(!confirm("همه اسلایدها پاک شوند؟ این عمل با Ctrl+Z قابل بازگشت است.")) return;
-    state.slides = []; openId = null; commit(); render(); showToast("همه اسلایدها پاک شد");
+    if(!confirm("همه اسلایدها پاک شوند؟ با Ctrl+Z قابل بازگشت است.")) return;
+    state.slides = []; openId = null;
+    commit(); render();
+    showToast("همه اسلایدها پاک شد");
   });
 
   document.getElementById("btnAddSlide").addEventListener("click", openLayoutSheet);
-  document.getElementById("layoutSheet").addEventListener("click", e=>{
+  document.getElementById("layoutSheet").addEventListener("click", function(e){
     if(e.target.id === "layoutSheet"){ closeLayoutSheet(); return; }
-    const item = e.target.closest(".lp-item");
+    var item = e.target.closest(".lp-item");
     if(!item) return;
-    const layout = item.dataset.layout;
+    var layout = item.dataset.layout;
 
     if(layout === "photos-bulk"){
-      const created = [];
-      for(let i=0;i<5;i++){
-        const s = newSlide("photos");
+      var created = [];
+      for(var i=0; i<5; i++){
+        var s = newSlide("photos");
         s.title = "اسلاید تصاویر " + (state.slides.length + i + 1);
-        state.slides.push(s); created.push(s);
+        state.slides.push(s);
+        created.push(s);
       }
-      openId = created[0].id; closeLayoutSheet(); commit(); render();
+      openId = created[0].id;
+      closeLayoutSheet();
+      commit(); render();
       showToast("۵ اسلاید تصاویر اضافه شد");
-      setTimeout(()=>{
-        const card = document.querySelector(`.slide-card[data-id="${created[0].id}"]`);
+      setTimeout(function(){
+        var card = document.querySelector('.slide-card[data-id="' + created[0].id + '"]');
         if(card) card.scrollIntoView({behavior:"smooth", block:"start"});
       }, 60);
       return;
     }
-    const s = newSlide(layout);
-    state.slides.push(s); openId = s.id;
-    closeLayoutSheet(); commit(); render();
-    setTimeout(()=>{
-      const card = document.querySelector(`.slide-card[data-id="${s.id}"]`);
+
+    var sl = newSlide(layout);
+    state.slides.push(sl);
+    openId = sl.id;
+    closeLayoutSheet();
+    commit(); render();
+    setTimeout(function(){
+      var card = document.querySelector('.slide-card[data-id="' + sl.id + '"]');
       if(card) card.scrollIntoView({behavior:"smooth", block:"start"});
     }, 60);
   });
-  document.getElementById("btnDuplicateLast").addEventListener("click", ()=>{
-    if(!state.slides.length){ showToast("اسلایدی برای تکثیر وجود ندارد"); return; }
-    duplicateSlide(state.slides.length - 1); closeLayoutSheet();
+
+  document.getElementById("btnDuplicateLast").addEventListener("click", function(){
+    if(!state.slides.length){ showToast("اسلایدی برای تکثیر نیست"); return; }
+    duplicateSlide(state.slides.length - 1);
+    closeLayoutSheet();
   });
 
   document.getElementById("btnFullPreview").addEventListener("click", openFullPreview);
@@ -2006,31 +2285,68 @@ function init(){
   document.getElementById("btnExportHTML").addEventListener("click", exportHTML);
 
   document.getElementById("lbClose").addEventListener("click", closeLightbox);
-  document.getElementById("lightbox").addEventListener("click", e=>{ if(e.target.id === "lightbox") closeLightbox(); });
+  document.getElementById("lightbox").addEventListener("click", function(e){
+    if(e.target.id === "lightbox") closeLightbox();
+  });
 
-  document.getElementById("searchInput").addEventListener("input", e=>{
-    searchQuery = e.target.value.trim(); renderSlidesList();
+  document.getElementById("searchInput").addEventListener("input", function(e){
+    searchQuery = e.target.value.trim();
+    renderSlidesList();
   });
 
   document.getElementById("btnUndo").addEventListener("click", undo);
   document.getElementById("btnRedo").addEventListener("click", redo);
   document.getElementById("btnTheme").addEventListener("click", toggleTheme);
 
-  document.addEventListener("keydown", e=>{
-    const tag = (e.target.tagName||"").toLowerCase();
-    const typing = tag==="input" || tag==="textarea";
+  document.addEventListener("keydown", function(e){
+    var tag = (e.target.tagName || "").toLowerCase();
+    var typing = tag === "input" || tag === "textarea";
     if(e.key === "Escape"){
       closeLayoutSheet(); closeFullPreview(); closeLightbox(); closeJalaliPicker();
       return;
     }
-    const ctrl = e.ctrlKey || e.metaKey;
-    if(ctrl && !e.shiftKey && (e.key==="z"||e.key==="Z")){ if(typing) return; e.preventDefault(); undo(); return; }
-    if(ctrl && (e.key==="y"||e.key==="Y"||(e.shiftKey&&(e.key==="z"||e.key==="Z")))){ e.preventDefault(); redo(); return; }
-    if(ctrl && (e.key==="s"||e.key==="S")){ e.preventDefault(); saveProjectFile(); return; }
-    if(ctrl && (e.key==="p"||e.key==="P")){ e.preventDefault(); openFullPreview(); return; }
+    var ctrl = e.ctrlKey || e.metaKey;
+    if(ctrl && !e.shiftKey && (e.key === "z" || e.key === "Z")){
+      if(typing) return;
+      e.preventDefault(); undo(); return;
+    }
+    if(ctrl && (e.key === "y" || e.key === "Y" || (e.shiftKey && (e.key === "z" || e.key === "Z")))){
+      e.preventDefault(); redo(); return;
+    }
+    if(ctrl && (e.key === "s" || e.key === "S")){ e.preventDefault(); saveProjectFile(); return; }
+    if(ctrl && (e.key === "p" || e.key === "P")){ e.preventDefault(); openFullPreview(); return; }
   });
 
-  window.addEventListener("beforeunload", ()=>{ saveState(); });
+  /* دکمه‌های تقویم شمسی */
+  document.getElementById("jdpPrevMonth").addEventListener("click", function(){
+    jdpState.jm--; if(jdpState.jm < 1){ jdpState.jm = 12; jdpState.jy--; }
+    var m = jalaaliMonthLength(jdpState.jy, jdpState.jm);
+    if(jdpState.jd > m) jdpState.jd = m;
+    renderJdp();
+  });
+  document.getElementById("jdpNextMonth").addEventListener("click", function(){
+    jdpState.jm++; if(jdpState.jm > 12){ jdpState.jm = 1; jdpState.jy++; }
+    var m = jalaaliMonthLength(jdpState.jy, jdpState.jm);
+    if(jdpState.jd > m) jdpState.jd = m;
+    renderJdp();
+  });
+  document.getElementById("jdpPrevYear").addEventListener("click", function(){ jdpState.jy--; renderJdp(); });
+  document.getElementById("jdpNextYear").addEventListener("click", function(){ jdpState.jy++; renderJdp(); });
+  document.getElementById("jdpClear").addEventListener("click", function(){
+    if(jdpState.cb) jdpState.cb("");
+    closeJalaliPicker();
+  });
+  document.getElementById("jdpToday").addEventListener("click", function(){
+    var t = todayJalali();
+    if(jdpState.cb) jdpState.cb(formatJalali(t.jy, t.jm, t.jd));
+    closeJalaliPicker();
+  });
+  document.getElementById("jdpOverlay").addEventListener("click", function(e){
+    if(e.target.id === "jdpOverlay") closeJalaliPicker();
+  });
+
+  window.addEventListener("beforeunload", function(){ saveState(); });
+
   render();
 }
 document.addEventListener("DOMContentLoaded", init);
