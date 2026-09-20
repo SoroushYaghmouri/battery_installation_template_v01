@@ -141,7 +141,7 @@
   .img-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:8px;}
   .img-item{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--paper);}
   .img-item .img-box{position:relative;aspect-ratio:16/9;background:#e9ecf0;}
-  .img-item .img-box img{width:100%;height:100%;object-fit:contain;cursor:zoom-in;background:#111;}
+  .img-item .img-box img{width:100%;height:100%;object-fit:contain;cursor:zoom-in;background:#111;display:block;}.img-item .img-overlay-label{position:absolute;left:0;right:0;bottom:0;padding:7px 9px;background:rgba(12,18,28,.78);color:#fff;font-size:10px;line-height:1.45;text-align:right;pointer-events:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .img-item .img-box button.rm{position:absolute;top:4px;left:4px;width:24px;height:24px;border-radius:7px;
     border:none;background:rgba(20,20,20,.6);color:#fff;font-size:12px;cursor:pointer;}
   .img-item .img-move{position:absolute;bottom:4px;left:4px;display:flex;gap:4px;}
@@ -667,7 +667,7 @@ function fmtBytes(n){
 /* ---------- CSS بورد اسلاید ---------- */
 var BOARD_CSS = [
   ".board-wrap{width:100%;}",
-  ".board{position:relative;width:100%;aspect-ratio:4/3;background:#fff;border-radius:6px;overflow:hidden;",
+  ".board{position:relative;width:100%;aspect-ratio:16/9;background:#fff;border-radius:6px;overflow:hidden;",
   "box-shadow:0 1px 6px rgba(0,0,0,.18);direction:rtl;font-family:Vazirmatn,Tahoma,sans-serif;}",
   ".board .bar-top{position:absolute;top:0;left:0;right:0;height:5.6%;background:var(--b-primary);}",
   ".board .bar-bottom{position:absolute;bottom:0;left:0;right:0;height:3%;background:var(--b-primary);}",
@@ -682,9 +682,9 @@ var BOARD_CSS = [
   ".board .b-table td{border:1px solid #d5dbe3;padding:1.6% 2%;}",
   ".board .b-table td.lab{background:var(--b-accent-soft);font-weight:700;color:#213041;width:22%;}",
   ".board .b-table td.val{background:#fff;color:#333;width:28%;text-align:center;}",
-  ".board .b-photos{display:grid;gap:2%;height:100%;}",
-  ".board .b-photo{position:relative;background:#eef0f3;border-radius:5px;overflow:hidden;border:1px solid #dfe3e9;}",
-  ".board .b-photo img{width:100%;height:100%;object-fit:cover;}",
+  ".board .b-photos{display:grid;gap:2%;height:100%;align-content:center;justify-content:center;}",
+  ".board .b-photo{position:relative;background:#eef0f3;border-radius:5px;overflow:hidden;border:1px solid #dfe3e9;aspect-ratio:16/9;min-width:0;}",
+  ".board .b-photo img{width:100%;height:100%;object-fit:contain;display:block;background:#111;}",
   ".board .b-photo .ph-cap{position:absolute;bottom:0;left:0;right:0;background:rgba(20,25,35,.62);color:#fff;font-size:2.3%;padding:1.5% 2%;text-align:center;}",
   ".board .b-photo .ph-meta{position:absolute;bottom:0;left:0;right:0;background:rgba(20,25,35,.72);color:#fff;font-size:1.9%;padding:1.2% 1.6%;text-align:right;line-height:1.45;}",
   ".board .b-photo-empty{grid-column:1/-1;grid-row:1/-1;border:2px dashed #c6ced9;border-radius:6px;background:#f7f9fb;",
@@ -885,13 +885,16 @@ function showToast(msg){
 }
 
 /* ---------- فشرده‌سازی تصویر ---------- */
-function fileToCompressedDataURL(file){
+function fileToOriginalDataURL(file){
   return new Promise(function(resolve, reject){
     var reader = new FileReader();
     reader.onerror = function(){ reject(new Error("خواندن فایل ناموفق")); };
     reader.onload = function(){ resolve(reader.result); };
     reader.readAsDataURL(file);
   });
+}
+function fileToCompressedDataURL(file){
+  return fileToOriginalDataURL(file);
 }
 
 
@@ -954,7 +957,7 @@ function makeLabeledDataURL(dataUrl, label){
       ctx.fillStyle="#fff"; ctx.font="700 "+fontSize+"px Vazirmatn, Arial, sans-serif";
       ctx.textAlign="right"; ctx.textBaseline="middle";
       ctx.fillText(text,w-pad,h-stripH/2);
-      try{ resolve(c.toDataURL("image/jpeg",0.94)); }catch(e){ reject(e); }
+      try{ resolve(c.toDataURL("image/png")); }catch(e){ reject(e); }
     };
     img.onerror=function(){reject(new Error("تصویر قابل پردازش نیست"));};
     img.src=dataUrl;
@@ -983,7 +986,7 @@ async function exportLabeledImages(){
     for(var i=0;i<imgs.length;i++){
       var x=imgs[i], labeled=await makeLabeledDataURL(x.im.data,imageLabel(x.im));
       var base64=labeled.split(",")[1];
-      var name=String(x.si+1).padStart(2,"0")+"-"+String(x.ii+1).padStart(2,"0")+"-"+fileSafeName(x.slide.title)+".jpg";
+      var name=String(x.si+1).padStart(2,"0")+"-"+String(x.ii+1).padStart(2,"0")+"-"+fileSafeName(x.slide.title)+".png";
       zip.file(name,base64,{base64:true});
     }
     var blob=await zip.generateAsync({type:"blob",compression:"DEFLATE"});
@@ -1064,7 +1067,8 @@ function photosHTML(images, slide){
   var h = '<div class="b-photos" style="grid-template-columns:repeat(' + cols + ',1fr); grid-template-rows:repeat(' + rows + ',1fr);">';
   images.forEach(function(im){
     h += '<div class="b-photo"><img src="' + im.data + '" alt="">';
-    if(im.caption) h += '<div class="ph-cap">' + escapeHTML(im.caption) + '</div>';
+    h += '<div class="ph-meta">' + escapeHTML(imageLabel(im)) + '</div>';
+    if(im.caption) h += '<div class="ph-cap" style="bottom:18%;">' + escapeHTML(im.caption) + '</div>';
     h += '</div>';
   });
   h += '</div>';
@@ -1695,6 +1699,7 @@ function buildPhotosEditor(slide){
     item.innerHTML =
       '<div class="img-box">' +
         '<img src="' + im.data + '" alt="">' +
+        '<div class="img-overlay-label">' + escapeHTML(lbl) + '</div>' +
         '<button class="rm" title="حذف">✕</button>' +
         '<div class="img-move">' +
           '<button data-mv="-1" title="راست" ' + (i===0?"disabled":"") + '>▶</button>' +
@@ -1730,7 +1735,7 @@ function buildPhotosEditor(slide){
 
     var camLabel=document.createElement("label");
     camLabel.className="photo-action camera";
-    camLabel.innerHTML="📷 ثبت با دوربین";
+    camLabel.innerHTML="📷 ثبت با دوربین (16:9)";
     var cam=document.createElement("input");
     cam.type="file"; cam.accept="image/*"; cam.setAttribute("capture","environment");
     cam.addEventListener("change",function(){ handlePhotoFiles(slide,Array.prototype.slice.call(cam.files||[])); cam.value=""; });
@@ -1780,7 +1785,7 @@ function handlePhotoFiles(slide, files){
       return;
     }
     var f = toProcess[idx++];
-    fileToCompressedDataURL(f).then(function(url){
+    fileToOriginalDataURL(f).then(function(url){
       slide.images.push({
         data:url, caption:"",
         capturedAt:captureTimestamp(),
@@ -2011,8 +2016,8 @@ async function exportPPTX(){
   showToast("در حال ساخت فایل PPTX…");
   try{
     var pres = new PptxGenJS();
-    pres.defineLayout({ name: "CUSTOM_4_3", width: 10, height: 7.5 });
-    pres.layout = "CUSTOM_4_3";
+    pres.defineLayout({ name: "CUSTOM_16_9", width: 13.333333, height: 7.5 });
+    pres.layout = "CUSTOM_16_9";
     pres.author = "Power Team — NAK";
     pres.title = state.meta.projectTitle || "Battery Report";
     pres.company = "شرکت نقش اول کیفیت (NAK)";
@@ -2043,44 +2048,44 @@ async function exportPPTX(){
       s.background = { color: "FFFFFF" };
 
       s.addShape(pres.ShapeType.rect, { x:0, y:0, w:10, h:0.24, fill:{color:primary}, line:{type:"none"} });
-      s.addShape(pres.ShapeType.rect, { x:0, y:7.5-0.13, w:10, h:0.13, fill:{color:primary}, line:{type:"none"} });
+      s.addShape(pres.ShapeType.rect, { x:0, y:7.5-0.13, w:13.333333, h:0.13, fill:{color:primary}, line:{type:"none"} });
 
       if(state.meta.logoLeft){
         try{ s.addImage({ data: state.meta.logoLeft, x:0.28, y:0.32, w:0.55, h:0.55 }); }catch(e){}
       }
       if(state.meta.logoRight){
-        try{ s.addImage({ data: state.meta.logoRight, x:10-0.28-0.55, y:0.32, w:0.55, h:0.55 }); }catch(e){}
+        try{ s.addImage({ data: state.meta.logoRight, x:13.333333-0.28-0.55, y:0.32, w:0.55, h:0.55 }); }catch(e){}
       }
 
       if(showFooter){
         s.addText((si+1) + " / " + total, {
-          x:0.3, y:7.02, w:1.6, h:0.3, fontSize:9,
+          x:0.4, y:7.02, w:1.8, h:0.3, fontSize:9,
           color:"9AA3B0", fontFace:"Arial", align:"left", valign:"middle"
         });
         s.addText(state.meta.projectTitle || "", {
-          x:2.0, y:7.02, w:5.0, h:0.3, fontSize:9, color:"9AA3B0",
+          x:2.65, y:7.02, w:6.67, h:0.3, fontSize:9, color:"9AA3B0",
           fontFace:"Arial", align:"center", valign:"middle", rtlMode:true
         });
         s.addText("نقش اول کیفیت (NAK) · تیم پاور", {
-          x:7.05, y:7.02, w:2.55, h:0.3, fontSize:7.5, color:"7B8794",
+          x:9.40, y:7.02, w:3.10, h:0.3, fontSize:7.5, color:"7B8794",
           fontFace:"Arial", align:"right", valign:"middle", rtlMode:true
         });
       }
 
       if(slide.layout === "cover"){
         s.addText(slide.title || "عنوان گزارش", {
-          x:0.8, y:2.6, w:8.4, h:0.95, align:"center", valign:"middle",
+          x:1.07, y:2.6, w:11.20, h:0.95, align:"center", valign:"middle",
           fontSize:32, bold:true, color:accent, fontFace:"Arial", rtlMode:true
         });
         if(slide.note){
           s.addText(slide.note, {
-            x:0.8, y:3.62, w:8.4, h:0.6, align:"center", valign:"middle",
+            x:1.07, y:3.62, w:11.20, h:0.6, align:"center", valign:"middle",
             fontSize:16, color:"3A4250", fontFace:"Arial", rtlMode:true
           });
         }
         if(slide.body){
           s.addText(slide.body, {
-            x:0.8, y:4.3, w:8.4, h:0.5, align:"center", valign:"middle",
+            x:1.07, y:4.3, w:11.20, h:0.5, align:"center", valign:"middle",
             fontSize:12.5, color:"7C8390", fontFace:"Arial", rtlMode:true
           });
         }
@@ -2088,14 +2093,14 @@ async function exportPPTX(){
       }
 
       s.addText(slide.title || "", {
-        x:1.0, y:0.30, w:8.0, h:0.55, align:"center", valign:"middle",
+        x:1.33, y:0.30, w:10.67, h:0.55, align:"center", valign:"middle",
         fontSize:19, bold:true, color:accent, fontFace:"Arial", rtlMode:true
       });
 
       var contentTop = 1.02;
       if(slide.note){
         s.addText(slide.note, {
-          x:0.6, y:0.85, w:8.8, h:0.45, align:"center", valign:"middle",
+          x:0.80, y:0.85, w:11.73, h:0.45, align:"center", valign:"middle",
           fontSize:12, color:"555555", fontFace:"Arial", rtlMode:true
         });
         contentTop = 1.34;
@@ -2117,7 +2122,7 @@ async function exportPPTX(){
             ]);
           }
           s.addTable(tblRows, {
-            x:0.5, y:contentTop, w:9.0, colW:[1.9,2.6,1.9,2.6],
+            x:0.667, y:contentTop, w:12.0, colW:[2.53,3.47,2.53,3.47],
             border:{type:"solid", color:"D5DBE3", pt:0.75},
             fontFace:"Arial", fontSize:11, autoPage:false, rtlMode:true, valign:"middle"
           });
@@ -2128,7 +2133,7 @@ async function exportPPTX(){
       else if(slide.layout === "photos"){
         var imgs = (slide.images||[]).filter(function(i){ return i.data; });
         if(imgs.length){
-          layoutPhotosOnSlide(pres, s, imgs, 0.5, contentTop, 9.0, contentHeight);
+          layoutPhotosOnSlide(pres, s, imgs, 0.667, contentTop, 12.0, contentHeight);
         } else {
           addPlaceholder(pres, s, 0.5, contentTop, 9.0, contentHeight, slide.title || "تصویر", "هنوز تصویری اضافه نشده است");
         }
@@ -2140,7 +2145,7 @@ async function exportPPTX(){
             return { text: (c.done ? "☑  " : "☐  ") + c.text, options: { breakLine:true, color: c.done ? "7B8794" : "333333" } };
           });
           s.addText(arr, {
-            x:0.7, y:contentTop, w:8.6, h:contentHeight, fontSize:13,
+            x:0.93, y:contentTop, w:11.47, h:contentHeight, fontSize:13,
             fontFace:"Arial", rtlMode:true, lineSpacingMultiple:1.45, valign:"top"
           });
         } else {
@@ -2150,7 +2155,7 @@ async function exportPPTX(){
       else if(slide.layout === "text"){
         if(slide.body && slide.body.trim()){
           s.addText(slide.body, {
-            x:0.6, y:contentTop, w:8.8, h:contentHeight,
+            x:0.80, y:contentTop, w:11.73, h:contentHeight,
             align:"right", valign:"top", fontSize:14, color:"333333",
             fontFace:"Arial", rtlMode:true, lineSpacingMultiple:1.5
           });
@@ -2629,4 +2634,4 @@ document.addEventListener("DOMContentLoaded", init);
 })();
 </script>
 </body>
-</html>
+  </html>
