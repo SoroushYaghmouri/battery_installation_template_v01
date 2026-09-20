@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Battery Installation Template Maker</title>
+<title>سامانه حرفه‌ای گزارش نصب باتری | نقش اول کیفیت (NAK) - تیم پاور</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -37,6 +37,18 @@
     border-radius:10px;font-size:16px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;cursor:pointer;}
   header.appbar button.icon-btn:active{background:rgba(255,255,255,.32);}
 
+  .version-badge{display:inline-flex;align-items:center;justify-content:center;margin-right:5px;padding:2px 6px;border-radius:999px;background:rgba(255,255,255,.18);font-size:9px;font-weight:800;vertical-align:middle;}
+  .company-link{display:flex;align-items:center;justify-content:center;text-decoration:none;color:#fff;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);padding:6px 8px;border-radius:9px;font-size:10.5px;font-weight:800;flex:0 0 auto;}
+  .save-status{font-size:10px;color:var(--ink-soft);font-weight:700;white-space:nowrap;min-width:80px;text-align:center;}
+  .save-status.saving{color:var(--warn);}.save-status.saved{color:var(--primary-deep);}.save-status.error{color:var(--danger);}
+
+  .dashboard{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;}
+  .dash-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;min-width:0;}
+  .dash-card .dash-k{font-size:10px;color:var(--ink-soft);font-weight:700;margin-bottom:2px;}
+  .dash-card .dash-v{font-size:18px;font-weight:800;line-height:1.2;}
+  .dash-card .dash-s{font-size:9.5px;color:var(--ink-soft);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .quality-strip{display:flex;align-items:center;gap:8px;padding:9px 11px;border-radius:11px;background:var(--card);border:1px solid var(--line);margin-bottom:14px;font-size:11px;font-weight:700;}
+  .quality-dot{width:9px;height:9px;border-radius:50%;background:var(--primary);flex:0 0 auto;}.quality-dot.warn{background:var(--warn);}.quality-dot.danger{background:var(--danger);}
   .toolbar{position:sticky;top:calc(var(--safe-t) + 60px);z-index:19;background:var(--paper);
     padding:8px 12px 6px;border-bottom:1px solid var(--line);}
   .toolbar .tb-inner{max-width:640px;margin:0 auto;display:flex;gap:8px;align-items:center;}
@@ -251,6 +263,7 @@
   .jdp-grid button.empty{background:transparent;cursor:default;}
   .jdp-actions{display:flex;gap:8px;margin-top:12px;}
   .jdp-actions button{flex:1;padding:9px;border-radius:10px;border:none;font-weight:700;cursor:pointer;font-size:12.5px;}
+  @media(max-width:560px){.dashboard{grid-template-columns:repeat(2,1fr);}.company-link{font-size:9px;padding:5px 7px;}header.appbar .brand b{font-size:13px;}.save-status{display:none;}}
   .jdp-clear{background:var(--paper);color:var(--ink);border:1.5px solid var(--line);}
   .jdp-ok{background:var(--accent);color:#fff;}
 </style>
@@ -260,9 +273,10 @@
 <header class="appbar">
   <button class="icon-btn" id="btnSettings" aria-label="تنظیمات">⚙️</button>
   <div class="brand">
-    <b>قالب‌ساز گزارش پاورپوینت <span style="opacity:.7;font-size:11px;">v3</span></b>
-    <span id="brandSub">ساخت اسلاید با تصویر و متن، خروجی HTML و PPTX</span>
+    <b>سامانه حرفه‌ای گزارش نصب باتری <span class="version-badge">v5</span></b>
+    <span id="brandSub">تیم پاور شرکت نقش اول کیفیت (NAK) · nak-mci.ir</span>
   </div>
+  <a class="company-link" href="https://www.nak-mci.ir" target="_blank" rel="noopener noreferrer">NAK ↗</a>
   <button class="icon-btn" id="btnUndo" aria-label="واگرد">↶</button>
   <button class="icon-btn" id="btnRedo" aria-label="ازنو">↷</button>
   <button class="icon-btn" id="btnTheme" aria-label="پوسته">🌓</button>
@@ -277,6 +291,14 @@
 </div>
 
 <main id="main">
+  <section class="dashboard" aria-label="داشبورد وضعیت گزارش">
+    <div class="dash-card"><div class="dash-k">اسلایدها</div><div class="dash-v" id="dashSlides">۰</div><div class="dash-s">ساختار گزارش</div></div>
+    <div class="dash-card"><div class="dash-k">تصاویر</div><div class="dash-v" id="dashPhotos">۰</div><div class="dash-s">مدارک تصویری ثبت‌شده</div></div>
+    <div class="dash-card"><div class="dash-k">تکمیل</div><div class="dash-v" id="dashComplete">۰٪</div><div class="dash-s">آمادگی خروجی</div></div>
+    <div class="dash-card"><div class="dash-k">کنترل کیفیت</div><div class="dash-v" id="dashIssues">۰</div><div class="dash-s">موارد نیازمند تکمیل</div></div>
+  </section>
+  <div class="quality-strip"><span class="quality-dot" id="qualityDot"></span><span id="qualityText">در حال بررسی وضعیت گزارش…</span><span class="save-status" id="saveStatus">آماده</span></div>
+
   <div class="panel" id="settingsPanel" style="display:none;">
     <h2>تنظیمات گزارش <span class="muted">رنگ، لوگو، فوتر و پروژه</span></h2>
     <div class="field">
@@ -327,6 +349,7 @@
       <button class="btn-mini btn-block btn-blue" id="btnSaveProject">💾 ذخیره پروژه در فایل (JSON)</button>
       <button class="btn-mini btn-block btn-plain" id="btnLoadProject">📂 بارگذاری پروژه از فایل</button>
       <button class="btn-mini btn-block btn-green" id="btnLoadBatteryTpl2">🔋 بارگذاری / بازنشانی تمپلیت نصب باتری</button>
+      <button class="btn-mini btn-block btn-blue" id="btnQualityCheck">🧪 اجرای کنترل کیفیت گزارش</button>
       <button class="btn-mini btn-block btn-danger" id="btnClearAll">🗑️ پاک کردن همه اسلایدها</button>
     </div>
     <div class="sub-h">حافظه مرورگر</div>
@@ -343,7 +366,7 @@
     <button id="btnLoadBatteryTpl" style="margin-top:16px;padding:12px 22px;border:none;border-radius:12px;
       background:linear-gradient(135deg,#00A651,#00823f);color:#fff;font-weight:800;font-size:14px;
       cursor:pointer;font-family:inherit;">🔋 بارگذاری تمپلیت نصب باتری</button>
-    <div class="kbd-hint">میان‌بر: Ctrl+Z واگرد • Ctrl+Y ازنو • Esc بستن</div>
+    <div class="kbd-hint">میان‌بر: Ctrl+Z واگرد • Ctrl+Y ازنو • Ctrl+Shift+B تمپلیت باتری • Esc بستن</div>
   </div>
 </main>
 
@@ -412,8 +435,8 @@
 
 <script>
 /* ====================== لوگوهای پیش‌فرض ====================== */
-window.LOGO_LEFT_DEFAULT = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%2300A651'/><text x='50' y='68' font-size='48' font-family='Arial' fill='white' text-anchor='middle' font-weight='800'>G</text></svg>";
-window.LOGO_RIGHT_DEFAULT = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='6' y='6' width='88' height='88' rx='14' fill='%232F6FB5'/><text x='50' y='68' font-size='48' font-family='Arial' fill='white' text-anchor='middle' font-weight='800'>R</text></svg>";
+window.LOGO_LEFT_DEFAULT = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 100'><rect x='5' y='5' width='170' height='90' rx='18' fill='%2300A651'/><text x='90' y='68' font-size='48' font-family='Arial' fill='white' text-anchor='middle' font-weight='800'>NAK</text></svg>";
+window.LOGO_RIGHT_DEFAULT = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 100'><rect x='5' y='5' width='170' height='90' rx='18' fill='%232F6FB5'/><text x='90' y='66' font-size='34' font-family='Arial' fill='white' text-anchor='middle' font-weight='800'>POWER</text></svg>";
 </script>
 
 <script>
@@ -668,21 +691,23 @@ var LAYOUT_META = {
 };
 
 /* ---------- وضعیت ---------- */
-var STORAGE_KEY = "pptxbuilder_state_v3";
-var LEGACY_KEY = "pptxbuilder_state_v2";
+var STORAGE_KEY = "pptxbuilder_state_v5";
+var LEGACY_KEY = "pptxbuilder_state_v3";
 var MAX_IMAGES = 8;
 var SOFT_LIMIT = 4.5 * 1024 * 1024;
 
 function defaultState(){
   return {
-    version: 3,
+    version: 5,
     meta: {
       projectTitle: "گزارش نصب باتری سایت",
       projectSubtitle: "گزارش نصب و تست باتری",
       primary: "#00A651", accent: "#2F6FB5",
       logoLeft: window.LOGO_LEFT_DEFAULT,
       logoRight: window.LOGO_RIGHT_DEFAULT,
-      showFooter: true, showMarks: true, theme: "auto"
+      showFooter: true, showMarks: true, theme: "auto",
+      companyName: "شرکت نقش اول کیفیت (NAK) — تیم پاور",
+      companyWebsite: "https://www.nak-mci.ir"
     },
     slides: []
   };
@@ -702,7 +727,7 @@ function migrateState(parsed){
   var base = defaultState();
   if(!parsed || typeof parsed !== "object") return base;
   var out = {
-    version: 3,
+    version: 5,
     meta: Object.assign({}, base.meta, parsed.meta||{}),
     slides: Array.isArray(parsed.slides) ? parsed.slides : []
   };
@@ -736,13 +761,22 @@ var state = loadState();
 var openId = null;
 var searchQuery = "";
 
+function setSaveStatus(text, kind){
+  var el = document.getElementById("saveStatus");
+  if(!el) return;
+  el.textContent = text;
+  el.className = "save-status " + (kind || "");
+}
 function saveState(){
   try{
+    setSaveStatus("در حال ذخیره…", "saving");
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     updateStorageMeter();
+    setSaveStatus("ذخیره خودکار ✓", "saved");
   }catch(e){
     console.warn("ذخیره ناموفق:", e);
-    showToast("حافظه مرورگر پر است — تصاویر کمتری استفاده کنید");
+    setSaveStatus("حافظه پر است", "error");
+    showToast("حافظه مرورگر پر است — تصاویر را کم یا فشرده‌تر کنید");
   }
 }
 
@@ -764,6 +798,7 @@ function commit(){
 }
 function scheduleCommit(){
   clearTimeout(commitTimer);
+  setSaveStatus("در انتظار ذخیره…", "saving");
   commitTimer = setTimeout(commit, 650);
 }
 function undo(){
@@ -965,7 +1000,7 @@ function renderSettings(){
   document.getElementById("logoRightThumb").src = state.meta.logoRight || "";
   document.getElementById("swFooter").classList.toggle("on", !!state.meta.showFooter);
   document.getElementById("swMarks").classList.toggle("on", !!state.meta.showMarks);
-  document.getElementById("brandSub").textContent = state.meta.projectTitle || "ساخت اسلاید با تصویر و متن، خروجی HTML و PPTX";
+  document.getElementById("brandSub").textContent = state.meta.projectTitle || "تیم پاور شرکت نقش اول کیفیت (NAK) · nak-mci.ir";
 }
 function slideMatches(s, q){
   if(!q) return true;
@@ -1682,6 +1717,41 @@ function openFullPreview(){
 }
 function closeFullPreview(){ document.getElementById("fullPreview").classList.remove("open"); }
 
+/* ---------- کنترل کیفیت ---------- */
+function getQualityReport(){
+  var report={slides:state.slides.length,photos:0,complete:0,issues:0,emptySlides:0,photoIssues:0,checkIssues:0};
+  state.slides.forEach(function(s){
+    report.photos += (s.images||[]).filter(function(i){ return i && i.data; }).length;
+    var p = slideProgress(s);
+    if(p.ok) report.complete++; else report.issues++;
+    if(s.layout === "photos" && !(s.images||[]).some(function(i){ return i && i.data; })) report.photoIssues++;
+    if(s.layout === "checklist" && (s.checklist||[]).filter(function(c){ return c.text && c.text.trim() && c.done; }).length < (s.checklist||[]).filter(function(c){ return c.text && c.text.trim(); }).length) report.checkIssues++;
+  });
+  report.percent = report.slides ? Math.round(report.complete/report.slides*100) : 0;
+  return report;
+}
+function qualitySummaryText(r){
+  if(!r.slides) return "گزارش هنوز اسلایدی ندارد.";
+  if(!r.issues) return "گزارش از نظر ساختار فعلی کامل است و آماده بررسی نهایی است.";
+  return r.issues + " اسلاید نیازمند تکمیل است. قبل از تحویل، موارد ناقص را بررسی کنید.";
+}
+function runQualityCheck(){
+  var r=getQualityReport();
+  var lines=[
+    "گزارش کنترل کیفیت سامانه NAK",
+    "",
+    "تعداد اسلاید: "+r.slides,
+    "تعداد تصاویر: "+r.photos,
+    "درصد تکمیل ساختاری: "+r.percent+"٪",
+    "اسلایدهای نیازمند تکمیل: "+r.issues,
+    "گالری‌های بدون تصویر: "+r.photoIssues,
+    "موارد چک‌لیست دارای تیک ناقص: "+r.checkIssues,
+    "",
+    qualitySummaryText(r)
+  ];
+  alert(lines.join("\n"));
+}
+
 /* ---------- آمار و حافظه ---------- */
 function updateStats(){
   var el = document.getElementById("stats");
@@ -1691,6 +1761,14 @@ function updateStats(){
     return a + (s.images||[]).filter(function(i){ return i.data; }).length;
   }, 0);
   el.textContent = slides + " اسلاید · " + photos + " عکس";
+  var r = getQualityReport();
+  var ds=document.getElementById("dashSlides"), dp=document.getElementById("dashPhotos"), dc=document.getElementById("dashComplete"), di=document.getElementById("dashIssues"), qt=document.getElementById("qualityText"), qd=document.getElementById("qualityDot");
+  if(ds) ds.textContent = slides.toLocaleString("fa-IR");
+  if(dp) dp.textContent = photos.toLocaleString("fa-IR");
+  if(dc) dc.textContent = r.percent.toLocaleString("fa-IR") + "٪";
+  if(di) di.textContent = r.issues.toLocaleString("fa-IR");
+  if(qt) qt.textContent = qualitySummaryText(r);
+  if(qd){ qd.classList.toggle("warn", r.issues>0 && r.issues < Math.max(2, Math.ceil(slides*.5))); qd.classList.toggle("danger", r.issues>=Math.max(2, Math.ceil(slides*.5))); }
 }
 function updateStorageMeter(){
   var meter = document.getElementById("storageMeter");
@@ -1782,14 +1860,17 @@ function layoutPhotosOnSlide(pres, s, imgs, x, y, w, h){
 async function exportPPTX(){
   if(!state.slides.length){ showToast("ابتدا حداقل یک اسلاید اضافه کنید"); return; }
   if(typeof PptxGenJS === "undefined"){ showToast("کتابخانه PPTX بارگذاری نشد"); return; }
+  var qr=getQualityReport();
+  if(qr.issues>0 && !confirm("هشدار کنترل کیفیت\n"+qr.issues+" اسلاید هنوز کامل نیست.\nآیا با همین وضعیت خروجی PPTX ساخته شود؟")) return;
   showToast("در حال ساخت فایل PPTX…");
   try{
     var pres = new PptxGenJS();
     pres.defineLayout({ name: "CUSTOM_4_3", width: 10, height: 7.5 });
     pres.layout = "CUSTOM_4_3";
-    pres.author = "Battery Report Template Maker";
+    pres.author = "Power Team — NAK";
     pres.title = state.meta.projectTitle || "Battery Report";
-    pres.company = state.meta.projectTitle || "";
+    pres.company = "شرکت نقش اول کیفیت (NAK)";
+    pres.subject = state.meta.projectSubtitle || "گزارش نصب و تست باتری";
 
     var primary = hexNoHash(state.meta.primary);
     var accent = hexNoHash(state.meta.accent);
@@ -1817,8 +1898,12 @@ async function exportPPTX(){
           color:"9AA3B0", fontFace:"Arial", align:"left", valign:"middle"
         });
         s.addText(state.meta.projectTitle || "", {
-          x:2.0, y:7.02, w:6.0, h:0.3, fontSize:9, color:"9AA3B0",
+          x:2.0, y:7.02, w:5.0, h:0.3, fontSize:9, color:"9AA3B0",
           fontFace:"Arial", align:"center", valign:"middle", rtlMode:true
+        });
+        s.addText("نقش اول کیفیت (NAK) · تیم پاور", {
+          x:7.05, y:7.02, w:2.55, h:0.3, fontSize:7.5, color:"7B8794",
+          fontFace:"Arial", align:"right", valign:"middle", rtlMode:true
         });
       }
 
@@ -1915,7 +2000,7 @@ async function exportPPTX(){
       }
     });
 
-    var fname = (state.meta.projectTitle || "presentation").replace(/[\\/:*?"<>|]/g,"_") || "presentation";
+    var fname = "NAK_POWER_" + ((state.meta.projectTitle || "presentation").replace(/[\/:*?"<>|]/g,"_") || "presentation");
     await pres.writeFile({ fileName: fname + ".pptx" });
     showToast("دانلود PPTX آغاز شد ✅");
   }catch(e){
@@ -1959,7 +2044,7 @@ function buildExportHTML(){
     '.page{page-break-after:always;margin:0;}' +
     '.board{box-shadow:none;width:100%;}}' +
     '</style></head><body>' +
-    '<div class="head"><h1>' + escapeHTML(title) + '</h1><p>' + escapeHTML(state.meta.projectSubtitle||"") + '</p></div>' +
+    '<div class="head"><h1>' + escapeHTML(title) + '</h1><p>' + escapeHTML(state.meta.projectSubtitle||"") + '</p><div style="margin-top:8px;font-size:11px;opacity:.9;">تیم پاور شرکت نقش اول کیفیت (NAK) · <a href="https://www.nak-mci.ir" target="_blank" rel="noopener" style="color:#fff;">nak-mci.ir</a></div></div>' +
     '<div class="toolbar"><button onclick="window.print()">🖨 چاپ / ذخیره PDF</button></div>' +
     '<div class="wrap">' + (pages || '<p style="text-align:center;color:#8b939f;">اسلایدی موجود نیست.</p>') + '</div>' +
     '</body></html>';
@@ -2057,7 +2142,7 @@ function loadBatteryTemplate(){
     id: uid(), layout: "cover",
     title: "Batteries Check List",
     note: "گزارش نصب و تست باتری سایت",
-    body: "Site ID: TH2484  |  تاریخ نصب: ۱۴۰۵/۰۴/۰۶",
+    body: "Site ID: —  |  تاریخ نصب: —",
     rows: [], images: [], checklist: []
   });
 
@@ -2161,8 +2246,10 @@ function loadBatteryTemplate(){
 
   state.slides = slides;
   openId = null;
-  commit(); render();
-  showToast("تمپلیت نصب باتری بارگذاری شد ✅");
+  initHistory();
+  saveState();
+  render();
+  showToast("تمپلیت استاندارد نصب باتری NAK بارگذاری شد ✅");
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -2173,9 +2260,11 @@ function init(){
   applyTheme();
   initHistory();
   updateUndoButtons();
+  setSaveStatus("آماده", "saved");
 
   document.getElementById("btnLoadBatteryTpl").addEventListener("click", loadBatteryTemplate);
   document.getElementById("btnLoadBatteryTpl2").addEventListener("click", loadBatteryTemplate);
+  document.getElementById("btnQualityCheck").addEventListener("click", runQualityCheck);
 
   document.getElementById("btnSettings").addEventListener("click", function(){
     var p = document.getElementById("settingsPanel");
@@ -2185,7 +2274,7 @@ function init(){
 
   document.getElementById("projectTitle").addEventListener("input", function(e){
     state.meta.projectTitle = e.target.value;
-    document.getElementById("brandSub").textContent = e.target.value || "ساخت اسلاید با تصویر و متن، خروجی HTML و PPTX";
+    document.getElementById("brandSub").textContent = e.target.value || "تیم پاور شرکت نقش اول کیفیت (NAK) · nak-mci.ir";
     scheduleCommit();
   });
   document.getElementById("projectSubtitle").addEventListener("input", function(e){
@@ -2310,6 +2399,10 @@ function init(){
       if(typing) return;
       e.preventDefault(); undo(); return;
     }
+    if(ctrl && e.shiftKey && (e.key === "b" || e.key === "B")){
+      if(typing) return;
+      e.preventDefault(); loadBatteryTemplate(); return;
+    }
     if(ctrl && (e.key === "y" || e.key === "Y" || (e.shiftKey && (e.key === "z" || e.key === "Z")))){
       e.preventDefault(); redo(); return;
     }
@@ -2348,6 +2441,10 @@ function init(){
   window.addEventListener("beforeunload", function(){ saveState(); });
 
   render();
+  try{
+    var freshLaunch = !localStorage.getItem(STORAGE_KEY) && !localStorage.getItem(LEGACY_KEY);
+    if(freshLaunch && !state.slides.length){ setTimeout(function(){ loadBatteryTemplate(); }, 80); }
+  }catch(e){}
 }
 document.addEventListener("DOMContentLoaded", init);
 })();
