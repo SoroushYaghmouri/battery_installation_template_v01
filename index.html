@@ -1,0 +1,2070 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>قالب‌ساز گزارش پاورپوینت | تمپلیت نصب باتری — نسخه ۲</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@4.0.1/dist/pptxgen.bundle.js"></script>
+<style>
+  :root{
+    --ink:#1c2230;
+    --ink-soft:#5b6472;
+    --paper:#f5f6f8;
+    --card:#ffffff;
+    --line:#e3e6ec;
+    --primary:#00A651;
+    --primary-deep:#00823f;
+    --accent:#2F6FB5;
+    --accent-soft:#eaf2fb;
+    --danger:#d6483f;
+    --warn:#e08b1a;
+    --radius:14px;
+    --safe-t:env(safe-area-inset-top,0px);
+    --safe-b:env(safe-area-inset-bottom,0px);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ink:#eef0f4; --ink-soft:#a7aebb; --paper:#14171c; --card:#1c2028; --line:#2b3038;
+      --accent-soft:#182634;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ink:#eef0f4; --ink-soft:#a7aebb; --paper:#14171c; --card:#1c2028; --line:#2b3038;
+    --accent-soft:#182634;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  html{scroll-padding-top:var(--safe-t);}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:'Vazirmatn',sans-serif; direction:rtl;
+    padding-top:var(--safe-t); padding-bottom:var(--safe-b);
+    -webkit-tap-highlight-color:transparent;
+  }
+  button, input, textarea, select{ font-family:inherit; }
+  img{max-width:100%; display:block;}
+
+  header.appbar{
+    position:sticky; top:var(--safe-t); z-index:20;
+    background:linear-gradient(135deg,var(--primary),var(--primary-deep));
+    color:#fff; padding:12px 12px; display:flex; align-items:center; gap:8px;
+    box-shadow:0 2px 10px rgba(0,0,0,.12);
+  }
+  header.appbar .brand{ display:flex; flex-direction:column; gap:1px; flex:1; min-width:0; }
+  header.appbar .brand b{ font-size:15.5px; font-weight:800; }
+  header.appbar .brand span{ font-size:11px; opacity:.85; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  header.appbar button.icon-btn{
+    background:rgba(255,255,255,.18); border:none; color:#fff; width:36px; height:36px;
+    border-radius:10px; font-size:16px; display:flex; align-items:center; justify-content:center;
+    flex:0 0 auto; cursor:pointer;
+  }
+  header.appbar button.icon-btn:active{ background:rgba(255,255,255,.32); }
+
+  .toolbar{
+    position:sticky; top:calc(var(--safe-t) + 60px); z-index:19;
+    background:var(--paper); padding:8px 12px 6px; border-bottom:1px solid var(--line);
+  }
+  .toolbar .tb-inner{ max-width:640px; margin:0 auto; display:flex; gap:8px; align-items:center; }
+  .toolbar input[type=search]{
+    flex:1; padding:9px 12px; border:1.5px solid var(--line); border-radius:10px;
+    background:var(--card); color:var(--ink); font-size:13px; min-width:0;
+  }
+  .toolbar input[type=search]:focus{ outline:2px solid var(--accent); outline-offset:1px; }
+  .stats{
+    font-size:11px; color:var(--ink-soft); font-weight:700; white-space:nowrap;
+    background:var(--card); border:1px solid var(--line); border-radius:10px; padding:8px 10px;
+  }
+
+  main{ max-width:640px; margin:0 auto; padding:14px 12px 110px; }
+
+  .panel{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:14px; margin-bottom:14px;
+  }
+  .panel h2{ margin:0 0 10px; font-size:14.5px; font-weight:800; display:flex; align-items:center; gap:6px;}
+  .panel h2 .muted{ font-weight:500; font-size:12px; color:var(--ink-soft); }
+  .panel .sub-h{ margin:16px 0 8px; font-size:12.5px; font-weight:800; color:var(--ink-soft);
+    border-top:1px dashed var(--line); padding-top:12px;}
+
+  .field{ margin-bottom:10px; }
+  .field:last-child{ margin-bottom:0; }
+  .field label{ display:block; font-size:12.5px; font-weight:600; color:var(--ink-soft); margin-bottom:5px; }
+  .field input[type=text], .field input[type=number], .field textarea, .field select{
+    width:100%; padding:9px 11px; border:1.5px solid var(--line); border-radius:10px;
+    background:var(--paper); color:var(--ink); font-size:14px;
+  }
+  .field textarea{ resize:vertical; min-height:60px; line-height:1.7; }
+  .field input:focus, .field textarea:focus, .field select:focus{ outline:2px solid var(--accent); outline-offset:1px; }
+  .row2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+
+  .color-row{ display:flex; align-items:center; gap:10px; }
+  .color-row input[type=color]{ width:40px; height:36px; border:none; border-radius:8px; padding:0; background:none; cursor:pointer; }
+  .color-row span{ font-size:12.5px; color:var(--ink-soft); font-weight:600; }
+
+  .logo-pick{ display:flex; align-items:center; gap:10px; }
+  .logo-pick .logo-thumb{
+    width:44px; height:44px; border-radius:9px; border:1.5px solid var(--line); background:#fff;
+    display:flex; align-items:center; justify-content:center; overflow:hidden; flex:0 0 auto;
+  }
+  .logo-pick .logo-thumb img{ max-width:100%; max-height:100%; object-fit:contain; }
+  .btn-mini{
+    border:1.5px solid var(--line); background:var(--card); color:var(--ink); border-radius:9px;
+    padding:7px 10px; font-size:12.5px; font-weight:600; cursor:pointer;
+  }
+  .btn-mini:active{ background:var(--paper); }
+  .btn-block{
+    width:100%; padding:11px; border-radius:11px; border:none; font-weight:800; font-size:13px;
+    cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;
+  }
+  .btn-green{ background:linear-gradient(135deg,var(--primary),var(--primary-deep)); color:#fff; }
+  .btn-blue{ background:var(--accent-soft); color:var(--accent); border:1.5px solid rgba(47,111,181,.25); }
+  .btn-plain{ background:var(--paper); color:var(--ink); border:1.5px solid var(--line); }
+  .btn-danger{ background:rgba(214,72,63,.08); color:var(--danger); border:1.5px solid rgba(214,72,63,.35); }
+  .btn-stack{ display:flex; flex-direction:column; gap:8px; }
+
+  .toggle-row{ display:flex; align-items:center; justify-content:space-between; cursor:pointer; padding:7px 0; }
+  .toggle-row span{ font-size:13px; font-weight:600; }
+  .switch{ width:44px; height:26px; border-radius:14px; background:var(--line); position:relative; transition:background .18s; flex:0 0 auto; }
+  .switch::after{ content:""; position:absolute; top:3px; right:3px; width:20px; height:20px; border-radius:50%; background:#fff; transition:transform .18s; box-shadow:0 1px 3px rgba(0,0,0,.25); }
+  .switch.on{ background:var(--primary); }
+  .switch.on::after{ transform:translateX(-18px); }
+
+  /* storage meter */
+  .meter{ height:7px; border-radius:5px; background:var(--line); overflow:hidden; margin-top:6px; }
+  .meter > i{ display:block; height:100%; background:linear-gradient(90deg,var(--primary),var(--accent)); width:0%; transition:width .3s; }
+  .meter.warn > i{ background:linear-gradient(90deg,var(--warn),var(--danger)); }
+
+  /* slide list */
+  .slide-card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    margin-bottom:12px; overflow:hidden;
+  }
+  .slide-card.dragging{ opacity:.45; }
+  .slide-card.drop-target{ border-color:var(--accent); box-shadow:0 0 0 2px var(--accent-soft); }
+  .slide-card .sc-head{
+    display:flex; align-items:center; gap:9px; padding:11px 12px; cursor:pointer;
+  }
+  .sc-badge{
+    width:26px; height:26px; border-radius:8px; background:var(--accent-soft); color:var(--accent);
+    font-size:12.5px; font-weight:800; display:flex; align-items:center; justify-content:center; flex:0 0 auto;
+  }
+  .sc-head .sc-info{ flex:1; min-width:0; }
+  .sc-info .sc-type{ font-size:10.5px; color:var(--ink-soft); font-weight:700; display:flex; align-items:center; gap:5px; }
+  .sc-info .sc-title{ font-size:13.5px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .sc-flag{
+    font-size:9.5px; font-weight:800; border-radius:6px; padding:1px 5px;
+    background:rgba(0,166,81,.12); color:var(--primary-deep);
+  }
+  .sc-flag.warn{ background:rgba(224,139,26,.14); color:var(--warn); }
+  .sc-head .sc-actions{ display:flex; gap:2px; flex:0 0 auto; }
+  .sc-head .sc-actions button{
+    width:29px; height:29px; border:none; background:transparent; color:var(--ink-soft); font-size:14px;
+    border-radius:8px; cursor:pointer;
+  }
+  .sc-head .sc-actions button:active{ background:var(--paper); }
+  .sc-head .sc-actions button:disabled{ opacity:.28; }
+  .sc-body{ padding:0 14px 14px; border-top:1px solid var(--line); }
+  .sc-body-inner{ padding-top:12px; }
+
+  .mini-preview{ margin-top:12px; }
+  .mini-preview .mp-label{ font-size:11px; color:var(--ink-soft); font-weight:700; margin-bottom:6px; }
+
+  /* layout picker */
+  .lp-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .lp-item{
+    border:1.5px solid var(--line); border-radius:12px; background:var(--card); padding:14px 10px;
+    display:flex; flex-direction:column; align-items:center; gap:6px; text-align:center; cursor:pointer;
+  }
+  .lp-item .lp-ic{ font-size:25px; }
+  .lp-item b{ font-size:13px; }
+  .lp-item span{ font-size:11px; color:var(--ink-soft); }
+  .lp-item:active{ background:var(--paper); }
+  .lp-extra{ margin-top:12px; display:flex; flex-direction:column; gap:8px; }
+
+  /* image thumbs editor */
+  .img-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-top:8px; }
+  .img-item{ border:1px solid var(--line); border-radius:10px; overflow:hidden; background:var(--paper); }
+  .img-item .img-box{ position:relative; aspect-ratio:4/3; background:#e9ecf0; }
+  .img-item .img-box img{ width:100%; height:100%; object-fit:cover; cursor:zoom-in; }
+  .img-item .img-box button.rm{
+    position:absolute; top:4px; left:4px; width:24px; height:24px; border-radius:7px; border:none;
+    background:rgba(20,20,20,.6); color:#fff; font-size:12px; cursor:pointer;
+  }
+  .img-item .img-move{ position:absolute; bottom:4px; left:4px; display:flex; gap:4px; }
+  .img-item .img-move button{
+    width:24px; height:24px; border-radius:7px; border:none; background:rgba(20,20,20,.6);
+    color:#fff; font-size:11px; cursor:pointer;
+  }
+  .img-item .img-move button:disabled{ opacity:.3; }
+  .img-item .img-cap{ padding:6px; }
+  .img-item .img-cap input{ width:100%; border:1px solid var(--line); border-radius:7px; padding:5px 7px; font-size:11.5px; background:var(--card); color:var(--ink); }
+  .add-photo-btn{
+    border:1.5px dashed var(--line); border-radius:10px; aspect-ratio:4/3; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:4px; color:var(--ink-soft); background:var(--paper);
+    font-size:12px; cursor:pointer; text-align:center;
+  }
+  .img-grid.dropping .add-photo-btn{ border-color:var(--accent); color:var(--accent); background:var(--accent-soft); }
+
+  .rows-editor .row-item{ display:flex; gap:8px; align-items:center; margin-bottom:8px; }
+  .rows-editor .row-item input{ flex:1; padding:8px 10px; border:1.5px solid var(--line); border-radius:9px; background:var(--paper); color:var(--ink); font-size:13px; min-width:0; }
+  .rows-editor .row-item button{ flex:0 0 auto; width:30px; height:30px; border:none; border-radius:8px; background:var(--paper); color:var(--danger); font-size:14px; border:1px solid var(--line); cursor:pointer; }
+
+  .chk-editor .chk-item{ display:flex; gap:8px; align-items:center; margin-bottom:8px; }
+  .chk-editor .chk-item input[type=text]{ flex:1; padding:8px 10px; border:1.5px solid var(--line); border-radius:9px; background:var(--paper); color:var(--ink); font-size:13px; min-width:0; }
+  .chk-editor .chk-item button{ flex:0 0 auto; width:30px; height:30px; border:none; border-radius:8px; background:var(--paper); color:var(--danger); font-size:14px; border:1px solid var(--line); cursor:pointer; }
+  .chk-box{ width:24px; height:24px; flex:0 0 auto; border-radius:7px; border:1.5px solid var(--line); background:var(--paper); color:transparent; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .chk-box.on{ background:var(--primary); border-color:var(--primary); color:#fff; }
+
+  .add-row-btn, .add-photo-textbtn{
+    width:100%; padding:10px; border:1.5px dashed var(--line); border-radius:10px; background:transparent;
+    color:var(--accent); font-weight:700; font-size:13px; margin-top:4px; cursor:pointer;
+  }
+
+  .delete-slide-btn{
+    width:100%; padding:10px; margin-top:14px; border:1.5px solid rgba(214,72,63,.35); border-radius:10px;
+    background:rgba(214,72,63,.08); color:var(--danger); font-weight:700; font-size:13px; cursor:pointer;
+  }
+
+  /* FAB + sheets */
+  .fab{
+    position:fixed; left:18px; bottom:calc(18px + var(--safe-b)); z-index:30;
+    width:56px; height:56px; border-radius:50%; border:none; cursor:pointer;
+    background:linear-gradient(135deg,var(--primary),var(--primary-deep)); color:#fff; font-size:26px;
+    box-shadow:0 6px 18px rgba(0,140,70,.4); display:flex; align-items:center; justify-content:center;
+  }
+  .fab:active{ transform:scale(.94); }
+  .bottombar{
+    position:fixed; right:0; left:0; bottom:0; z-index:25; padding:9px 12px calc(9px + var(--safe-b));
+    background:var(--card); border-top:1px solid var(--line); display:flex; gap:8px;
+  }
+  .bottombar button{
+    flex:1; padding:12px 6px; border-radius:12px; border:none; font-weight:800; font-size:13px; cursor:pointer;
+  }
+  .bottombar .btn-preview{ background:var(--accent-soft); color:var(--accent); }
+  .bottombar .btn-html{ background:var(--paper); color:var(--ink); border:1.5px solid var(--line); }
+  .bottombar .btn-export{ background:linear-gradient(135deg,var(--primary),var(--primary-deep)); color:#fff; }
+  .bottombar button:disabled{ opacity:.5; }
+
+  .sheet-overlay{
+    position:fixed; inset:0; background:rgba(10,12,16,.55); z-index:50; display:flex; align-items:flex-end;
+    opacity:0; pointer-events:none; transition:opacity .18s ease;
+  }
+  .sheet-overlay.open{ opacity:1; pointer-events:auto; }
+  .sheet{
+    background:var(--card); width:100%; max-width:640px; margin:0 auto; border-radius:18px 18px 0 0;
+    padding:16px 16px calc(16px + var(--safe-b)); max-height:84vh; overflow:auto;
+    transform:translateY(100%); transition:transform .22s ease;
+  }
+  .sheet-overlay.open .sheet{ transform:translateY(0); }
+  .sheet .sheet-handle{ width:40px; height:4px; background:var(--line); border-radius:3px; margin:0 auto 14px; }
+  .sheet h3{ margin:0 0 14px; font-size:16px; font-weight:800; }
+
+  .full-preview{
+    position:fixed; inset:0; background:var(--paper); z-index:60; display:flex; flex-direction:column;
+    transform:translateY(100%); transition:transform .22s ease;
+  }
+  .full-preview.open{ transform:translateY(0); }
+  .fp-head{
+    padding:calc(12px + var(--safe-t)) 14px 12px; background:var(--card); border-bottom:1px solid var(--line);
+    display:flex; align-items:center; gap:10px;
+  }
+  .fp-head b{ flex:1; font-size:15px; }
+  .fp-head button{ width:36px; height:36px; border:none; background:var(--paper); border-radius:10px; font-size:15px; color:var(--ink); cursor:pointer; }
+  .fp-body{ flex:1; overflow:auto; padding:16px 14px calc(16px + var(--safe-b)); }
+  .fp-body .board-wrap{ margin-bottom:18px; }
+  .fp-body .fp-idx{ font-size:11.5px; color:var(--ink-soft); margin-bottom:6px; font-weight:700; }
+
+  .empty-state{ text-align:center; padding:40px 20px; color:var(--ink-soft); }
+  .empty-state .es-ic{ font-size:40px; margin-bottom:10px; }
+  .empty-state b{ display:block; color:var(--ink); font-size:15px; margin-bottom:4px; }
+  .empty-state span{ font-size:13px; line-height:1.7; }
+
+  .toast{
+    position:fixed; bottom:calc(84px + var(--safe-b)); left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--ink); color:var(--paper); padding:10px 18px; border-radius:10px; font-size:13px;
+    z-index:80; opacity:0; transition:all .25s ease; pointer-events:none; white-space:nowrap; max-width:90vw;
+    overflow:hidden; text-overflow:ellipsis;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  .lightbox{
+    position:fixed; inset:0; background:rgba(8,10,14,.92); z-index:90; display:flex;
+    align-items:center; justify-content:center; padding:20px; opacity:0; pointer-events:none;
+    transition:opacity .18s ease;
+  }
+  .lightbox.open{ opacity:1; pointer-events:auto; }
+  .lightbox img{ max-width:100%; max-height:100%; object-fit:contain; border-radius:8px; }
+  .lightbox .lb-close{
+    position:absolute; top:calc(16px + var(--safe-t)); right:16px; width:40px; height:40px; border-radius:12px;
+    border:none; background:rgba(255,255,255,.16); color:#fff; font-size:18px; cursor:pointer;
+  }
+
+  input[type=file]{ display:none; }
+  .hidden{ display:none !important; }
+  .kbd-hint{ font-size:10.5px; color:var(--ink-soft); text-align:center; margin-top:8px; }
+</style>
+</head>
+<body>
+
+<header class="appbar">
+  <button class="icon-btn" id="btnSettings" aria-label="تنظیمات">⚙️</button>
+  <div class="brand">
+    <b>قالب‌ساز گزارش پاورپوینت <span style="opacity:.7;font-size:11px;">v2</span></b>
+    <span id="brandSub">ساخت اسلاید با تصویر و متن، خروجی HTML و PPTX</span>
+  </div>
+  <button class="icon-btn" id="btnUndo" aria-label="واگرد" title="واگرد (Ctrl+Z)">↶</button>
+  <button class="icon-btn" id="btnRedo" aria-label="ازنو" title="ازنو (Ctrl+Y)">↷</button>
+  <button class="icon-btn" id="btnTheme" aria-label="پوسته">🌓</button>
+  <button class="icon-btn" id="btnFullPreview" aria-label="پیش‌نمایش کامل">👁️</button>
+</header>
+
+<div class="toolbar" id="toolbar">
+  <div class="tb-inner">
+    <input type="search" id="searchInput" placeholder="🔍 جستجو در عنوان، متن و جدول‌ها…">
+    <div class="stats" id="stats">—</div>
+  </div>
+</div>
+
+<main id="main">
+  <!-- ============ settings ============ -->
+  <div class="panel" id="settingsPanel" style="display:none;">
+    <h2>تنظیمات گزارش <span class="muted">رنگ، لوگو، فوتر و پروژه</span></h2>
+
+    <div class="field">
+      <label>نام پروژه / گزارش</label>
+      <input type="text" id="projectTitle" placeholder="مثلاً: گزارش نصب باتری سایت">
+    </div>
+    <div class="field">
+      <label>زیرعنوان پیش‌فرض (برای روی جلد)</label>
+      <input type="text" id="projectSubtitle" placeholder="مثلاً: گزارش نصب و تست باتری">
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>رنگ اصلی (نوار بالا و پایین)</label>
+        <div class="color-row"><input type="color" id="colorPrimary"><span id="colorPrimaryVal"></span></div>
+      </div>
+      <div class="field">
+        <label>رنگ عنوان و جدول</label>
+        <div class="color-row"><input type="color" id="colorAccent"><span id="colorAccentVal"></span></div>
+      </div>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>لوگوی راست</label>
+        <div class="logo-pick">
+          <div class="logo-thumb"><img id="logoRightThumb" alt=""></div>
+          <button class="btn-mini" id="btnLogoRight">تغییر</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>لوگوی چپ</label>
+        <div class="logo-pick">
+          <div class="logo-thumb"><img id="logoLeftThumb" alt=""></div>
+          <button class="btn-mini" id="btnLogoLeft">تغییر</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub-h">نمایش در اسلایدها</div>
+    <div class="toggle-row" id="tgFooter">
+      <span>نمایش فوتر (شماره اسلاید و نام پروژه)</span>
+      <div class="switch" id="swFooter"></div>
+    </div>
+    <div class="toggle-row" id="tgMarks">
+      <span>نمایش نشان «وضعیت تکمیل» روی اسلایدها</span>
+      <div class="switch" id="swMarks"></div>
+    </div>
+
+    <div class="sub-h">مدیریت پروژه</div>
+    <div class="btn-stack">
+      <button class="btn-mini btn-block btn-blue" id="btnSaveProject">💾 ذخیره پروژه در فایل (JSON)</button>
+      <button class="btn-mini btn-block btn-plain" id="btnLoadProject">📂 بارگذاری پروژه از فایل</button>
+      <button class="btn-mini btn-block btn-green" id="btnLoadBatteryTpl2">🔋 بارگذاری / بازنشانی تمپلیت نصب باتری</button>
+      <button class="btn-mini btn-block btn-danger" id="btnClearAll">🗑️ پاک کردن همه اسلایدها</button>
+    </div>
+
+    <div class="sub-h">حافظه مرورگر</div>
+    <div class="meter" id="storageMeter"><i></i></div>
+    <div style="font-size:11px;color:var(--ink-soft);margin-top:6px;" id="storageText">—</div>
+  </div>
+
+  <div id="slidesList"></div>
+
+  <div class="empty-state" id="emptyState" style="display:none;">
+    <div class="es-ic">🗂️</div>
+    <b>هنوز اسلایدی اضافه نکرده‌اید</b>
+    <span>با دکمه سبز پایین صفحه، اولین اسلاید را اضافه کنید<br>یا تمپلیت آماده نصب باتری را بارگذاری کنید.</span>
+    <button id="btnLoadBatteryTpl" style="margin-top:16px;padding:12px 22px;border:none;border-radius:12px;background:linear-gradient(135deg,#00A651,#00823f);color:#fff;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;">
+      🔋 بارگذاری تمپلیت نصب باتری
+    </button>
+    <div class="kbd-hint">میان‌بر: Ctrl+Z واگرد • Ctrl+Y ازنو • Esc بستن پنجره‌ها</div>
+  </div>
+</main>
+
+<button class="fab" id="btnAddSlide" aria-label="افزودن اسلاید">＋</button>
+
+<div class="bottombar">
+  <button class="btn-preview" id="btnPreview2">پیش‌نمایش</button>
+  <button class="btn-html" id="btnExportHTML">HTML / PDF</button>
+  <button class="btn-export" id="btnExport">دانلود PPTX ⬇</button>
+</div>
+
+<!-- layout picker sheet -->
+<div class="sheet-overlay" id="layoutSheet">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h3>نوع اسلاید را انتخاب کنید</h3>
+    <div class="lp-grid">
+      <div class="lp-item" data-layout="cover"><div class="lp-ic">🏳️</div><b>روی جلد</b><span>عنوان و توضیح مرکزی</span></div>
+      <div class="lp-item" data-layout="table"><div class="lp-ic">📋</div><b>جدول اطلاعات</b><span>ردیف‌های برچسب/مقدار</span></div>
+      <div class="lp-item" data-layout="photos"><div class="lp-ic">🖼️</div><b>گالری تصاویر</b><span>تا ۸ عکس با زیرنویس</span></div>
+      <div class="lp-item" data-layout="text"><div class="lp-ic">📝</div><b>متن توضیحی</b><span>پاراگراف آزاد</span></div>
+      <div class="lp-item" data-layout="checklist"><div class="lp-ic">✅</div><b>چک‌لیست</b><span>موارد تیک‌دار</span></div>
+      <div class="lp-item" data-layout="photos-bulk"><div class="lp-ic">🧩</div><b>۵ اسلاید عکس خالی</b><span>ساخت سریع ساختار گزارش</span></div>
+    </div>
+    <div class="lp-extra">
+      <button class="btn-mini btn-block btn-plain" id="btnDuplicateLast">⧉ تکثیر آخرین اسلاید</button>
+    </div>
+  </div>
+</div>
+
+<!-- full preview -->
+<div class="full-preview" id="fullPreview">
+  <div class="fp-head">
+    <button id="btnClosePreview">✕</button>
+    <b>پیش‌نمایش کامل گزارش</b>
+    <button id="btnExport2" title="دانلود PPTX">⬇</button>
+  </div>
+  <div class="fp-body" id="fpBody"></div>
+</div>
+
+<!-- lightbox -->
+<div class="lightbox" id="lightbox">
+  <button class="lb-close" id="lbClose">✕</button>
+  <img id="lbImg" alt="">
+</div>
+
+<input type="file" id="fileLogoLeft" accept="image/*">
+<input type="file" id="fileLogoRight" accept="image/*">
+<input type="file" id="fileProject" accept=".json,application/json">
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ====================== لوگوهای پیش‌فرض ====================== */
+window.LOGO_LEFT_DEFAULT = "data:image/png;base64,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";
+window.LOGO_RIGHT_DEFAULT = "data:image/png;base64,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";
+</script>
+
+<script>
+/* ============================================================================
+   قالب‌ساز گزارش پاورپوینت — نسخه ۲ (ارتقاء کامل)
+   ============================================================================ */
+(function(){
+"use strict";
+
+const APP_VERSION   = "2.0";
+const STORAGE_KEY   = "pptxbuilder_state_v2";
+const LEGACY_KEY    = "pptxbuilder_state_v1";
+const MAX_IMAGES    = 8;
+const SOFT_LIMIT    = 4.5 * 1024 * 1024; // هشدار حجم حافظه
+
+/* ------------------------------- CSS بورد ------------------------------- */
+const BOARD_CSS = `
+.board-wrap{ width:100%; }
+.board{
+  position:relative; width:100%; aspect-ratio:4/3; background:#ffffff; border-radius:6px;
+  overflow:hidden; box-shadow:0 1px 6px rgba(0,0,0,.18); direction:rtl;
+  font-family:'Vazirmatn',Tahoma,sans-serif;
+}
+.board .bar-top{ position:absolute; top:0; left:0; right:0; height:5.6%; background:var(--b-primary); }
+.board .bar-bottom{ position:absolute; bottom:0; left:0; right:0; height:3%; background:var(--b-primary); }
+.board .logo{
+  position:absolute; top:7.2%; width:9%; aspect-ratio:1; background:#fff; border-radius:18%;
+  box-shadow:0 1px 4px rgba(0,0,0,.16);
+}
+.board .logo img{ position:absolute; inset:8%; width:84%; height:84%; object-fit:contain; }
+.board .logo.l{ left:2.6%; } .board .logo.r{ right:2.6%; }
+.board .b-title{
+  position:absolute; top:7%; left:13%; right:13%; text-align:center; font-weight:800;
+  color:var(--b-accent); line-height:1.35; font-size:4.6%;
+}
+.board .b-note{
+  position:absolute; left:6%; right:6%; text-align:center; color:#5c6470; font-size:2.7%; line-height:1.55;
+  font-weight:500;
+}
+.board .b-content{ position:absolute; left:5%; right:5%; bottom:6%; overflow:hidden; }
+
+.board .b-table{ width:100%; border-collapse:collapse; font-size:3.05%; }
+.board .b-table td{ border:1px solid #d5dbe3; padding:1.6% 2%; }
+.board .b-table td.lab{ background:var(--b-accent-soft); font-weight:700; color:#213041; width:22%; }
+.board .b-table td.val{ background:#fff; color:#333; width:28%; text-align:center; }
+
+.board .b-photos{ display:grid; gap:2%; height:100%; }
+.board .b-photo{ position:relative; background:#eef0f3; border-radius:5px; overflow:hidden; border:1px solid #dfe3e9; }
+.board .b-photo img{ width:100%; height:100%; object-fit:cover; }
+.board .b-photo .ph-empty{
+  width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#a6adba; font-size:9px;
+}
+.board .b-photo .ph-cap{
+  position:absolute; bottom:0; left:0; right:0; background:rgba(20,25,35,.62); color:#fff;
+  font-size:2.3%; padding:1.5% 2%; text-align:center;
+}
+.board .b-photo-empty{
+  grid-column:1/-1; grid-row:1/-1; border:2px dashed #c6ced9; border-radius:6px; background:#f7f9fb;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2%;
+  color:#98a2b0; text-align:center; padding:4%;
+}
+.board .b-photo-empty .pe-ic{ font-size:5.5%; }
+.board .b-photo-empty .pe-tx{ font-size:2.6%; font-weight:700; color:#7b8794; }
+.board .b-photo-empty .pe-sub{ font-size:2.1%; color:#a6adba; }
+
+.board .b-body{ font-size:3.15%; line-height:1.85; color:#333; text-align:justify; white-space:pre-wrap; }
+
+.board .b-chk{ display:flex; flex-direction:column; gap:1.6%; font-size:3%; color:#333; }
+.board .b-chk .ci{ display:flex; align-items:flex-start; gap:1.6%; line-height:1.7; }
+.board .b-chk .ci .bx{
+  flex:0 0 auto; width:4.2%; aspect-ratio:1; border-radius:4px; border:1px solid #cbd3dd; background:#fff;
+  display:flex; align-items:center; justify-content:center; font-size:2.4%; color:#fff; font-weight:800;
+}
+.board .b-chk .ci.done .bx{ background:var(--b-primary); border-color:var(--b-primary); }
+.board .b-chk .ci.done span{ color:#7b8794; text-decoration:line-through; }
+
+.board .b-footer{
+  position:absolute; bottom:3.6%; left:5%; right:5%; display:flex; align-items:center;
+  justify-content:space-between; font-size:2.2%; color:#9aa3b0; font-weight:600;
+}
+
+.board.cover .b-title{ top:38%; font-size:6.2%; }
+.board.cover .b-note{ top:52%; font-size:3.6%; color:#3a4250; }
+.board.cover .b-extra{ position:absolute; top:60%; left:10%; right:10%; text-align:center; font-size:3%; color:#7c8390; }
+.board.cover .b-mark{
+  position:absolute; top:24%; left:50%; transform:translateX(-50%); width:14%; aspect-ratio:1;
+  border-radius:50%; background:var(--b-accent-soft); display:flex; align-items:center; justify-content:center;
+  font-size:6%;
+}
+`;
+(function injectBoardCSS(){
+  const st = document.createElement("style");
+  st.id = "board-css";
+  st.textContent = BOARD_CSS;
+  document.head.appendChild(st);
+})();
+
+/* ------------------------------- متادیتا ------------------------------- */
+const LAYOUT_META = {
+  cover:     { label:"روی جلد",        type:"روی جلد",        icon:"🏳️", hint:"عنوان و توضیح مرکزی" },
+  table:     { label:"جدول اطلاعات",   type:"جدول اطلاعات",   icon:"📋", hint:"ردیف‌های برچسب/مقدار" },
+  photos:    { label:"گالری تصاویر",   type:"گالری تصاویر",   icon:"🖼️", hint:"تا ۸ عکس با زیرنویس" },
+  text:      { label:"متن توضیحی",     type:"متن توضیحی",     icon:"📝", hint:"پاراگراف آزاد" },
+  checklist: { label:"چک‌لیست",        type:"چک‌لیست",        icon:"✅", hint:"موارد تیک‌دار" }
+};
+
+/* ------------------------------- ابزارها ------------------------------- */
+function uid(){ return "s" + Math.random().toString(36).slice(2,10) + Date.now().toString(36); }
+
+function escapeHTML(s){
+  return String(s==null?"":s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function hexToRgb(hex){
+  const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex||"");
+  if(!m) return null;
+  return { r: parseInt(m[1],16), g: parseInt(m[2],16), b: parseInt(m[3],16) };
+}
+function hexToSoft(hex){
+  const rgb = hexToRgb(hex);
+  if(!rgb) return "rgba(47,111,181,.12)";
+  return `rgba(${rgb.r},${rgb.g},${rgb.b},0.12)`;
+}
+function hexNoHash(h){ return (h||"#000000").replace("#",""); }
+function softHexForPptx(hex){
+  const rgb = hexToRgb(hex);
+  if(!rgb) return "EAF2FB";
+  const blend = c => Math.round(c + (255-c)*0.85);
+  const toHex = n => n.toString(16).padStart(2,"0").toUpperCase();
+  return toHex(blend(rgb.r)) + toHex(blend(rgb.g)) + toHex(blend(rgb.b));
+}
+function deepClone(o){ return JSON.parse(JSON.stringify(o)); }
+function fmtBytes(n){
+  if(n < 1024) return n + " B";
+  if(n < 1024*1024) return (n/1024).toFixed(1) + " KB";
+  return (n/1024/1024).toFixed(2) + " MB";
+}
+
+/* ------------------------------- وضعیت ------------------------------- */
+function defaultState(){
+  return {
+    version: 2,
+    meta: {
+      projectTitle: "گزارش نصب باتری سایت",
+      projectSubtitle: "گزارش نصب و تست باتری",
+      primary: "#00A651",
+      accent: "#2F6FB5",
+      logoLeft: window.LOGO_LEFT_DEFAULT,
+      logoRight: window.LOGO_RIGHT_DEFAULT,
+      showFooter: true,
+      showMarks: true,
+      theme: "auto"
+    },
+    slides: []
+  };
+}
+
+function migrateState(parsed){
+  const base = defaultState();
+  if(!parsed || typeof parsed !== "object") return base;
+  const out = {
+    version: 2,
+    meta: Object.assign({}, base.meta, parsed.meta || {}),
+    slides: Array.isArray(parsed.slides) ? parsed.slides : []
+  };
+  out.meta.logoLeft  = out.meta.logoLeft  || window.LOGO_LEFT_DEFAULT;
+  out.meta.logoRight = out.meta.logoRight || window.LOGO_RIGHT_DEFAULT;
+  out.slides = out.slides.map(s => ({
+    id: s.id || uid(),
+    layout: LAYOUT_META[s.layout] ? s.layout : "text",
+    title: s.title || "",
+    note: s.note || "",
+    body: s.body || "",
+    rows: Array.isArray(s.rows) ? s.rows.map(r=>({label:r.label||"", value:r.value||""})) : [],
+    images: Array.isArray(s.images) ? s.images.map(i=>({data:i.data||"", caption:i.caption||""})) : [],
+    checklist: Array.isArray(s.checklist) ? s.checklist.map(c=>({text:c.text||"", done:!!c.done})) : []
+  }));
+  return out;
+}
+
+function loadState(){
+  try{
+    let raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) raw = localStorage.getItem(LEGACY_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      return migrateState(parsed);
+    }
+  }catch(e){ console.warn("state load failed", e); }
+  return defaultState();
+}
+
+let state = loadState();
+let openId = null;
+let searchQuery = "";
+
+function saveState(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    updateStorageMeter();
+  }catch(e){
+    console.warn("ذخیره‌سازی محلی ناموفق بود:", e);
+    showToast("حافظه مرورگر پر است — تصاویر کمتری استفاده کنید");
+  }
+}
+
+/* ------------------------------- Undo / Redo ------------------------------- */
+let history = [];
+let future  = [];
+let commitTimer = null;
+
+function snapshot(){ return JSON.stringify(state); }
+function initHistory(){ history = [snapshot()]; future = []; }
+
+function commit(){
+  const s = snapshot();
+  if(history[history.length-1] !== s){
+    history.push(s);
+    if(history.length > 80) history.shift();
+    future.length = 0;
+  }
+  saveState();
+  updateUndoButtons();
+}
+function scheduleCommit(){
+  clearTimeout(commitTimer);
+  commitTimer = setTimeout(commit, 650);
+}
+function undo(){
+  if(history.length < 2){ showToast("چیزی برای واگرد نیست"); return; }
+  future.push(history.pop());
+  state = JSON.parse(history[history.length-1]);
+  openId = null;
+  render();
+  saveState();
+  updateUndoButtons();
+  showToast("واگرد انجام شد");
+}
+function redo(){
+  if(!future.length){ showToast("چیزی برای ازنو نیست"); return; }
+  const s = future.pop();
+  history.push(s);
+  state = JSON.parse(s);
+  openId = null;
+  render();
+  saveState();
+  updateUndoButtons();
+  showToast("ازنو انجام شد");
+}
+function updateUndoButtons(){
+  const u = document.getElementById("btnUndo");
+  const r = document.getElementById("btnRedo");
+  if(u) u.style.opacity = history.length > 1 ? "1" : ".45";
+  if(r) r.style.opacity = future.length ? "1" : ".45";
+}
+
+/* ------------------------------- Toast ------------------------------- */
+let toastTimer = null;
+function showToast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> t.classList.remove("show"), 2400);
+}
+
+/* --------------------------- فشرده‌سازی تصویر --------------------------- */
+function fileToCompressedDataURL(file, maxDim, quality){
+  maxDim = maxDim || 1400; quality = quality || 0.82;
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onerror = ()=> reject(new Error("خواندن فایل ناموفق بود"));
+    reader.onload = ()=>{
+      const img = new Image();
+      img.onerror = ()=> reject(new Error("بارگذاری تصویر ناموفق بود"));
+      img.onload = ()=>{
+        let w = img.naturalWidth, h = img.naturalHeight;
+        if(w > maxDim || h > maxDim){
+          if(w >= h){ h = Math.round(h * (maxDim / w)); w = maxDim; }
+          else { w = Math.round(w * (maxDim / h)); h = maxDim; }
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0,0,w,h);
+        ctx.drawImage(img, 0, 0, w, h);
+        try{ resolve(canvas.toDataURL("image/jpeg", quality)); }
+        catch(e){ reject(e); }
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ------------------------------ رندر بورد ------------------------------ */
+function boardHTML(slide, meta, opts){
+  opts = opts || {};
+  const vars = `--b-primary:${meta.primary}; --b-accent:${meta.accent}; --b-accent-soft:${hexToSoft(meta.accent)};`;
+  const coverCls = slide.layout === "cover" ? " cover" : "";
+  let inner = "";
+
+  inner += `<div class="bar-top"></div><div class="bar-bottom"></div>`;
+  inner += `<div class="logo l"><img src="${meta.logoLeft||''}" alt=""></div>`;
+  inner += `<div class="logo r"><img src="${meta.logoRight||''}" alt=""></div>`;
+
+  if(slide.layout === "cover"){
+    inner += `<div class="b-mark">📄</div>`;
+    inner += `<div class="b-title">${escapeHTML(slide.title || "عنوان گزارش")}</div>`;
+    if(slide.note) inner += `<div class="b-note">${escapeHTML(slide.note)}</div>`;
+    if(slide.body) inner += `<div class="b-extra">${escapeHTML(slide.body)}</div>`;
+  } else {
+    inner += `<div class="b-title">${escapeHTML(slide.title || "(بدون عنوان)")}</div>`;
+    let contentTop = "top:17%;";
+    if(slide.note){
+      inner += `<div class="b-note" style="top:14.2%;">${escapeHTML(slide.note)}</div>`;
+      contentTop = "top:21.5%;";
+    }
+    inner += `<div class="b-content" style="${contentTop} bottom:8%;">`;
+
+    if(slide.layout === "table")         inner += tableHTML(slide.rows);
+    else if(slide.layout === "photos")   inner += photosHTML(slide.images, slide);
+    else if(slide.layout === "checklist")inner += checklistHTML(slide.checklist);
+    else if(slide.layout === "text")     inner += `<div class="b-body">${escapeHTML(slide.body || "متن توضیحی خود را وارد کنید…")}</div>`;
+
+    inner += `</div>`;
+  }
+
+  if(meta.showFooter && !opts.noFooter){
+    const idxTxt = opts.index != null ? `${opts.index+1} / ${opts.total||"?"}` : "";
+    inner += `<div class="b-footer"><span>${escapeHTML(idxTxt)}</span><span>${escapeHTML(meta.projectTitle||"")}</span></div>`;
+  }
+
+  return `<div class="board${coverCls}" style="${vars}">${inner}</div>`;
+}
+
+function tableHTML(rows){
+  rows = (rows||[]).filter(r => (r.label && r.label.trim()) || (r.value && r.value.trim()));
+  if(!rows.length) return `<div style="font-size:3.2%;color:#a6adba;text-align:center;padding-top:8%;">ردیف‌های جدول را در ویرایشگر اضافه کنید</div>`;
+  let html = `<table class="b-table">`;
+  for(let i=0; i<rows.length; i+=2){
+    const a = rows[i], b = rows[i+1];
+    html += `<tr>`;
+    html += `<td class="lab">${escapeHTML(a.label||"")}</td><td class="val">${escapeHTML(a.value||"")}</td>`;
+    if(b) html += `<td class="lab">${escapeHTML(b.label||"")}</td><td class="val">${escapeHTML(b.value||"")}</td>`;
+    else  html += `<td class="lab"></td><td class="val"></td>`;
+    html += `</tr>`;
+  }
+  html += `</table>`;
+  return html;
+}
+
+function photosHTML(images, slide){
+  images = (images||[]).filter(i=>i && i.data);
+  if(!images.length){
+    const t = slide && slide.title ? escapeHTML(slide.title) : "تصاویر این بخش";
+    return `<div class="b-photos" style="grid-template-columns:1fr;grid-template-rows:1fr;">
+      <div class="b-photo-empty">
+        <div class="pe-ic">📷</div>
+        <div class="pe-tx">${t}</div>
+        <div class="pe-sub">هنوز تصویری برای این اسلاید اضافه نشده است</div>
+      </div>
+    </div>`;
+  }
+  const n = images.length;
+  const cols = n === 1 ? 1 : (n === 2 ? 2 : (n <= 4 ? 2 : 4));
+  const rows = Math.ceil(n / cols);
+  let html = `<div class="b-photos" style="grid-template-columns:repeat(${cols},1fr); grid-template-rows:repeat(${rows},1fr);">`;
+  images.forEach(im => {
+    html += `<div class="b-photo">`;
+    html += `<img src="${im.data}" alt="">`;
+    if(im.caption) html += `<div class="ph-cap">${escapeHTML(im.caption)}</div>`;
+    html += `</div>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
+function checklistHTML(items){
+  items = (items||[]).filter(i => i.text && i.text.trim());
+  if(!items.length) return `<div style="font-size:3.2%;color:#a6adba;text-align:center;padding-top:8%;">موارد چک‌لیست را در ویرایشگر اضافه کنید</div>`;
+  let html = `<div class="b-chk">`;
+  items.forEach(i=>{
+    html += `<div class="ci ${i.done?'done':''}"><div class="bx">${i.done?'✓':''}</div><span>${escapeHTML(i.text)}</span></div>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
+/* ------------------------------ اسلاید جدید ------------------------------ */
+function newSlide(layout){
+  const s = {
+    id: uid(), layout, title: "", note: "", body: "",
+    rows: [], images: [], checklist: []
+  };
+  if(layout === "cover"){
+    s.title = state.meta.projectTitle || "عنوان گزارش";
+    s.note  = state.meta.projectSubtitle || "";
+  }
+  if(layout === "table")     s.rows = [{label:"",value:""},{label:"",value:""}];
+  if(layout === "checklist") s.checklist = [{text:"",done:false},{text:"",done:false}];
+  if(layout === "photos")    s.title = "گالری تصاویر";
+  return s;
+}
+
+/* ------------------------------ تکمیل‌بودن ------------------------------ */
+function slideProgress(s){
+  switch(s.layout){
+    case "cover":     return { ok: !!(s.title && s.title.trim()), txt: s.title ? "آماده" : "بدون عنوان" };
+    case "table": {
+      const n = (s.rows||[]).filter(r=>(r.label&&r.label.trim())||(r.value&&r.value.trim())).length;
+      return { ok: n>0, txt: n + " ردیف" };
+    }
+    case "photos": {
+      const n = (s.images||[]).filter(i=>i.data).length;
+      return { ok: n>0, txt: n + "/" + MAX_IMAGES + " عکس" };
+    }
+    case "text":      return { ok: !!(s.body && s.body.trim().length>2), txt: s.body ? (s.body.length+" کاراکتر") : "خالی" };
+    case "checklist": {
+      const n = (s.checklist||[]).filter(c=>c.text&&c.text.trim()).length;
+      return { ok: n>0, txt: n + " مورد" };
+    }
+    default: return { ok:true, txt:"" };
+  }
+}
+
+/* ------------------------------ رندر اصلی ------------------------------ */
+function render(){
+  renderSettings();
+  renderSlidesList();
+  updateStats();
+  updateStorageMeter();
+}
+
+function renderSettings(){
+  document.getElementById("projectTitle").value    = state.meta.projectTitle;
+  document.getElementById("projectSubtitle").value = state.meta.projectSubtitle || "";
+  document.getElementById("colorPrimary").value    = state.meta.primary;
+  document.getElementById("colorPrimaryVal").textContent = (state.meta.primary||"").toUpperCase();
+  document.getElementById("colorAccent").value     = state.meta.accent;
+  document.getElementById("colorAccentVal").textContent  = (state.meta.accent||"").toUpperCase();
+  document.getElementById("logoLeftThumb").src  = state.meta.logoLeft || "";
+  document.getElementById("logoRightThumb").src = state.meta.logoRight || "";
+  document.getElementById("swFooter").classList.toggle("on", !!state.meta.showFooter);
+  document.getElementById("swMarks").classList.toggle("on", !!state.meta.showMarks);
+  document.getElementById("brandSub").textContent = state.meta.projectTitle || "ساخت اسلاید با تصویر و متن، خروجی HTML و PPTX";
+}
+
+function slideMatches(s, q){
+  if(!q) return true;
+  q = q.toLowerCase();
+  const hay = [
+    s.title, s.note, s.body,
+    ...(s.rows||[]).map(r => (r.label||"") + " " + (r.value||"")),
+    ...(s.checklist||[]).map(c => c.text||"")
+  ].join(" ").toLowerCase();
+  return hay.includes(q);
+}
+
+function renderSlidesList(){
+  const list  = document.getElementById("slidesList");
+  const empty = document.getElementById("emptyState");
+  list.innerHTML = "";
+
+  if(!state.slides.length){
+    empty.style.display = "";
+    return;
+  }
+  empty.style.display = "none";
+
+  let visibleCount = 0;
+
+  state.slides.forEach((slide, idx) => {
+    if(!slideMatches(slide, searchQuery)) return;
+    visibleCount++;
+
+    const card = document.createElement("div");
+    card.className = "slide-card";
+    card.dataset.id = slide.id;
+    card.draggable = false;
+
+    const isOpen = openId === slide.id;
+    const meta   = LAYOUT_META[slide.layout] || LAYOUT_META.text;
+    const prog   = slideProgress(slide);
+
+    const head = document.createElement("div");
+    head.className = "sc-head";
+    head.innerHTML = `
+      <div class="sc-badge">${idx+1}</div>
+      <div class="sc-info">
+        <div class="sc-type">
+          <span>${meta.icon} ${meta.type}</span>
+          ${state.meta.showMarks ? `<span class="sc-flag ${prog.ok?'':'warn'}">${escapeHTML(prog.txt)}</span>` : ``}
+        </div>
+        <div class="sc-title">${escapeHTML(slide.title || "بدون عنوان")}</div>
+      </div>
+      <div class="sc-actions">
+        <button data-act="up"   title="انتقال به بالا" ${idx===0?"disabled":""}>▲</button>
+        <button data-act="down" title="انتقال به پایین" ${idx===state.slides.length-1?"disabled":""}>▼</button>
+        <button data-act="dup"  title="تکثیر اسلاید">⧉</button>
+        <button data-act="toggle" title="ویرایش">${isOpen ? "◀" : "✎"}</button>
+      </div>`;
+
+    head.addEventListener("click", (e)=>{
+      const btn = e.target.closest("button");
+      const act = btn && btn.dataset.act;
+      if(act === "up"){ moveSlide(idx,-1); return; }
+      if(act === "down"){ moveSlide(idx,1); return; }
+      if(act === "dup"){ duplicateSlide(idx); return; }
+      openId = isOpen ? null : slide.id;
+      renderSlidesList();
+    });
+    card.appendChild(head);
+
+    if(isOpen){
+      const body = document.createElement("div");
+      body.className = "sc-body";
+      const inner = document.createElement("div");
+      inner.className = "sc-body-inner";
+      inner.appendChild(buildEditor(slide));
+
+      const mp = document.createElement("div");
+      mp.className = "mini-preview";
+      mp.innerHTML = `<div class="mp-label">پیش‌نمایش زنده</div><div class="board-wrap">${boardHTML(slide, state.meta, {index:idx, total:state.slides.length})}</div>`;
+      inner.appendChild(mp);
+
+      const delBtn = document.createElement("button");
+      delBtn.className = "delete-slide-btn";
+      delBtn.textContent = "🗑 حذف این اسلاید";
+      delBtn.addEventListener("click", ()=>{
+        if(confirm("این اسلاید حذف شود؟")){
+          state.slides = state.slides.filter(s => s.id !== slide.id);
+          openId = null;
+          commit();
+          render();
+        }
+      });
+      inner.appendChild(delBtn);
+
+      body.appendChild(inner);
+      card.appendChild(body);
+    }
+
+    list.appendChild(card);
+  });
+
+  if(visibleCount === 0){
+    list.innerHTML = `<div class="panel" style="text-align:center;color:var(--ink-soft);font-size:13px;">نتیجه‌ای برای «${escapeHTML(searchQuery)}» یافت نشد.</div>`;
+  }
+}
+
+function moveSlide(idx, dir){
+  const j = idx + dir;
+  if(j < 0 || j >= state.slides.length) return;
+  const arr = state.slides;
+  [arr[idx], arr[j]] = [arr[j], arr[idx]];
+  commit();
+  render();
+}
+
+function duplicateSlide(idx){
+  const copy = deepClone(state.slides[idx]);
+  copy.id = uid();
+  copy.title = (copy.title || "") + " (کپی)";
+  state.slides.splice(idx+1, 0, copy);
+  openId = copy.id;
+  commit();
+  render();
+  showToast("اسلاید تکثیر شد");
+}
+
+function refreshOpenCardLive(slide){
+  const card = document.querySelector(`.slide-card[data-id="${slide.id}"]`);
+  if(card){
+    const titleEl = card.querySelector(".sc-title");
+    if(titleEl) titleEl.textContent = slide.title || "بدون عنوان";
+    const flagEl = card.querySelector(".sc-flag");
+    if(flagEl){
+      const p = slideProgress(slide);
+      flagEl.textContent = p.txt;
+      flagEl.classList.toggle("warn", !p.ok);
+    }
+    const wrap = card.querySelector(".board-wrap");
+    const idx = state.slides.findIndex(s=>s.id===slide.id);
+    if(wrap) wrap.innerHTML = boardHTML(slide, state.meta, {index:idx, total:state.slides.length});
+  }
+  updateStats();
+  scheduleCommit();
+}
+
+/* ------------------------------ ویرایشگرها ------------------------------ */
+function buildEditor(slide){
+  const wrap = document.createElement("div");
+
+  wrap.appendChild(fieldText("عنوان اسلاید", slide.title,
+    v=>{ slide.title = v; refreshOpenCardLive(slide); },
+    "مثلاً: چک‌لیست باتری‌ها"));
+
+  if(slide.layout === "cover"){
+    wrap.appendChild(fieldTextarea("زیرعنوان", slide.note,
+      v=>{ slide.note = v; refreshOpenCardLive(slide); },
+      "مثلاً: نام سایت، شناسه سایت و..."));
+    wrap.appendChild(fieldText("خط توضیح اضافه (اختیاری)", slide.body,
+      v=>{ slide.body = v; refreshOpenCardLive(slide); },
+      "مثلاً: تاریخ گزارش"));
+  } else {
+    wrap.appendChild(fieldTextarea("توضیح زیر عنوان (اختیاری)", slide.note,
+      v=>{ slide.note = v; refreshOpenCardLive(slide); },
+      "یک خط توضیح کوتاه زیر عنوان"));
+  }
+
+  if(slide.layout === "table")          wrap.appendChild(buildRowsEditor(slide));
+  else if(slide.layout === "photos")    wrap.appendChild(buildPhotosEditor(slide));
+  else if(slide.layout === "checklist") wrap.appendChild(buildChecklistEditor(slide));
+  else if(slide.layout === "text"){
+    wrap.appendChild(fieldTextarea("متن اصلی اسلاید", slide.body,
+      v=>{ slide.body = v; refreshOpenCardLive(slide); },
+      "متن کامل را اینجا بنویسید…", 7));
+  }
+
+  return wrap;
+}
+
+function fieldText(label, value, onChange, placeholder){
+  const div = document.createElement("div");
+  div.className = "field";
+  const id = "f_" + Math.random().toString(36).slice(2,8);
+  div.innerHTML = `<label for="${id}">${escapeHTML(label)}</label><input type="text" id="${id}" placeholder="${escapeHTML(placeholder||"")}">`;
+  const input = div.querySelector("input");
+  input.value = value || "";
+  input.addEventListener("input", ()=> onChange(input.value));
+  return div;
+}
+
+function fieldTextarea(label, value, onChange, placeholder, rows){
+  const div = document.createElement("div");
+  div.className = "field";
+  const id = "f_" + Math.random().toString(36).slice(2,8);
+  div.innerHTML = `<label for="${id}">${escapeHTML(label)}</label><textarea id="${id}" rows="${rows||2}" placeholder="${escapeHTML(placeholder||"")}"></textarea>`;
+  const ta = div.querySelector("textarea");
+  ta.value = value || "";
+  ta.addEventListener("input", ()=> onChange(ta.value));
+  return div;
+}
+
+function buildRowsEditor(slide){
+  const wrap = document.createElement("div");
+  wrap.className = "field rows-editor";
+  wrap.innerHTML = `<label>ردیف‌های جدول (برچسب / مقدار)</label>`;
+
+  const list = document.createElement("div");
+  slide.rows.forEach((row, i)=>{
+    const line = document.createElement("div");
+    line.className = "row-item";
+    line.innerHTML = `<input type="text" placeholder="برچسب" data-k="label">
+                      <input type="text" placeholder="مقدار" data-k="value">
+                      <button title="حذف">✕</button>`;
+    const [labIn, valIn] = line.querySelectorAll("input");
+    labIn.value = row.label; valIn.value = row.value;
+    labIn.addEventListener("input", ()=>{ row.label = labIn.value; refreshOpenCardLive(slide); });
+    valIn.addEventListener("input", ()=>{ row.value = valIn.value; refreshOpenCardLive(slide); });
+    line.querySelector("button").addEventListener("click", ()=>{
+      slide.rows.splice(i,1);
+      openId = slide.id;
+      commit(); renderSlidesList();
+    });
+    list.appendChild(line);
+  });
+  wrap.appendChild(list);
+
+  const addBtn = document.createElement("button");
+  addBtn.className = "add-row-btn";
+  addBtn.textContent = "+ افزودن ردیف";
+  addBtn.addEventListener("click", ()=>{
+    slide.rows.push({label:"", value:""});
+    openId = slide.id;
+    commit(); renderSlidesList();
+  });
+  wrap.appendChild(addBtn);
+
+  const bulkBtn = document.createElement("button");
+  bulkBtn.className = "add-row-btn";
+  bulkBtn.textContent = "⇩ افزودن ۵ ردیف یکجا";
+  bulkBtn.addEventListener("click", ()=>{
+    for(let k=0;k<5;k++) slide.rows.push({label:"", value:""});
+    openId = slide.id;
+    commit(); renderSlidesList();
+  });
+  wrap.appendChild(bulkBtn);
+
+  return wrap;
+}
+
+function buildChecklistEditor(slide){
+  const wrap = document.createElement("div");
+  wrap.className = "field chk-editor";
+  wrap.innerHTML = `<label>موارد چک‌لیست</label>`;
+
+  const list = document.createElement("div");
+  slide.checklist.forEach((item, i)=>{
+    const line = document.createElement("div");
+    line.className = "chk-item";
+    line.innerHTML = `<button class="chk-box ${item.done?"on":""}" title="تیک">✓</button>
+                      <input type="text" placeholder="مورد چک‌لیست">
+                      <button title="حذف">✕</button>`;
+    const box = line.querySelector(".chk-box");
+    const inp = line.querySelector("input");
+    inp.value = item.text || "";
+    box.addEventListener("click", ()=>{
+      item.done = !item.done;
+      box.classList.toggle("on", item.done);
+      refreshOpenCardLive(slide);
+    });
+    inp.addEventListener("input", ()=>{ item.text = inp.value; refreshOpenCardLive(slide); });
+    line.querySelectorAll("button")[1].addEventListener("click", ()=>{
+      slide.checklist.splice(i,1);
+      openId = slide.id;
+      commit(); renderSlidesList();
+    });
+    list.appendChild(line);
+  });
+  wrap.appendChild(list);
+
+  const addBtn = document.createElement("button");
+  addBtn.className = "add-row-btn";
+  addBtn.textContent = "+ افزودن مورد";
+  addBtn.addEventListener("click", ()=>{
+    slide.checklist.push({text:"", done:false});
+    openId = slide.id;
+    commit(); renderSlidesList();
+  });
+  wrap.appendChild(addBtn);
+
+  return wrap;
+}
+
+function buildPhotosEditor(slide){
+  const wrap = document.createElement("div");
+  wrap.className = "field";
+  wrap.innerHTML = `<label>تصاویر (حداکثر ${MAX_IMAGES} عکس)</label>`;
+
+  const grid = document.createElement("div");
+  grid.className = "img-grid";
+
+  slide.images.forEach((im, i)=>{
+    const item = document.createElement("div");
+    item.className = "img-item";
+    item.innerHTML = `
+      <div class="img-box">
+        <img src="${im.data}" alt="">
+        <button class="rm" title="حذف">✕</button>
+        <div class="img-move">
+          <button data-mv="-1" title="جابجایی به راست" ${i===0?"disabled":""}>▶</button>
+          <button data-mv="1"  title="جابجایی به چپ" ${i===slide.images.length-1?"disabled":""}>◀</button>
+        </div>
+      </div>
+      <div class="img-cap"><input type="text" placeholder="زیرنویس (اختیاری)"></div>`;
+
+    item.querySelector(".rm").addEventListener("click", ()=>{
+      slide.images.splice(i,1);
+      openId = slide.id;
+      commit(); renderSlidesList();
+    });
+    item.querySelectorAll(".img-move button").forEach(b=>{
+      b.addEventListener("click", ()=>{
+        const dir = parseInt(b.dataset.mv,10);
+        const j = i + dir;
+        if(j < 0 || j >= slide.images.length) return;
+        [slide.images[i], slide.images[j]] = [slide.images[j], slide.images[i]];
+        openId = slide.id;
+        commit(); renderSlidesList();
+      });
+    });
+    item.querySelector(".img-box img").addEventListener("click", ()=>{
+      openLightbox(im.data);
+    });
+
+    const capInput = item.querySelector(".img-cap input");
+    capInput.value = im.caption || "";
+    capInput.addEventListener("input", ()=>{ im.caption = capInput.value; refreshOpenCardLive(slide); });
+    grid.appendChild(item);
+  });
+
+  if(slide.images.length < MAX_IMAGES){
+    const addTile = document.createElement("label");
+    addTile.className = "add-photo-btn";
+    addTile.innerHTML = `<span style="font-size:22px;">📷</span><span>افزودن عکس</span><span style="font-size:10px;opacity:.75;">چند فایل همزمان مجاز است</span>`;
+    const inp = document.createElement("input");
+    inp.type = "file"; inp.accept = "image/*"; inp.multiple = true;
+    inp.addEventListener("change", ()=> handlePhotoFiles(slide, Array.from(inp.files||[])));
+    addTile.appendChild(inp);
+    grid.appendChild(addTile);
+  }
+
+  // drag & drop
+  grid.addEventListener("dragover", e=>{ e.preventDefault(); grid.classList.add("dropping"); });
+  grid.addEventListener("dragleave", ()=> grid.classList.remove("dropping"));
+  grid.addEventListener("drop", e=>{
+    e.preventDefault();
+    grid.classList.remove("dropping");
+    const files = Array.from(e.dataTransfer && e.dataTransfer.files || []).filter(f=>f.type.startsWith("image/"));
+    handlePhotoFiles(slide, files);
+  });
+
+  wrap.appendChild(grid);
+
+  const info = document.createElement("div");
+  info.style.cssText = "font-size:11px;color:var(--ink-soft);margin-top:8px;line-height:1.7;";
+  info.textContent = "می‌توانید فایل‌ها را روی این ناحیه بکشید و رها کنید. ترتیب عکس‌ها با دکمه‌های ◀ ▶ تغییر می‌کند.";
+  wrap.appendChild(info);
+
+  return wrap;
+}
+
+async function handlePhotoFiles(slide, files){
+  if(!files || !files.length) return;
+  const remaining = MAX_IMAGES - slide.images.length;
+  const toProcess = files.slice(0, remaining);
+  if(!toProcess.length){ showToast("حداکثر تعداد عکس پر شده است"); return; }
+
+  showToast(`در حال پردازش ${toProcess.length} تصویر…`);
+  let added = 0;
+  for(const f of toProcess){
+    try{
+      const dataUrl = await fileToCompressedDataURL(f);
+      slide.images.push({ data: dataUrl, caption: "" });
+      added++;
+    }catch(e){ console.warn(e); }
+  }
+  openId = slide.id;
+  commit();
+  renderSlidesList();
+  showToast(added ? `${added} تصویر اضافه شد` : "افزودن تصویر ناموفق بود");
+}
+
+/* --------------------------- پیش‌نمایش کامل --------------------------- */
+function openFullPreview(){
+  const body = document.getElementById("fpBody");
+  if(!state.slides.length){
+    body.innerHTML = `<div class="empty-state"><div class="es-ic">🗂️</div><b>اسلایدی برای نمایش وجود ندارد</b></div>`;
+  } else {
+    body.innerHTML = state.slides.map((s, i) => `
+      <div class="fp-idx">اسلاید ${i+1} از ${state.slides.length} — ${(LAYOUT_META[s.layout]||{}).type||""}</div>
+      <div class="board-wrap">${boardHTML(s, state.meta, {index:i, total:state.slides.length})}</div>
+    `).join("");
+  }
+  document.getElementById("fullPreview").classList.add("open");
+}
+function closeFullPreview(){
+  document.getElementById("fullPreview").classList.remove("open");
+}
+
+/* --------------------------- Lightbox --------------------------- */
+function openLightbox(src){
+  const lb = document.getElementById("lightbox");
+  document.getElementById("lbImg").src = src;
+  lb.classList.add("open");
+}
+function closeLightbox(){
+  document.getElementById("lightbox").classList.remove("open");
+  document.getElementById("lbImg").src = "";
+}
+
+/* --------------------------- Sheet --------------------------- */
+function openLayoutSheet(){ document.getElementById("layoutSheet").classList.add("open"); }
+function closeLayoutSheet(){ document.getElementById("layoutSheet").classList.remove("open"); }
+
+/* ============================ خروجی PPTX ============================ */
+async function exportPPTX(){
+  if(!state.slides.length){ showToast("ابتدا حداقل یک اسلاید اضافه کنید"); return; }
+  showToast("در حال ساخت فایل PPTX…");
+  try{
+    const pres = new PptxGenJS();
+    pres.defineLayout({ name: "CUSTOM_4_3", width: 10, height: 7.5 });
+    pres.layout = "CUSTOM_4_3";
+    pres.author  = "Battery Report Template Maker";
+    pres.title   = state.meta.projectTitle || "Battery Report";
+    pres.company = state.meta.projectTitle || "";
+
+    const primary    = hexNoHash(state.meta.primary);
+    const accent     = hexNoHash(state.meta.accent);
+    const accentSoft = softHexForPptx(state.meta.accent);
+    const total      = state.slides.length;
+    const showFooter = !!state.meta.showFooter;
+
+    state.slides.forEach((slide, si) => {
+      const s = pres.addSlide();
+      s.background = { color: "FFFFFF" };
+
+      // نوارهای بالا و پایین
+      s.addShape(pres.ShapeType.rect, { x:0, y:0, w:10, h:0.24, fill:{color:primary}, line:{type:"none"} });
+      s.addShape(pres.ShapeType.rect, { x:0, y:7.5-0.13, w:10, h:0.13, fill:{color:primary}, line:{type:"none"} });
+
+      // لوگوها
+      if(state.meta.logoLeft){
+        s.addImage({ data: state.meta.logoLeft, x:0.28, y:0.32, w:0.55, h:0.55 });
+      }
+      if(state.meta.logoRight){
+        s.addImage({ data: state.meta.logoRight, x:10-0.28-0.55, y:0.32, w:0.55, h:0.55 });
+      }
+
+      // فوتر
+      if(showFooter){
+        s.addText(`${si+1} / ${total}`, { x:0.3, y:7.02, w:1.6, h:0.3, fontSize:9, color:"9AA3B0", fontFace:"Arial", align:"left", valign:"middle" });
+        s.addText(state.meta.projectTitle || "", { x:2.0, y:7.02, w:6.0, h:0.3, fontSize:9, color:"9AA3B0", fontFace:"Arial", align:"center", valign:"middle", rtlMode:true });
+      }
+
+      // ---------- روی جلد ----------
+      if(slide.layout === "cover"){
+        s.addText(slide.title || "عنوان گزارش", {
+          x:0.8, y:2.6, w:8.4, h:0.95, align:"center", valign:"middle",
+          fontSize:32, bold:true, color:accent, fontFace:"Arial", rtlMode:true
+        });
+        if(slide.note){
+          s.addText(slide.note, { x:0.8, y:3.62, w:8.4, h:0.6, align:"center", valign:"middle",
+            fontSize:16, color:"3A4250", fontFace:"Arial", rtlMode:true });
+        }
+        if(slide.body){
+          s.addText(slide.body, { x:0.8, y:4.3, w:8.4, h:0.5, align:"center", valign:"middle",
+            fontSize:12.5, color:"7C8390", fontFace:"Arial", rtlMode:true });
+        }
+        return;
+      }
+
+      // ---------- عنوان ----------
+      s.addText(slide.title || "", {
+        x:1.0, y:0.30, w:8.0, h:0.55, align:"center", valign:"middle",
+        fontSize:19, bold:true, color:accent, fontFace:"Arial", rtlMode:true
+      });
+
+      let contentTop = 1.02;
+      if(slide.note){
+        s.addText(slide.note, { x:0.6, y:0.85, w:8.8, h:0.45, align:"center", valign:"middle",
+          fontSize:12, color:"555555", fontFace:"Arial", rtlMode:true });
+        contentTop = 1.34;
+      }
+
+      const contentBottom = showFooter ? 6.95 : 7.20;
+      const contentHeight = contentBottom - contentTop;
+
+      // ---------- جدول ----------
+      if(slide.layout === "table"){
+        const rows = (slide.rows||[]).filter(r => (r.label && r.label.trim()) || (r.value && r.value.trim()));
+        if(rows.length){
+          const tblRows = [];
+          for(let i=0;i<rows.length;i+=2){
+            const a = rows[i], b = rows[i+1];
+            tblRows.push([
+              cell(a.label, true, accentSoft),
+              cell(a.value, false, "FFFFFF"),
+              cell(b ? b.label : "", true, accentSoft),
+              cell(b ? b.value : "", false, "FFFFFF")
+            ]);
+          }
+          s.addTable(tblRows, {
+            x:0.5, y:contentTop, w:9.0,
+            colW:[1.9,2.6,1.9,2.6],
+            border:{type:"solid", color:"D5DBE3", pt:0.75},
+            fontFace:"Arial", fontSize:11, autoPage:false, rtlMode:true,
+            valign:"middle"
+          });
+        } else {
+          addPlaceholder(pres, s, 0.5, contentTop, 9.0, contentHeight, "جدول اطلاعات", "ردیف‌های جدول خالی است");
+        }
+      }
+      // ---------- گالری تصاویر ----------
+      else if(slide.layout === "photos"){
+        const imgs = (slide.images||[]).filter(i=>i.data);
+        if(imgs.length){
+          layoutPhotosOnSlide(pres, s, imgs, 0.5, contentTop, 9.0, contentHeight);
+        } else {
+          addPlaceholder(pres, s, 0.5, contentTop, 9.0, contentHeight,
+            slide.title || "تصویر", "هنوز تصویری برای این اسلاید اضافه نشده است");
+        }
+      }
+      // ---------- چک‌لیست ----------
+      else if(slide.layout === "checklist"){
+        const items = (slide.checklist||[]).filter(c=>c.text && c.text.trim());
+        if(items.length){
+          s.addText(items.map(c => ({
+            text: (c.done ? "☑  " : "☐  ") + c.text,
+            options: { breakLine:true, color: c.done ? "7B8794" : "333333" }
+          })), {
+            x:0.7, y:contentTop, w:8.6, h:contentHeight,
+            fontSize:13, fontFace:"Arial", rtlMode:true,
+            lineSpacingMultiple:1.45, valign:"top"
+          });
+        } else {
+          addPlaceholder(pres, s, 0.5, contentTop, 9.0, contentHeight, "چک‌لیست", "موردی اضافه نشده است");
+        }
+      }
+      // ---------- متن ----------
+      else if(slide.layout === "text"){
+        if(slide.body && slide.body.trim()){
+          s.addText(slide.body, {
+            x:0.6, y:contentTop, w:8.8, h:contentHeight, align:"right", valign:"top",
+            fontSize:14, color:"333333", fontFace:"Arial", rtlMode:true, lineSpacingMultiple:1.5
+          });
+        } else {
+          addPlaceholder(pres, s, 0.5, contentTop, 9.0, contentHeight, "متن توضیحی", "متن اسلاید خالی است");
+        }
+      }
+    });
+
+    const fname = (state.meta.projectTitle || "presentation").trim().replace(/[\\/:*?"<>|]/g,"_") || "presentation";
+    await pres.writeFile({ fileName: fname + ".pptx" });
+    showToast("دانلود PPTX آغاز شد ✅");
+  }catch(e){
+    console.error(e);
+    showToast("خطا در ساخت فایل PPTX");
+  }
+}
+
+function cell(text, isLabel, softColor){
+  return {
+    text: text || "",
+    options: {
+      fill: { color: isLabel ? softColor : "FFFFFF" },
+      bold: !!isLabel,
+      color: isLabel ? "213041" : "333333",
+      align: isLabel ? "right" : "center",
+      valign: "middle",
+      fontSize: 11
+    }
+  };
+}
+
+function addPlaceholder(pres, s, x, y, w, h, title, sub){
+  s.addShape(pres.ShapeType.rect, {
+    x, y, w, h, fill:{ color:"F7F9FB" },
+    line:{ color:"C6CED9", width:1, dashType:"dash" }
+  });
+  s.addText(title || "", {
+    x, y: y + h/2 - 0.45, w, h:0.45, align:"center", valign:"middle",
+    fontSize:15, bold:true, color:"7B8794", fontFace:"Arial", rtlMode:true
+  });
+  if(sub){
+    s.addText(sub, {
+      x, y: y + h/2 + 0.02, w, h:0.4, align:"center", valign:"middle",
+      fontSize:11, color:"A6ADBA", fontFace:"Arial", rtlMode:true
+    });
+  }
+}
+
+function layoutPhotosOnSlide(pres, s, imgs, x, y, w, h){
+  const n = imgs.length;
+  const cols = n === 1 ? 1 : (n === 2 ? 2 : (n <= 4 ? 2 : 4));
+  const rows = Math.ceil(n / cols);
+  const gap = 0.14;
+  const cellW = (w - gap*(cols-1)) / cols;
+  const cellH = (h - gap*(rows-1)) / rows;
+
+  imgs.forEach((im, i) => {
+    const r = Math.floor(i / cols);
+    const c = i % cols;
+    const cx = x + c*(cellW+gap);
+    const cy = y + r*(cellH+gap);
+    const imgH = im.caption ? cellH - 0.26 : cellH;
+
+    s.addImage({
+      data: im.data,
+      x: cx, y: cy, w: cellW, h: imgH,
+      sizing: { type:"cover", w: cellW, h: imgH }
+    });
+    if(im.caption){
+      s.addText(im.caption, {
+        x: cx, y: cy + cellH - 0.26, w: cellW, h: 0.26,
+        align:"center", valign:"middle", fontSize:9, color:"FFFFFF",
+        fill:{color:"2B3038"}, fontFace:"Arial", rtlMode:true
+      });
+    }
+  });
+}
+
+/* ============================ خروجی HTML ============================ */
+function buildExportHTML(){
+  const title = state.meta.projectTitle || "گزارش";
+  const pages = state.slides.map((s, i) => `
+    <section class="page">
+      <div class="page-idx">اسلاید ${i+1} از ${state.slides.length} — ${escapeHTML((LAYOUT_META[s.layout]||{}).type||"")}</div>
+      <div class="board-wrap">${boardHTML(s, state.meta, {index:i, total:state.slides.length, noFooter:false})}</div>
+    </section>`).join("");
+
+  return `<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${escapeHTML(title)}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;background:#eef1f5;font-family:'Vazirmatn',Tahoma,sans-serif;direction:rtl;color:#1c2230;}
+  .head{
+    background:linear-gradient(135deg,${state.meta.primary},${state.meta.primary});
+    color:#fff;padding:22px 18px;text-align:center;
+  }
+  .head h1{margin:0 0 6px;font-size:20px;font-weight:800;}
+  .head p{margin:0;font-size:13px;opacity:.9;}
+  .wrap{max-width:1000px;margin:0 auto;padding:22px 16px 60px;}
+  .page{margin-bottom:28px;}
+  .page-idx{font-size:12px;color:#67707d;font-weight:700;margin-bottom:8px;}
+  ${BOARD_CSS}
+  .board{box-shadow:0 4px 18px rgba(20,30,50,.14);border-radius:10px;}
+  .toolbar{
+    position:sticky;top:0;z-index:9;background:rgba(255,255,255,.94);backdrop-filter:blur(6px);
+    border-bottom:1px solid #dde2ea;padding:10px 16px;display:flex;gap:10px;justify-content:center;
+  }
+  .toolbar button{
+    font-family:inherit;font-size:13px;font-weight:700;padding:9px 18px;border-radius:10px;border:none;
+    background:#1c2230;color:#fff;cursor:pointer;
+  }
+  .toolbar button.alt{background:#e7ecf3;color:#1c2230;}
+  .foot{text-align:center;font-size:11.5px;color:#8b939f;padding:24px 0;}
+
+  @media print{
+    @page{ size: A4 landscape; margin: 8mm; }
+    body{background:#fff;}
+    .head,.toolbar,.page-idx,.foot{display:none !important;}
+    .wrap{max-width:none;padding:0;}
+    .page{page-break-after:always;margin:0;display:flex;align-items:center;justify-content:center;height:100%;}
+    .page:last-child{page-break-after:auto;}
+    .board{box-shadow:none;border-radius:0;width:100%;}
+  }
+</style>
+</head>
+<body>
+<div class="head">
+  <h1>${escapeHTML(title)}</h1>
+  <p>${escapeHTML(state.meta.projectSubtitle || "")}</p>
+</div>
+<div class="toolbar">
+  <button onclick="window.print()">🖨 چاپ / ذخیره PDF</button>
+  <button class="alt" onclick="document.body.classList.toggle('compact')">تغییر نمایش</button>
+</div>
+<div class="wrap">
+  ${pages || '<p style="text-align:center;color:#8b939f;">اسلایدی موجود نیست.</p>'}
+</div>
+<div class="foot">ساخته‌شده با قالب‌ساز گزارش پاورپوینت — ${new Date().toLocaleDateString('fa-IR')}</div>
+</body>
+</html>`;
+}
+
+function exportHTML(){
+  if(!state.slides.length){ showToast("ابتدا حداقل یک اسلاید اضافه کنید"); return; }
+  try{
+    const html = buildExportHTML();
+    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+    const url  = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const fname = (state.meta.projectTitle || "report").trim().replace(/[\\/:*?"<>|]/g,"_") || "report";
+    a.href = url;
+    a.download = fname + ".html";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(()=> URL.revokeObjectURL(url), 4000);
+    showToast("فایل HTML دانلود شد ✅");
+  }catch(e){
+    console.error(e);
+    showToast("خطا در ساخت فایل HTML");
+  }
+}
+
+/* ============================ ذخیره / بارگذاری پروژه ============================ */
+function saveProjectFile(){
+  try{
+    const data = JSON.stringify(state, null, 1);
+    const blob = new Blob([data], { type: "application/json;charset=utf-8" });
+    const url  = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const fname = (state.meta.projectTitle || "project").trim().replace(/[\\/:*?"<>|]/g,"_") || "project";
+    a.href = url;
+    a.download = fname + ".json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(()=> URL.revokeObjectURL(url), 4000);
+    showToast("پروژه ذخیره شد ✅");
+  }catch(e){
+    console.error(e);
+    showToast("ذخیره پروژه ناموفق بود");
+  }
+}
+
+function loadProjectFile(file){
+  const reader = new FileReader();
+  reader.onerror = ()=> showToast("خواندن فایل ناموفق بود");
+  reader.onload = ()=>{
+    try{
+      const parsed = JSON.parse(reader.result);
+      const next = migrateState(parsed);
+      if(!next.slides.length && !confirm("فایل بارگذاری‌شده اسلایدی ندارد. ادامه می‌دهید؟")) return;
+      state = next;
+      openId = null;
+      commit();
+      render();
+      showToast("پروژه بارگذاری شد ✅");
+    }catch(e){
+      console.error(e);
+      showToast("فایل پروژه معتبر نیست");
+    }
+  };
+  reader.readAsText(file);
+}
+
+/* ============================ آپلود لوگو ============================ */
+function wireLogoUpload(inputId, key, thumbId){
+  const input = document.getElementById(inputId);
+  input.addEventListener("change", async ()=>{
+    const f = input.files && input.files[0];
+    if(!f) return;
+    try{
+      const dataUrl = await fileToCompressedDataURL(f, 400, 0.9);
+      state.meta[key] = dataUrl;
+      document.getElementById(thumbId).src = dataUrl;
+      renderOpenCardsIfAny();
+      commit();
+    }catch(e){ showToast("بارگذاری لوگو ناموفق بود"); }
+    input.value = "";
+  });
+}
+
+function renderOpenCardsIfAny(){
+  if(openId){
+    const slide = state.slides.find(s=>s.id===openId);
+    if(slide) refreshOpenCardLive(slide);
+  }
+}
+
+/* ============================ آمار و حافظه ============================ */
+function updateStats(){
+  const el = document.getElementById("stats");
+  if(!el) return;
+  const slides = state.slides.length;
+  const photos = state.slides.reduce((a,s)=> a + (s.images||[]).filter(i=>i.data).length, 0);
+  el.textContent = `${slides} اسلاید · ${photos} عکس`;
+}
+
+function updateStorageMeter(){
+  const meter = document.getElementById("storageMeter");
+  const txt   = document.getElementById("storageText");
+  if(!meter || !txt) return;
+  let size = 0;
+  try{ size = JSON.stringify(state).length; }catch(e){ size = 0; }
+  const pct = Math.min(100, (size / SOFT_LIMIT) * 100);
+  meter.querySelector("i").style.width = pct + "%";
+  meter.classList.toggle("warn", size > SOFT_LIMIT * 0.75);
+  txt.textContent = `${fmtBytes(size)} از حدود ${fmtBytes(SOFT_LIMIT)} — ${pct < 60 ? "وضعیت مناسب" : (pct < 90 ? "نزدیک به سقف" : "حافظه تقریباً پر است")}`;
+}
+
+/* ============================ تم ============================ */
+function applyTheme(){
+  const t = state.meta.theme || "auto";
+  const root = document.documentElement;
+  if(t === "auto") root.removeAttribute("data-theme");
+  else root.setAttribute("data-theme", t);
+}
+function toggleTheme(){
+  const order = ["auto","light","dark"];
+  const i = order.indexOf(state.meta.theme || "auto");
+  state.meta.theme = order[(i+1) % order.length];
+  applyTheme();
+  commit();
+  showToast("پوسته: " + (state.meta.theme === "auto" ? "خودکار" : state.meta.theme === "light" ? "روشن" : "تاریک"));
+}
+
+/* ============================================================================
+   تمپلیت نصب باتری
+   ============================================================================ */
+function loadBatteryTemplate(){
+  if(state.slides.length && !confirm("اسلایدهای فعلی پاک شده و تمپلیت نصب باتری جایگزین می‌شود. ادامه می‌دهید؟")){
+    return;
+  }
+  state.meta.projectTitle    = "گزارش نصب باتری — Batteries Check List";
+  state.meta.projectSubtitle = "گزارش نصب و تست باتری سایت";
+  state.meta.primary = "#00A651";
+  state.meta.accent  = "#2F6FB5";
+
+  const slides = [];
+
+  // 1) روی جلد
+  slides.push({
+    id: uid(), layout: "cover",
+    title: "Batteries Check List",
+    note: "گزارش نصب و تست باتری سایت",
+    body: "Site ID: TH2484  |  تاریخ نصب: ۱۴۰۵/۰۴/۰۶",
+    rows: [], images: [], checklist: []
+  });
+
+  // 2) جدول اطلاعات
+  slides.push({
+    id: uid(), layout: "table",
+    title: "Batteries Check List",
+    note: "اطلاعات کلی سایت و مشخصات باتری",
+    body: "",
+    rows: [
+      {label:"Province / استان", value:"Tehran"},
+      {label:"Site Type", value:"Roof Top"},
+      {label:"City / شهر", value:"Tehran"},
+      {label:"Amount of AC current", value:"13.7+16+18.9"},
+      {label:"Site ID", value:"TH2484"},
+      {label:"Amount of DC current", value:"156.1"},
+      {label:"Site Name", value:"Tehranpars shabestari"},
+      {label:"Main AC Fuse", value:"32"},
+      {label:"Lat & Long", value:"35/73818 | 51/54793"},
+      {label:"Type & Number of Battery Fuses", value:"TYPE C & ONE FUSE"},
+      {label:"Cabinet Type", value:"Porsoo"},
+      {label:"Batteries Type", value:"12 v 200 AH"},
+      {label:"Rectifier Type", value:"PSU"},
+      {label:"Number of Battery", value:"12"},
+      {label:"SMR Type", value:"3 KW"},
+      {label:"Engineer Name", value:"Mohammadi"},
+      {label:"Number of PSU", value:"6"},
+      {label:"Phone Number", value:"09926561383"},
+      {label:"Production date of Battery", value:"1405/خرداد/01 (8 cell) 1405/اردیبهشت/01 (4 cell)"},
+      {label:"Installation Date", value:"2026.06.27 / 1405.04.06"},
+      {label:"Expiration date of Guarantee", value:"1409/خرداد/01 (8 cell) 1409/اردیبهشت/01 (4 cell)"},
+      {label:"Supplier", value:"Nian"},
+      {label:"Floating voltage (Negahdari)", value:"54"},
+      {label:"Equalize (charging voltage)", value:"56.4"}
+    ],
+    images: [], checklist: []
+  });
+
+  // 3) اسلایدهای عکس
+  const photoSlides = [
+    { title: "عکس از لیبل سایت", note: "لیبل شناسایی سایت باید واضح و خوانا باشد" },
+    { title: "عکس محوطه سایت", note: "محوطه سایت با فاصله بعد از خارج کردن باتری‌های قدیمی — نصب باتری‌های جدید و تجهیزات مشخص باشد" },
+    { title: "نمای کلی تجهیزات داخل رک (قبل و بعد)", note: "قبل از نصب + بعد از نصب باتری و لیبل (لیبل‌ها چاپ‌شده باشند)" },
+    { title: "عکس از رک باتری بعد از خارج کردن باتری‌های قدیمی", note: "رک خالی بعد از برداشتن باتری‌های قدیمی" },
+    { title: "نمای کامل نصب باتری جدید از روبرو", note: "بعد از نصب لیبل، بدون گارد، بعد از نصب درپوش سر باتری‌ها" },
+    { title: "مشخصات روی کلیه سل‌های جدید", note: "لیبل‌های چاپ‌شده (تاریخ – سریال – برند – تایپ – شماره قرارداد) — واضح و با کیفیت" },
+    { title: "مشخصات روی باتری‌های قدیمی", note: "عکس به تعداد باتری‌ها و بدون گارد (تاریخ – سریال – برند – تایپ)" },
+    { title: "نصب کابل و شینه‌های مربوط به باتری", note: "برای هر بانک باتری یک عکس — تصویر کامل شینه‌ها، کابل‌های مثبت و منفی" },
+    { title: "جریان مصرفی DC برای هر رکتی‌فایر یا BFU", note: "یک عکس به ازای هر رکتی‌فایر — رعایت بالانس بین رک‌ها الزامی است" },
+    { title: "وضعیت ایمن‌سازی رک باتری و حفاظ", note: "RBS Cage، محافظ جوشی — در صورت داشتن گارد حتماً بعد از نصب گارد عکس گرفته شود" },
+    { title: "اسکرین‌شات کلیه آلارم‌های سایت", note: "Battery Dis, Battery door, Door open, BBU Temp, Mains Fail, Module, Cooling و ... — عکس از صفحه لپ‌تاپ مورد تأیید نیست" },
+    { title: "تنظیمات رکتی‌فایر و Load ماژول‌ها", note: "بعد از نصب باتری — رعایت بالانس جریان مصرفی بین رک‌ها و ماژول‌ها الزامی است" },
+    { title: "بروزرسانی تاریخ نصب باتری در سیستم", note: "اسکرین‌شات از سیستم پس از ثبت تاریخ نصب" },
+    { title: "تست ولتاژ مجموع بانک‌ها", note: "قبل از تست / ۵ دقیقه / ۳۰ دقیقه — لیبل بانک مشخص باشد + تاریخ و ساعت" },
+    { title: "ولتاژ سل‌های باتری (تست)", note: "ولتاژ هر سل قبل از تست، ۵ دقیقه و ۳۰ دقیقه — لیبل هر سل در عکس مشخص باشد" },
+    { title: "محل قرارگیری سنسور باتری", note: "عکس محل نصب سنسور دما/باتری" },
+    { title: "سیستم سرمایش رک باتری", note: "عکس سیستم سرمایش" },
+    { title: "شناسنامه سایت", note: "عکس شناسنامه / پلاک سایت" }
+  ];
+  photoSlides.forEach(p => {
+    slides.push({
+      id: uid(), layout: "photos",
+      title: p.title, note: p.note, body: "",
+      rows: [], images: [], checklist: []
+    });
+  });
+
+  // 4) جدول تست ولتاژ
+  slides.push({
+    id: uid(), layout: "table",
+    title: "جدول تست ولتاژ — Voltage Test Results",
+    note: "مقادیر ولتاژ بانک‌ها و سل‌ها (قبل از تست / ۵ دقیقه / ۳۰ دقیقه)",
+    body: "",
+    rows: [
+      {label:"BANK 1 Total (0 min)", value:"53.40 V"},
+      {label:"BANK 1 Total (5 min)", value:"49.57 V"},
+      {label:"BANK 1 Total (30 min)", value:"49.86 V"},
+      {label:"BANK 1 Cell 1 (0/5/30)", value:"13.38 / 12.39 / 12.44"},
+      {label:"BANK 1 Cell 2 (0/5/30)", value:"13.31 / 12.42 / 12.47"},
+      {label:"BANK 1 Cell 3 (0/5/30)", value:"13.43 / 12.49 / 12.53"},
+      {label:"BANK 1 Cell 4 (0/5/30)", value:"13.28 / 12.44 / 12.45"},
+      {label:"BANK 2 Total (0 min)", value:"53.41 V"},
+      {label:"BANK 2 Total (5 min)", value:"49.86 V"},
+      {label:"BANK 2 Total (30 min)", value:"49.98 V"},
+      {label:"BANK 2 Cell 1 (0/5/30)", value:"13.37 / 12.49 / 12.49"},
+      {label:"BANK 2 Cell 2 (0/5/30)", value:"13.34 / 12.52 / 12.52"},
+      {label:"BANK 2 Cell 3 (0/5/30)", value:"13.33 / 12.45 / 12.47"},
+      {label:"BANK 2 Cell 4 (0/5/30)", value:"13.36 / 12.50 / 12.49"},
+      {label:"BANK 3 Total (0 min)", value:"53.45 V"},
+      {label:"BANK 3 Total (5 min)", value:"49.89 V"},
+      {label:"BANK 3 Total (30 min)", value:"49.88 V"},
+      {label:"BANK 3 Cell 1 (0/5/30)", value:"13.38 / 12.56 / 12.52"},
+      {label:"BANK 3 Cell 2 (0/5/30)", value:"13.38 / 12.58 / 12.50"},
+      {label:"BANK 3 Cell 3 (0/5/30)", value:"13.41 / 12.51 / 12.47"},
+      {label:"BANK 3 Cell 4 (0/5/30)", value:"13.23 / 12.44 / 12.36"}
+    ],
+    images: [], checklist: []
+  });
+
+  // 5) چک‌لیست نهایی
+  slides.push({
+    id: uid(), layout: "checklist",
+    title: "چک‌لیست کنترل نهایی",
+    note: "قبل از تحویل گزارش، همه موارد باید تیک بخورند",
+    body: "",
+    rows: [], images: [],
+    checklist: [
+      { text:"تمام عکس‌های الزامی گرفته و در اسلایدها قرار داده شده است", done:false },
+      { text:"لیبل‌های باتری (تاریخ، سریال، برند، تایپ) واضح هستند", done:false },
+      { text:"بالانس جریان بین رک‌ها و ماژول‌ها رعایت شده است", done:false },
+      { text:"ولتاژ بانک‌ها و سل‌ها ثبت شده است", done:false },
+      { text:"تاریخ نصب در سیستم بروزرسانی شده است", done:false },
+      { text:"گارد/حفاظ رک باتری نصب و عکس آن ثبت شده است", done:false }
+    ]
+  });
+
+  // 6) توضیحات
+  slides.push({
+    id: uid(), layout: "text",
+    title: "توضیحات / Notes",
+    note: "",
+    body: "نصب (Installed): Nian 12 /12V 200AH\n\nخروج (Removed): Nian 12 /12V 200AH\n\nانبار تحویل‌گیرنده: باتری‌ها از سایت خارج و به انبار شرکت پرسو و از آنجا به انبار شورآباد منتقل می‌گردد.",
+    rows: [], images: [], checklist: []
+  });
+
+  state.slides = slides;
+  openId = null;
+  commit();
+  render();
+  showToast("تمپلیت نصب باتری بارگذاری شد ✅");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+/* ============================================================================
+   اتصال رخدادها
+   ============================================================================ */
+function init(){
+  applyTheme();
+  initHistory();
+  updateUndoButtons();
+
+  /* --- دکمه‌های تمپلیت --- */
+  const b1 = document.getElementById("btnLoadBatteryTpl");
+  if(b1) b1.addEventListener("click", loadBatteryTemplate);
+  const b2 = document.getElementById("btnLoadBatteryTpl2");
+  if(b2) b2.addEventListener("click", loadBatteryTemplate);
+
+  /* --- تنظیمات --- */
+  document.getElementById("btnSettings").addEventListener("click", ()=>{
+    const p = document.getElementById("settingsPanel");
+    p.style.display = p.style.display === "none" ? "" : "none";
+    if(p.style.display !== "none") updateStorageMeter();
+  });
+
+  document.getElementById("projectTitle").addEventListener("input", (e)=>{
+    state.meta.projectTitle = e.target.value;
+    document.getElementById("brandSub").textContent = e.target.value || "ساخت اسلاید با تصویر و متن، خروجی HTML و PPTX";
+    scheduleCommit();
+  });
+  document.getElementById("projectSubtitle").addEventListener("input", (e)=>{
+    state.meta.projectSubtitle = e.target.value;
+    scheduleCommit();
+  });
+  document.getElementById("colorPrimary").addEventListener("input", (e)=>{
+    state.meta.primary = e.target.value;
+    document.getElementById("colorPrimaryVal").textContent = e.target.value.toUpperCase();
+    renderOpenCardsIfAny(); scheduleCommit();
+  });
+  document.getElementById("colorAccent").addEventListener("input", (e)=>{
+    state.meta.accent = e.target.value;
+    document.getElementById("colorAccentVal").textContent = e.target.value.toUpperCase();
+    renderOpenCardsIfAny(); scheduleCommit();
+  });
+
+  document.getElementById("btnLogoLeft").addEventListener("click", ()=> document.getElementById("fileLogoLeft").click());
+  document.getElementById("btnLogoRight").addEventListener("click", ()=> document.getElementById("fileLogoRight").click());
+  wireLogoUpload("fileLogoLeft", "logoLeft", "logoLeftThumb");
+  wireLogoUpload("fileLogoRight", "logoRight", "logoRightThumb");
+
+  /* --- سوییچ‌ها --- */
+  document.getElementById("tgFooter").addEventListener("click", ()=>{
+    state.meta.showFooter = !state.meta.showFooter;
+    document.getElementById("swFooter").classList.toggle("on", state.meta.showFooter);
+    renderOpenCardsIfAny();
+    commit();
+  });
+  document.getElementById("tgMarks").addEventListener("click", ()=>{
+    state.meta.showMarks = !state.meta.showMarks;
+    document.getElementById("swMarks").classList.toggle("on", state.meta.showMarks);
+    commit();
+    renderSlidesList();
+  });
+
+  /* --- پروژه --- */
+  document.getElementById("btnSaveProject").addEventListener("click", saveProjectFile);
+  document.getElementById("btnLoadProject").addEventListener("click", ()=> document.getElementById("fileProject").click());
+  document.getElementById("fileProject").addEventListener("change", (e)=>{
+    const f = e.target.files && e.target.files[0];
+    if(f) loadProjectFile(f);
+    e.target.value = "";
+  });
+  document.getElementById("btnClearAll").addEventListener("click", ()=>{
+    if(!state.slides.length){ showToast("لیست خالی است"); return; }
+    if(!confirm("همه اسلایدها پاک شوند؟ این عمل با Ctrl+Z قابل بازگشت است.")) return;
+    state.slides = [];
+    openId = null;
+    commit();
+    render();
+    showToast("همه اسلایدها پاک شد");
+  });
+
+  /* --- افزودن اسلاید --- */
+  document.getElementById("btnAddSlide").addEventListener("click", openLayoutSheet);
+  document.getElementById("layoutSheet").addEventListener("click", (e)=>{
+    if(e.target.id === "layoutSheet"){ closeLayoutSheet(); return; }
+    const item = e.target.closest(".lp-item");
+    if(!item) return;
+    const layout = item.dataset.layout;
+
+    if(layout === "photos-bulk"){
+      const created = [];
+      for(let i=0;i<5;i++){
+        const s = newSlide("photos");
+        s.title = "اسلاید تصاویر " + (state.slides.length + i + 1);
+        state.slides.push(s);
+        created.push(s);
+      }
+      openId = created[0].id;
+      closeLayoutSheet();
+      commit();
+      render();
+      showToast("۵ اسلاید تصاویر اضافه شد");
+      setTimeout(()=>{
+        const card = document.querySelector(`.slide-card[data-id="${created[0].id}"]`);
+        if(card) card.scrollIntoView({behavior:"smooth", block:"start"});
+      }, 60);
+      return;
+    }
+
+    const s = newSlide(layout);
+    state.slides.push(s);
+    openId = s.id;
+    closeLayoutSheet();
+    commit();
+    render();
+    setTimeout(()=>{
+      const card = document.querySelector(`.slide-card[data-id="${s.id}"]`);
+      if(card) card.scrollIntoView({behavior:"smooth", block:"start"});
+    }, 60);
+  });
+
+  document.getElementById("btnDuplicateLast").addEventListener("click", ()=>{
+    if(!state.slides.length){ showToast("اسلایدی برای تکثیر وجود ندارد"); return; }
+    duplicateSlide(state.slides.length - 1);
+    closeLayoutSheet();
+  });
+
+  /* --- پیش‌نمایش و خروجی‌ها --- */
+  document.getElementById("btnFullPreview").addEventListener("click", openFullPreview);
+  document.getElementById("btnPreview2").addEventListener("click", openFullPreview);
+  document.getElementById("btnClosePreview").addEventListener("click", closeFullPreview);
+  document.getElementById("btnExport").addEventListener("click", exportPPTX);
+  document.getElementById("btnExport2").addEventListener("click", exportPPTX);
+  document.getElementById("btnExportHTML").addEventListener("click", exportHTML);
+
+  /* --- Lightbox --- */
+  document.getElementById("lbClose").addEventListener("click", closeLightbox);
+  document.getElementById("lightbox").addEventListener("click", (e)=>{
+    if(e.target.id === "lightbox") closeLightbox();
+  });
+
+  /* --- جستجو --- */
+  document.getElementById("searchInput").addEventListener("input", (e)=>{
+    searchQuery = e.target.value.trim();
+    renderSlidesList();
+  });
+
+  /* --- Undo / Redo / Theme --- */
+  document.getElementById("btnUndo").addEventListener("click", undo);
+  document.getElementById("btnRedo").addEventListener("click", redo);
+  document.getElementById("btnTheme").addEventListener("click", toggleTheme);
+
+  /* --- کیبورد --- */
+  document.addEventListener("keydown", (e)=>{
+    const tag = (e.target.tagName || "").toLowerCase();
+    const typing = tag === "input" || tag === "textarea";
+
+    if(e.key === "Escape"){
+      closeLayoutSheet();
+      closeFullPreview();
+      closeLightbox();
+      return;
+    }
+    const ctrl = e.ctrlKey || e.metaKey;
+    if(ctrl && !e.shiftKey && (e.key === "z" || e.key === "Z")){
+      if(typing) return; // اجازه به undo بومی فیلدها
+      e.preventDefault(); undo(); return;
+    }
+    if(ctrl && (e.key === "y" || e.key === "Y" || (e.shiftKey && (e.key === "z" || e.key === "Z")))){
+      e.preventDefault(); redo(); return;
+    }
+    if(ctrl && (e.key === "s" || e.key === "S")){
+      e.preventDefault(); saveProjectFile(); return;
+    }
+    if(ctrl && (e.key === "p" || e.key === "P")){
+      e.preventDefault(); openFullPreview(); return;
+    }
+  });
+
+  /* --- ذخیره نهایی قبل از خروج --- */
+  window.addEventListener("beforeunload", ()=>{ saveState(); });
+
+  render();
+}
+
+document.addEventListener("DOMContentLoaded", init);
+})();
+</script>
+</body>
+</html>
