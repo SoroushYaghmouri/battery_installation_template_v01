@@ -141,7 +141,7 @@
   .img-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:8px;}
   .img-item{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--paper);}
   .img-item .img-box{position:relative;aspect-ratio:16/9;background:#e9ecf0;}
-  .img-item .img-box img{width:100%;height:100%;object-fit:contain;cursor:zoom-in;background:#111;display:block;}.img-item .img-overlay-label{position:absolute;left:0;right:0;bottom:0;padding:7px 9px;background:rgba(12,18,28,.78);color:#fff;font-size:10px;line-height:1.45;text-align:right;pointer-events:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .img-item .img-box img{width:100%;height:100%;object-fit:contain;cursor:zoom-in;background:#111;display:block;}
   .img-item .img-box button.rm{position:absolute;top:4px;left:4px;width:24px;height:24px;border-radius:7px;
     border:none;background:rgba(20,20,20,.6);color:#fff;font-size:12px;cursor:pointer;}
   .img-item .img-move{position:absolute;bottom:4px;left:4px;display:flex;gap:4px;}
@@ -308,14 +308,14 @@
   .jdp-clear{background:var(--paper);color:var(--ink);border:1.5px solid var(--line);}
   .jdp-ok{background:var(--accent);color:#fff;}
 </style>
-<meta name="template-data-policy" content="empty-input-template"><meta name="template-version" content="5.2">
+<meta name="template-data-policy" content="empty-input-template"><meta name="template-version" content="5.3">
 </head>
 <body>
 
 <header class="appbar">
   <button class="icon-btn" id="btnSettings" aria-label="تنظیمات">⚙️</button>
   <div class="brand">
-    <b>سامانه حرفه‌ای گزارش نصب باتری <span class="version-badge">v5.2</span></b>
+    <b>سامانه حرفه‌ای گزارش نصب باتری <span class="version-badge">v5.3</span></b>
     <span id="brandSub">تیم پاور شرکت نقش اول کیفیت (NAK) · nak-mci.ir</span>
   </div>
   <a class="company-link" href="https://www.nak-mci.ir" target="_blank" rel="noopener noreferrer">NAK ↗</a>
@@ -349,7 +349,7 @@
       <div class="field"><label>نام سایت</label><input type="text" id="fieldSiteName" placeholder="نام سایت"></div>
       <div class="field"><label>مختصات GPS سایت</label><div class="gps-row"><input type="text" id="fieldSiteGPS" placeholder="Latitude, Longitude"><button class="gps-btn" id="btnSiteGPS" type="button">📍 دریافت GPS</button></div></div>
     </div>
-    <div class="kbd-hint" style="text-align:right;margin:8px 0 14px;">این اطلاعات هنگام ثبت هر تصویر ذخیره می‌شوند و در لیبل تصویر، پیش‌نمایش، PPTX و بسته دانلودی استفاده خواهند شد. هنگام ثبت تصویر، GPS مجدداً و به‌صورت زنده خوانده می‌شود.</div>
+    <div class="kbd-hint" style="text-align:right;margin:8px 0 14px;">اطلاعات فوق هنگام ثبت هر تصویر، به‌صورت لیبل زنده روی دوربین نمایش داده می‌شود و همان لحظه درون پیکسل‌های تصویر حک می‌گردد. GPS در هر ثبت مجدداً خوانده می‌شود.</div>
     <div class="sub-h">تنظیمات گزارش</div>
     <div class="field">
       <label>نام پروژه / گزارش</label>
@@ -406,7 +406,7 @@
     <div class="sub-h">حافظه مرورگر</div>
     <div class="meter" id="storageMeter"><i></i></div>
     <div style="font-size:11px;color:var(--ink-soft);margin-top:6px;" id="storageText">—</div>
-    <div class="kbd-hint" style="text-align:right;margin-top:8px;">تصاویر به‌صورت JPEG فشرده (حداکثر ۱۹۲۰ پیکسل، کیفیت ۰.۸۵) ذخیره می‌شوند تا حجم حافظه کاهش یابد.</div>
+    <div class="kbd-hint" style="text-align:right;margin-top:8px;">تصاویر با لیبل حک‌شده و فشرده (JPEG، حداکثر ۱۹۲۰ پیکسل، کیفیت ۰.۸۵) ذخیره می‌شوند.</div>
   </div>
 
   <div id="slidesList"></div>
@@ -473,7 +473,7 @@
       <div class="camera-frame-169"><span>16:9</span></div>
       <div class="camera-label" id="cameraLabel"></div>
     </div>
-    <div class="camera-info" id="cameraInfo">دوربین پشت با نسبت 16:9 درخواست می‌شود. تصویر با رزولوشن واقعی دوربین ثبت و سپس با حفظ نسبت و کیفیت بالا فشرده می‌شود.</div>
+    <div class="camera-info" id="cameraInfo">دوربین پشت با نسبت 16:9 درخواست می‌شود. لیبل همان لحظه‌ی ثبت درون پیکسل‌های تصویر حک می‌شود.</div>
     <div class="camera-actions">
       <button id="cameraSwitch" type="button">🔄 تعویض دوربین</button>
       <button id="cameraCapture" type="button">● ثبت تصویر</button>
@@ -512,9 +512,10 @@ window.LOGO_RIGHT_DEFAULT = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.o
 
 <script>
 /* ============================================================================
-   قالب‌ساز گزارش پاورپوینت — نسخه ۵.۲
+   قالب‌ساز گزارش پاورپوینت — نسخه ۵.۳
    - تصاویر بدون فریم اجباری (نسبت اصلی حفظ می‌شود)
-   - لیبل زنده روی دوربین + GPS و زمان تازه در هر ثبت
+   - لیبل زنده روی دوربین و حک فوری روی پیکسل‌های تصویر هنگام ثبت
+   - GPS و زمان تازه در هر ثبت
    - فشرده‌سازی JPEG با حفظ کیفیت
    ============================================================================ */
 (function(){
@@ -725,11 +726,9 @@ var BOARD_CSS = [
   ".board .b-table td.lab{background:var(--b-accent-soft);font-weight:700;color:#213041;width:22%;}",
   ".board .b-table td.val{background:#fff;color:#333;width:28%;text-align:center;}",
   ".board .b-photos{display:grid;gap:2%;width:100%;height:100%;align-content:center;justify-content:center;}",
-  /* فریم دور تصویر حذف شد؛ فقط خود تصویر با نسبت اصلی نمایش داده می‌شود */
   ".board .b-photo{position:relative;background:transparent;border-radius:4px;overflow:hidden;aspect-ratio:16/9;min-width:0;width:100%;height:auto;align-self:center;}",
   ".board .b-photo img{width:100%;height:100%;object-fit:contain;object-position:center center;display:block;background:transparent;image-rendering:auto;}",
   ".board .b-photo .ph-cap{position:absolute;left:0;right:0;bottom:0;background:rgba(20,25,35,.62);color:#fff;font-size:2.3%;padding:1.5% 2%;text-align:center;z-index:3;}",
-  ".board .b-photo .ph-meta{position:absolute;bottom:0;left:0;right:0;background:rgba(8,12,18,.72);color:#fff;font-size:1.9%;padding:1.2% 1.6%;text-align:right;line-height:1.45;}",
   ".board .b-photo-empty{grid-column:1/-1;grid-row:1/-1;border:2px dashed #c6ced9;border-radius:6px;background:#f7f9fb;",
   "display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2%;color:#98a2b0;text-align:center;padding:4%;}",
   ".board .b-photo-empty .pe-ic{font-size:5.5%;}",
@@ -772,10 +771,9 @@ var LEGACY_KEY = "pptxbuilder_state_v3";
 var MAX_IMAGES = 8;
 var SOFT_LIMIT = 4.5 * 1024 * 1024;
 
-/* --- تنظیمات فشرده‌سازی تصاویر --- */
-var STORAGE_IMG_MAX_DIM = 1920;   /* حداکثر بُعد تصویر ذخیره‌شده */
-var STORAGE_IMG_QUALITY = 0.85;   /* کیفیت JPEG برای ذخیره */
-var LABEL_IMG_QUALITY   = 0.92;   /* کیفیت JPEG برای تصویر لیبل‌خورده خروجی */
+var STORAGE_IMG_MAX_DIM = 1920;
+var STORAGE_IMG_QUALITY = 0.85;
+var LABEL_IMG_QUALITY   = 0.92;
 
 function defaultState(){
   return {
@@ -835,7 +833,8 @@ function migrateState(parsed){
            },
            naturalWidth:i.naturalWidth||0,
            naturalHeight:i.naturalHeight||0,
-           sourceRatio:i.sourceRatio||0
+           sourceRatio:i.sourceRatio||0,
+           labeled: !!i.labeled
          };
        }) : [],
       checklist: Array.isArray(s.checklist) ? s.checklist.map(function(c){ return { text:c.text||"", done:!!c.done }; }) : [],
@@ -944,8 +943,6 @@ function fileToOriginalDataURL(file){
     reader.readAsDataURL(file);
   });
 }
-
-/* فشرده‌سازی با حفظ نسبت ابعاد و بدون crop/stretch */
 function compressImage(dataUrl, maxDim, quality){
   return new Promise(function(resolve, reject){
     if(!dataUrl){ reject(new Error("تصویر خالی")); return; }
@@ -975,7 +972,6 @@ function fileToCompressedDataURL(file, maxDim, quality){
     return compressImage(raw, maxDim || STORAGE_IMG_MAX_DIM, quality || STORAGE_IMG_QUALITY);
   });
 }
-/* برای لوگو از PNG استفاده می‌کنیم تا شفافیت حفظ شود */
 function logoToDataURL(file, maxDim){
   return fileToOriginalDataURL(file).then(function(raw){
     return new Promise(function(resolve){
@@ -1037,53 +1033,104 @@ function imageLabel(im){
   return parts.join("  |  ") || "اطلاعات ثبت تصویر وارد نشده است";
 }
 
-/* لیبل درون خود تصویر حک می‌شود؛ ابعاد پیکسلی تصویر اصلی حفظ می‌شود. */
+/* لیبل به‌طور کامل و چندخطی درون پایین تصویر حک می‌شود.
+   ابعاد پیکسلی تصویر اصلی دقیقاً حفظ می‌شود. */
 function makeLabeledDataURL(dataUrl, label){
   return new Promise(function(resolve,reject){
     if(!dataUrl){ reject(new Error("تصویر خالی است")); return; }
-    var img=new Image();
-    img.onload=function(){
-      var w=img.naturalWidth || img.width;
-      var h=img.naturalHeight || img.height;
-      if(!w || !h){ reject(new Error("ابعاد تصویر نامعتبر است")); return; }
+    var img = new Image();
+    img.onload = function(){
+      var w = img.naturalWidth || img.width;
+      var h = img.naturalHeight || img.height;
+      if(!w || !h){ reject(new Error("ابعاد نامعتبر")); return; }
 
-      var c=document.createElement("canvas");
-      c.width=w; c.height=h;
-      var ctx=c.getContext("2d",{alpha:false});
-      ctx.imageSmoothingEnabled=true;
-      ctx.imageSmoothingQuality="high";
-      ctx.drawImage(img,0,0,w,h);
+      var c = document.createElement("canvas");
+      c.width = w; c.height = h;
+      var ctx = c.getContext("2d", {alpha:false});
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(img, 0, 0, w, h);
 
-      var text=String(label||"اطلاعات ثبت تصویر");
-      var shortText=text;
-      var maxW=w*0.94;
-      var fontSize=Math.max(16,Math.min(42,Math.round(w/48)));
-      ctx.font="700 "+fontSize+"px Arial, Tahoma, sans-serif";
-      while(ctx.measureText(shortText).width>maxW && shortText.length>12){
-        shortText=shortText.slice(0,-2).trim()+"…";
+      var text = String(label || "").trim() || "اطلاعات ثبت تصویر وارد نشده است";
+      var parts = text.split(/\s*\|\s*/).filter(function(s){ return s.trim(); });
+      if(!parts.length) parts = [text];
+
+      var pad = Math.max(10, Math.round(w / 130));
+      var maxTextW = w - pad*2 - 10;
+      var fontSize = Math.max(14, Math.min(40, Math.round(w / 52)));
+      var lineHeight, lines;
+
+      function layoutText(size){
+        ctx.font = "700 " + size + "px Arial, Tahoma, sans-serif";
+        var out = [], cur = "";
+        for(var i=0;i<parts.length;i++){
+          var sep = cur ? "   |   " : "";
+          var test = cur + sep + parts[i];
+          if(ctx.measureText(test).width <= maxTextW){
+            cur = test;
+          } else {
+            if(cur) out.push(cur);
+            cur = parts[i];
+            if(ctx.measureText(cur).width > maxTextW){
+              var t = cur;
+              while(ctx.measureText(t + "…").width > maxTextW && t.length > 4){
+                t = t.slice(0, -2).trim();
+              }
+              cur = t + "…";
+            }
+          }
+        }
+        if(cur) out.push(cur);
+        return out;
       }
-      var pad=Math.max(10,Math.round(w/120));
-      var stripH=Math.max(Math.round(fontSize*2.15),Math.round(h*0.075));
-      stripH=Math.min(stripH,Math.round(h*0.20));
 
-      ctx.save();
-      ctx.fillStyle="rgba(7,12,20,0.86)";
-      ctx.fillRect(0,h-stripH,w,stripH);
-      ctx.fillStyle="#ffffff";
-      ctx.font="700 "+fontSize+"px Arial, Tahoma, sans-serif";
-      ctx.textAlign="right";
-      ctx.textBaseline="middle";
-      ctx.direction="rtl";
-      ctx.fillText(shortText,w-pad,h-stripH/2);
-      ctx.restore();
+      lines = layoutText(fontSize);
+      var guard = 0;
+      while(lines.length > 3 && fontSize > 11 && guard < 6){
+        fontSize = Math.round(fontSize * 0.85);
+        lines = layoutText(fontSize);
+        guard++;
+      }
+      lineHeight = Math.round(fontSize * 1.4);
 
-      try{
-        /* JPEG برای حجم کمتر با کیفیت بالا (PNG قبلاً حجم را چند برابر می‌کرد) */
-        resolve(c.toDataURL("image/jpeg", LABEL_IMG_QUALITY));
-      }catch(e){ reject(e); }
+      var contentH = lines.length * lineHeight;
+      var stripH = contentH + Math.round(pad * 1.6);
+      stripH = Math.max(stripH, Math.round(h * 0.075));
+      stripH = Math.min(stripH, Math.round(h * 0.32));
+
+      var gradH = Math.round(stripH * 0.9);
+      var grad = ctx.createLinearGradient(0, h - stripH - gradH, 0, h - stripH);
+      grad.addColorStop(0, "rgba(7,12,20,0)");
+      grad.addColorStop(1, "rgba(7,12,20,0.88)");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, h - stripH - gradH, w, gradH);
+
+      ctx.fillStyle = "rgba(7,12,20,0.93)";
+      ctx.fillRect(0, h - stripH, w, stripH);
+
+      ctx.fillStyle = "#00A651";
+      var barW = Math.max(3, Math.round(w / 480));
+      ctx.fillRect(w - pad*0.55, h - stripH + pad*0.4, barW, stripH - pad*0.8);
+
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "700 " + fontSize + "px Arial, Tahoma, sans-serif";
+      ctx.textAlign = "right";
+      ctx.textBaseline = "middle";
+      ctx.direction = "rtl";
+      ctx.shadowColor = "rgba(0,0,0,0.75)";
+      ctx.shadowBlur = 3;
+
+      var textTop = h - stripH + Math.round(pad * 0.6);
+      for(var li=0; li<lines.length; li++){
+        ctx.fillText(lines[li], w - pad, textTop + lineHeight*(li + 0.5));
+      }
+      ctx.shadowBlur = 0;
+
+      try{ resolve(c.toDataURL("image/jpeg", LABEL_IMG_QUALITY)); }
+      catch(e){ reject(e); }
     };
-    img.onerror=function(){reject(new Error("تصویر قابل پردازش نیست"));};
-    img.src=dataUrl;
+    img.onerror = function(){ reject(new Error("تصویر قابل پردازش نیست")); };
+    img.src = dataUrl;
   });
 }
 function fileSafeName(s){
@@ -1102,19 +1149,20 @@ async function exportLabeledImages(){
     });
   });
   if(!imgs.length){ showToast("تصویری برای دانلود وجود ندارد"); return; }
-  showToast("در حال آماده‌سازی تصاویر لیبل‌خورده…");
+  showToast("در حال آماده‌سازی تصاویر…");
   try{
     if(typeof JSZip === "undefined") throw new Error("JSZip");
     var zip=new JSZip();
     for(var i=0;i<imgs.length;i++){
-      var x=imgs[i], labeled=await makeLabeledDataURL(x.im.data,imageLabel(x.im));
-      var base64=labeled.split(",")[1];
-      var name=String(x.si+1).padStart(2,"0")+"-"+String(x.ii+1).padStart(2,"0")+"-"+fileSafeName(x.slide.title)+".jpg";
+      var x=imgs[i];
+      var base64=x.im.data.split(",")[1];
+      var ext=(x.im.data.indexOf("data:image/png")===0)?"png":"jpg";
+      var name=String(x.si+1).padStart(2,"0")+"-"+String(x.ii+1).padStart(2,"0")+"-"+fileSafeName(x.slide.title)+"."+ext;
       zip.file(name,base64,{base64:true});
     }
     var blob=await zip.generateAsync({type:"blob",compression:"DEFLATE",compressionOptions:{level:6}});
     downloadBlob(blob,"تصاویر-لیبل-خورده-"+Date.now()+".zip");
-    showToast(imgs.length+" تصویر لیبل‌خورده دانلود شد");
+    showToast(imgs.length+" تصویر دانلود شد");
   }catch(e){
     console.error(e);
     showToast("ساخت فایل دانلودی ناموفق بود");
@@ -1191,7 +1239,6 @@ function photosHTML(images, slide){
   images.forEach(function(im){
     h += '<div class="b-photo" data-natural="' + (im.naturalWidth||"") + 'x' + (im.naturalHeight||"") + '">';
     h += '<img src="' + im.data + '" alt="">';
-    h += '<div class="ph-meta">' + escapeHTML(imageLabel(im)) + '</div>';
     if(im.caption) h += '<div class="ph-cap">' + escapeHTML(im.caption) + '</div>';
     h += '</div>';
   });
@@ -1867,7 +1914,7 @@ async function startCamera(slide){
     var vw=video.videoWidth||set.width||0, vh=video.videoHeight||set.height||0;
     var ratio=vw&&vh ? vw/vh : 16/9;
     info.textContent="فریم نمایش 16:9 است · رزولوشن واقعی دوربین: "+(vw||"—")+"×"+(vh||"—")+" · نسبت: "+ratio.toFixed(3)+
-      " · تصویر بدون فریم اجباری، بدون Stretch/Crop و با ابعاد واقعی خود ذخیره و سپس با کیفیت بالا فشرده می‌شود.";
+      " · لیبل هنگام ثبت، درون پیکسل‌های تصویر حک می‌شود.";
     startCameraLabelTimer();
   }catch(e){
     console.error(e);
@@ -1876,30 +1923,26 @@ async function startCamera(slide){
   }
 }
 
-/* ثبت تصویر: GPS تازه + زمان تازه + فشرده‌سازی با حفظ نسبت */
 async function captureCameraImage(){
   if(cameraState.capturing) return;
-  var slide=cameraState.slide, video=document.getElementById("cameraVideo");
+  var slide = cameraState.slide, video = document.getElementById("cameraVideo");
   if(!slide || !video || !video.videoWidth || !video.videoHeight) return;
-  if((slide.images||[]).length>=MAX_IMAGES){ showToast("حداکثر تعداد عکس پر شده است"); return; }
+  if((slide.images||[]).length >= MAX_IMAGES){ showToast("حداکثر تعداد عکس پر شده است"); return; }
 
   cameraState.capturing = true;
   var capBtn = document.getElementById("cameraCapture");
   if(capBtn){ capBtn.disabled = true; capBtn.textContent = "در حال ثبت…"; }
 
-  /* ۱) فریم را همان لحظه برمی‌داریم */
-  var c=document.createElement("canvas");
-  c.width=video.videoWidth; c.height=video.videoHeight;
-  var ctx=c.getContext("2d",{alpha:false});
-  ctx.imageSmoothingEnabled=true;
-  ctx.imageSmoothingQuality="high";
-  ctx.drawImage(video,0,0,c.width,c.height);
-  var rawData=c.toDataURL("image/jpeg", 0.95);
+  var c = document.createElement("canvas");
+  c.width = video.videoWidth; c.height = video.videoHeight;
+  var ctx = c.getContext("2d", {alpha:false});
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(video, 0, 0, c.width, c.height);
+  var rawData = c.toDataURL("image/jpeg", 0.95);
 
-  /* ۲) زمان ثبت همان لحظه */
   var capturedAt = captureTimestamp();
 
-  /* ۳) GPS تازه و بروز */
   showToast("در حال دریافت موقعیت مکانی…");
   var freshGPS = await getGPSLocation();
   if(freshGPS){
@@ -1915,29 +1958,45 @@ async function captureCameraImage(){
     siteGPS: freshGPS || String(state.meta.siteGPS||"").trim()
   };
 
-  /* ۴) فشرده‌سازی بدون تغییر نسبت ابعاد */
-  var compressed;
+  var labelParts = [];
+  if(meta.fieldExpert) labelParts.push("کارشناس: " + meta.fieldExpert);
+  if(meta.siteCode)    labelParts.push("کد سایت: " + meta.siteCode);
+  if(meta.siteName)    labelParts.push("نام سایت: " + meta.siteName);
+  if(meta.siteGPS)     labelParts.push("GPS: " + meta.siteGPS);
+  labelParts.push("ثبت تصویر: " + capturedAt);
+  var labelText = labelParts.join("  |  ");
+
+  var labeledData;
   try{
-    compressed = await compressImage(rawData, STORAGE_IMG_MAX_DIM, STORAGE_IMG_QUALITY);
+    labeledData = await makeLabeledDataURL(rawData, labelText);
   }catch(e){
-    console.warn("compression failed", e);
-    compressed = rawData;
+    console.warn("label burning failed", e);
+    labeledData = rawData;
   }
 
-  slide.images=slide.images||[];
+  var finalData;
+  try{
+    finalData = await compressImage(labeledData, STORAGE_IMG_MAX_DIM, STORAGE_IMG_QUALITY);
+  }catch(e){
+    console.warn("compression failed", e);
+    finalData = labeledData;
+  }
+
+  slide.images = slide.images||[];
   slide.images.push({
-    data:compressed, caption:"",
+    data: finalData, caption:"",
     capturedAt: capturedAt,
     captureMeta: meta,
     naturalWidth: c.width,
     naturalHeight: c.height,
-    sourceRatio: c.width/c.height
+    sourceRatio: c.width/c.height,
+    labeled: true
   });
 
   cameraState.capturing = false;
   if(capBtn){ capBtn.disabled = false; capBtn.textContent = "● ثبت تصویر"; }
 
-  openId=slide.id;
+  openId = slide.id;
   commit(); renderSlidesList();
   showToast("تصویر ثبت شد ✓ " + (freshGPS ? "(GPS بروز شد)" : "(GPS از اطلاعات سایت)"));
 }
@@ -1957,14 +2016,13 @@ function buildPhotosEditor(slide){
     item.innerHTML =
       '<div class="img-box">' +
         '<img src="' + im.data + '" alt="">' +
-        '<div class="img-overlay-label">' + escapeHTML(lbl) + '</div>' +
         '<button class="rm" title="حذف">✕</button>' +
         '<div class="img-move">' +
           '<button data-mv="-1" title="راست" ' + (i===0?"disabled":"") + '>▶</button>' +
           '<button data-mv="1" title="چپ" ' + (i===slide.images.length-1?"disabled":"") + '>◀</button>' +
         '</div>' +
       '</div>' +
-      '<div class="photo-label"><b>لیبل ثبت تصویر</b><br>' + escapeHTML(lbl) + '</div>' +
+      '<div class="photo-label"><b>متن لیبل حک‌شده در تصویر</b><br>' + escapeHTML(lbl) + '</div>' +
       '<div class="img-cap"><input type="text" placeholder="زیرنویس اختیاری"></div>';
 
     item.querySelector(".rm").addEventListener("click", function(){
@@ -2019,7 +2077,7 @@ function buildPhotosEditor(slide){
 
   var info=document.createElement("div");
   info.style.cssText="font-size:11px;color:var(--ink-soft);margin-top:8px;line-height:1.7;";
-  info.innerHTML="هر تصویر با نام کارشناس، کد سایت، نام سایت، GPS و زمان ثبت، <b>لیبل اختصاصی</b> دریافت می‌کند. اطلاعات ثبت‌شده تصویر مستقل از تغییرات بعدی اطلاعات سایت است. تصاویر با حفظ نسبت ابعاد و کیفیت JPEG بالا فشرده می‌شوند.";
+  info.innerHTML="هر تصویر با نام کارشناس، کد سایت، نام سایت، GPS و زمان ثبت، <b>لیبل اختصاصی حک‌شده درون تصویر</b> دریافت می‌کند. اطلاعات ثبت‌شده تصویر مستقل از تغییرات بعدی اطلاعات سایت است. تصاویر با حفظ نسبت ابعاد و کیفیت JPEG بالا فشرده می‌شوند.";
   wrap.appendChild(info);
   return wrap;
 }
@@ -2030,11 +2088,19 @@ function handlePhotoFiles(slide, files){
   var toProcess = files.slice(0, remaining);
   if(!toProcess.length){ showToast("حداکثر تعداد عکس پر شده است"); return; }
 
-  showToast("در حال فشرده‌سازی " + toProcess.length + " تصویر…");
+  showToast("در حال پردازش " + toProcess.length + " تصویر…");
   var added = 0;
   var idx = 0;
   var capturedAt = captureTimestamp();
   var capMeta = currentCaptureMeta();
+
+  var labelParts = [];
+  if(capMeta.fieldExpert) labelParts.push("کارشناس: " + capMeta.fieldExpert);
+  if(capMeta.siteCode)    labelParts.push("کد سایت: " + capMeta.siteCode);
+  if(capMeta.siteName)    labelParts.push("نام سایت: " + capMeta.siteName);
+  if(capMeta.siteGPS)     labelParts.push("GPS: " + capMeta.siteGPS);
+  labelParts.push("ثبت تصویر: " + capturedAt);
+  var labelText = labelParts.join("  |  ");
 
   function next(){
     if(idx >= toProcess.length){
@@ -2044,41 +2110,33 @@ function handlePhotoFiles(slide, files){
       return;
     }
     var f = toProcess[idx++];
-    compressImage;
     fileToOriginalDataURL(f).then(function(raw){
-      return new Promise(function(resolve){
-        var probe = new Image();
-        probe.onload = function(){
-          var w = probe.naturalWidth, h = probe.naturalHeight;
-          var scale = Math.min(1, STORAGE_IMG_MAX_DIM / Math.max(w||1, h||1));
-          var nw = Math.max(1, Math.round((w||1)*scale));
-          var nh = Math.max(1, Math.round((h||1)*scale));
-          var c = document.createElement("canvas");
-          c.width = nw; c.height = nh;
-          var cx = c.getContext("2d", {alpha:false});
-          cx.imageSmoothingEnabled = true;
-          cx.imageSmoothingQuality = "high";
-          cx.drawImage(probe, 0, 0, nw, nh);
-          var data;
-          try{ data = c.toDataURL("image/jpeg", STORAGE_IMG_QUALITY); }
-          catch(e){ data = raw; }
-          resolve({url:data, w:w, h:h});
-        };
-        probe.onerror = function(){ resolve({url:raw, w:0, h:0}); };
-        probe.src = raw;
+      return makeLabeledDataURL(raw, labelText);
+    }).then(function(labeledData){
+      return compressImage(labeledData, STORAGE_IMG_MAX_DIM, STORAGE_IMG_QUALITY).then(function(compressed){
+        return new Promise(function(resolve){
+          var probe = new Image();
+          probe.onload = function(){ resolve({data:compressed, w:probe.naturalWidth, h:probe.naturalHeight}); };
+          probe.onerror = function(){ resolve({data:compressed, w:0, h:0}); };
+          probe.src = compressed;
+        });
       });
     }).then(function(info){
       slide.images.push({
-        data:info.url, caption:"",
-        capturedAt:capturedAt,
-        captureMeta:capMeta,
-        naturalWidth:info.w,
-        naturalHeight:info.h,
-        sourceRatio:(info.w&&info.h)?info.w/info.h:0
+        data: info.data, caption:"",
+        capturedAt: capturedAt,
+        captureMeta: capMeta,
+        naturalWidth: info.w,
+        naturalHeight: info.h,
+        sourceRatio: (info.w&&info.h)?info.w/info.h:0,
+        labeled: true
       });
       added++;
       next();
-    }).catch(function(){ next(); });
+    }).catch(function(err){
+      console.warn("add photo failed", err);
+      next();
+    });
   }
   next();
 }
@@ -2292,7 +2350,6 @@ function layoutPhotosOnSlide(pres, s, imgs, x, y, w, h){
     var cx = x + c*(frameW+gap);
     var cy = y + r*(frameH+gap);
 
-    /* بدون فریم مشکی — خود تصویر با نسبت اصلی داخل قاب قرار می‌گیرد */
     var iw=frameW, ih=frameH, ix=cx, iy=cy;
     var iw0=im.naturalWidth||0, ih0=im.naturalHeight||0;
     if(iw0 && ih0){
@@ -2307,14 +2364,6 @@ function layoutPhotosOnSlide(pres, s, imgs, x, y, w, h){
     }
     s.addImage({data:im.data,x:ix,y:iy,w:iw,h:ih});
 
-    var label=imageLabel(im);
-    s.addText(label,{
-      x:cx+0.03,y:cy+frameH-0.34,w:frameW-0.06,h:0.31,
-      align:"right",valign:"middle",fontSize:7.5,
-      color:"FFFFFF",fill:{color:"07101A",transparency:12},
-      line:{color:"07101A",transparency:100},
-      fontFace:"Arial",rtlMode:true,margin:0.04
-    });
     if(im.caption){
       s.addText(im.caption,{
         x:cx+0.04,y:cy+0.04,w:frameW-0.08,h:0.24,
@@ -2345,20 +2394,7 @@ async function exportPPTX(){
     var accentSoft = softHexForPptx(state.meta.accent);
     var total = state.slides.length;
     var showFooter = !!state.meta.showFooter;
-    var exportSlides = [];
-    for(var esi=0; esi<state.slides.length; esi++){
-      var es=state.slides[esi];
-      var ec=Object.assign({},es);
-      if(es.images && es.images.length){
-        ec.images=[];
-        for(var eji=0; eji<es.images.length; eji++){
-          var eim=Object.assign({},es.images[eji]);
-          if(eim.data){ eim.data=await makeLabeledDataURL(eim.data,imageLabel(eim)); }
-          ec.images.push(eim);
-        }
-      }
-      exportSlides.push(ec);
-    }
+    var exportSlides = state.slides;
 
     exportSlides.forEach(function(slide, si){
       var s = pres.addSlide();
@@ -2494,27 +2530,7 @@ async function exportPPTX(){
 /* ---------- خروجی HTML ---------- */
 async function buildExportHTML(){
   var title = state.meta.projectTitle || "گزارش";
-
-  var exportSlides = [];
-  for(var ei=0; ei<state.slides.length; ei++){
-    var original = state.slides[ei];
-    var cloned = Object.assign({}, original);
-    cloned.images = [];
-    for(var ej=0; ej<(original.images||[]).length; ej++){
-      var im = original.images[ej];
-      var copy = Object.assign({}, im);
-      if(im && im.data){
-        try{
-          copy.data = await makeLabeledDataURL(im.data, imageLabel(im));
-        }catch(err){
-          console.warn("Label generation failed; original image used.", err);
-          copy.data = im.data;
-        }
-      }
-      cloned.images.push(copy);
-    }
-    exportSlides.push(cloned);
-  }
+  var exportSlides = state.slides;
 
   var pages = exportSlides.map(function(s, i){
     return '<section class="page">' +
@@ -2970,6 +2986,25 @@ function init(){
     var freshLaunch = !localStorage.getItem(STORAGE_KEY) && !localStorage.getItem(LEGACY_KEY);
     if(freshLaunch && !state.slides.length){ setTimeout(function(){ loadBatteryTemplate(); }, 80); }
   }catch(e){}
+
+  /* یک‌بار: تصاویر قدیمی که هنوز لیبل داخلشان حک نشده را مهاجرت بده */
+  (async function migrateOldImages(){
+    var changed = false;
+    for(var si=0; si<state.slides.length; si++){
+      var s = state.slides[si];
+      for(var ii=0; ii<(s.images||[]).length; ii++){
+        var im = s.images[ii];
+        if(im.data && !im.labeled){
+          try{
+            im.data = await makeLabeledDataURL(im.data, imageLabel(im));
+            im.labeled = true;
+            changed = true;
+          }catch(e){ console.warn("migrate failed", e); }
+        }
+      }
+    }
+    if(changed){ saveState(); render(); showToast("تصاویر قدیمی با لیبل حک‌شده به‌روز شدند"); }
+  })();
 }
 document.addEventListener("DOMContentLoaded", init);
 })();
