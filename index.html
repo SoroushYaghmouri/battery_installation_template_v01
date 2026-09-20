@@ -241,7 +241,6 @@
   .camera-stage video{width:100%;height:100%;display:block;object-fit:contain;background:#000;}
   .camera-frame-169{position:absolute;inset:0;border:2px solid rgba(255,255,255,.9);pointer-events:none;box-shadow:inset 0 0 0 9999px rgba(0,0,0,.03);}
   .camera-frame-169 span{position:absolute;top:10px;left:10px;padding:4px 8px;border-radius:7px;background:rgba(0,0,0,.55);color:#fff;font-size:11px;font-weight:800;}
-  /* لیبل زنده دوربین: بدون پس‌زمینه، زرد مایل به نارنجی، بزرگ‌تر با سایه‌ی قوی */
   .camera-label{position:absolute;left:0;right:0;bottom:0;
     color:#FFB733;font-size:14.5px;padding:14px 16px;text-align:right;line-height:1.65;direction:rtl;
     font-weight:800;pointer-events:none;box-sizing:border-box;letter-spacing:.2px;background:transparent;
@@ -325,14 +324,14 @@
   .jdp-clear{background:var(--paper);color:var(--ink);border:1.5px solid var(--line);}
   .jdp-ok{background:var(--accent);color:#fff;}
 </style>
-<meta name="template-data-policy" content="empty-input-template"><meta name="template-version" content="5.4">
+<meta name="template-data-policy" content="empty-input-template"><meta name="template-version" content="5.5">
 </head>
 <body>
 
 <header class="appbar">
   <button class="icon-btn" id="btnSettings" aria-label="تنظیمات">⚙️</button>
   <div class="brand">
-    <b>سامانه حرفه‌ای گزارش نصب باتری <span class="version-badge">v5.4</span></b>
+    <b>سامانه حرفه‌ای گزارش نصب باتری <span class="version-badge">v5.5</span></b>
     <span id="brandSub">تیم پاور شرکت نقش اول کیفیت (NAK) · nak-mci.ir</span>
   </div>
   <a class="company-link" href="https://www.nak-mci.ir" target="_blank" rel="noopener noreferrer">NAK ↗</a>
@@ -420,10 +419,10 @@
       <button class="btn-mini btn-block btn-green download-photos" id="btnDownloadLabeledPhotos">🖼️ دانلود تمام تصاویر لیبل‌خورده</button>
       <button class="btn-mini btn-block btn-danger" id="btnClearAll">🗑️ پاک کردن همه اسلایدها</button>
     </div>
-    <div class="sub-h">حافظه مرورگر</div>
+    <div class="sub-h">حافظه مرورگر (IndexedDB)</div>
     <div class="meter" id="storageMeter"><i></i></div>
     <div style="font-size:11px;color:var(--ink-soft);margin-top:6px;" id="storageText">—</div>
-    <div class="kbd-hint" style="text-align:right;margin-top:8px;">تصاویر با لیبل حک‌شده و فشرده (JPEG، حداکثر ۱۹۲۰ پیکسل، کیفیت ۰.۸۵) ذخیره می‌شوند.</div>
+    <div class="kbd-hint" style="text-align:right;margin-top:8px;">تصاویر با فرمت WebP (یا JPEG در مرورگرهای قدیمی)، حداکثر بُعد ۱۶۰۰ پیکسل و کیفیت انطباقی ذخیره می‌شوند. هدف حجم هر تصویر ۲۵۰KB و سقف ۴۵۰KB است.</div>
   </div>
 
   <div id="slidesList"></div>
@@ -550,11 +549,15 @@ window.LOGO_RIGHT_DEFAULT = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.o
 
 <script>
 /* ============================================================================
-   قالب‌ساز گزارش پاورپوینت — نسخه ۵.۴
+   قالب‌ساز گزارش پاورپوینت — نسخه ۵.۵
+   - ذخیره‌سازی IndexedDB با fallback به localStorage
+   - فشرده‌سازی تک‌مرحله‌ای روی canvas (کیفیت حفظ می‌شود)
+   - فرمت WebP (با fallback خودکار به JPEG)
+   - کیفیت انطباقی با هدف ۲۵۰KB و سقف ۴۵۰KB
+   - حداکثر بعد ۱۶۰۰ پیکسل
    - چینش تصاویر بهینه با استفاده حداکثری از فضا
-   - لیبل زرد مایل به نارنجی، بدون پس‌زمینه، بزرگ‌تر، با outline تیره
+   - لیبل زرد مایل به نارنجی با outline تیره
    - برش دستی تصاویر گالری قبل از حک لیبل
-   - حک لیبل لحظه‌ی ثبت درون پیکسل‌های تصویر
    ============================================================================ */
 (function(){
 "use strict";
@@ -736,7 +739,102 @@ function fmtBytes(n){
 }
 
 /* ============================================================================
-   CSS اسلاید (چینش بهینه تصاویر + حذف فریم اجباری)
+   ثابت‌های فشرده‌سازی — کیفیت انطباقی و فرمت WebP
+   ============================================================================ */
+var STORAGE_IMG_MAX_DIM   = 1600;                   /* حداکثر بُعد تصویر */
+var STORAGE_IMG_TARGET_KB = 250;                    /* هدف حجم هر تصویر */
+var STORAGE_IMG_MAX_KB    = 450;                    /* سقف سخت حجم هر تصویر */
+var IMG_QUALITY_START     = 0.90;
+var IMG_QUALITY_MIN       = 0.70;
+var SOFT_LIMIT            = 10 * 1024 * 1024;       /* سقف کل ۱۰MB */
+
+/* تشخیص پشتیبانی WebP (نتیجه کش می‌شود) */
+var _webpSupport = null;
+function supportsWebP(){
+  if(_webpSupport !== null) return _webpSupport;
+  try{
+    var c = document.createElement("canvas");
+    c.width = c.height = 1;
+    _webpSupport = c.toDataURL("image/webp").indexOf("image/webp") === 0;
+  }catch(e){ _webpSupport = false; }
+  return _webpSupport;
+}
+function preferredFormat(){
+  return supportsWebP() ? "image/webp" : "image/jpeg";
+}
+function estimateDataURLBytes(dataUrl){
+  if(!dataUrl) return 0;
+  var i = dataUrl.indexOf(",");
+  if(i < 0) return dataUrl.length;
+  return Math.round((dataUrl.length - i - 1) * 0.75);
+}
+
+/* ============================================================================
+   لایه ذخیره‌سازی IndexedDB — جایگزین localStorage برای پروژه‌های بزرگ
+   ============================================================================ */
+var IDB_NAME    = "nak_battery_report_db";
+var IDB_VERSION = 1;
+var IDB_STORE   = "state";
+var _idbPromise = null;
+
+function openIDB(){
+  if(_idbPromise) return _idbPromise;
+  _idbPromise = new Promise(function(resolve){
+    if(!window.indexedDB){ resolve(null); return; }
+    try{
+      var req = indexedDB.open(IDB_NAME, IDB_VERSION);
+      req.onupgradeneeded = function(e){
+        var db = e.target.result;
+        if(!db.objectStoreNames.contains(IDB_STORE)){
+          db.createObjectStore(IDB_STORE);
+        }
+      };
+      req.onsuccess = function(e){ resolve(e.target.result); };
+      req.onerror   = function(){ resolve(null); };
+      req.onblocked = function(){ resolve(null); };
+    }catch(e){ resolve(null); }
+  });
+  return _idbPromise;
+}
+function idbPut(key, value){
+  return openIDB().then(function(db){
+    if(!db) return false;
+    return new Promise(function(resolve){
+      try{
+        var tx = db.transaction(IDB_STORE, "readwrite");
+        var store = tx.objectStore(IDB_STORE);
+        var req = store.put(value, key);
+        req.onsuccess = function(){ resolve(true); };
+        req.onerror   = function(){ resolve(false); };
+      }catch(e){ resolve(false); }
+    });
+  });
+}
+function idbGet(key){
+  return openIDB().then(function(db){
+    if(!db) return null;
+    return new Promise(function(resolve){
+      try{
+        var tx = db.transaction(IDB_STORE, "readonly");
+        var store = tx.objectStore(IDB_STORE);
+        var req = store.get(key);
+        req.onsuccess = function(){ resolve(req.result || null); };
+        req.onerror   = function(){ resolve(null); };
+      }catch(e){ resolve(null); }
+    });
+  });
+}
+function idbEstimate(){
+  return new Promise(function(resolve){
+    if(!navigator.storage || !navigator.storage.estimate){ resolve(null); return; }
+    navigator.storage.estimate().then(function(est){
+      resolve({ usage: est.usage||0, quota: est.quota||0 });
+    }).catch(function(){ resolve(null); });
+  });
+}
+
+/* ============================================================================
+   CSS اسلاید
    ============================================================================ */
 var BOARD_CSS = [
   ".board-wrap{width:100%;}",
@@ -755,7 +853,6 @@ var BOARD_CSS = [
   ".board .b-table td{border:1px solid #d5dbe3;padding:1.6% 2%;}",
   ".board .b-table td.lab{background:var(--b-accent-soft);font-weight:700;color:#213041;width:22%;}",
   ".board .b-table td.val{background:#fff;color:#333;width:28%;text-align:center;}",
-  /* --- چینش بهینه تصاویر: پرکردن کامل فضا با grid، بدون فریم اجباری و بدون overlap --- */
   ".board .b-photos{display:grid;gap:0.5%;width:100%;height:100%;box-sizing:border-box;}",
   ".board .b-photo{position:relative;min-width:0;min-height:0;overflow:hidden;background:transparent;display:flex;align-items:center;justify-content:center;}",
   ".board .b-photo img{max-width:100%;max-height:100%;width:auto;height:auto;display:block;object-fit:contain;}",
@@ -798,12 +895,8 @@ var LAYOUT_META = {
 
 /* ---------- وضعیت ---------- */
 var STORAGE_KEY = "pptxbuilder_state_v5";
-var LEGACY_KEY = "pptxbuilder_state_v3";
-var MAX_IMAGES = 8;
-var SOFT_LIMIT = 4.5 * 1024 * 1024;
-var STORAGE_IMG_MAX_DIM = 1920;
-var STORAGE_IMG_QUALITY = 0.85;
-var LABEL_IMG_QUALITY   = 0.92;
+var LEGACY_KEY  = "pptxbuilder_state_v3";
+var MAX_IMAGES  = 8;
 
 function defaultState(){
   return {
@@ -841,7 +934,7 @@ function migrateState(parsed){
     meta: Object.assign({}, base.meta, parsed.meta||{}),
     slides: Array.isArray(parsed.slides) ? parsed.slides : []
   };
-  out.meta.logoLeft = out.meta.logoLeft || window.LOGO_LEFT_DEFAULT;
+  out.meta.logoLeft  = out.meta.logoLeft  || window.LOGO_LEFT_DEFAULT;
   out.meta.logoRight = out.meta.logoRight || window.LOGO_RIGHT_DEFAULT;
   out.slides = out.slides.map(function(s){
     return {
@@ -864,7 +957,8 @@ function migrateState(parsed){
            naturalWidth:i.naturalWidth||0,
            naturalHeight:i.naturalHeight||0,
            sourceRatio:i.sourceRatio||0,
-           labeled: !!i.labeled
+           labeled: !!i.labeled,
+           bytes: i.bytes || 0
          };
        }) : [],
       checklist: Array.isArray(s.checklist) ? s.checklist.map(function(c){ return { text:c.text||"", done:!!c.done }; }) : [],
@@ -873,17 +967,28 @@ function migrateState(parsed){
   });
   return out;
 }
-function loadState(){
+
+/* بارگذاری async: اول IndexedDB، سپس localStorage، سپس پیش‌فرض */
+async function loadStateAsync(){
+  try{
+    var fromIDB = await idbGet("main");
+    if(fromIDB){ return migrateState(fromIDB); }
+  }catch(e){ console.warn("idb load failed", e); }
+
   try{
     var raw = localStorage.getItem(STORAGE_KEY);
     if(!raw) raw = localStorage.getItem(LEGACY_KEY);
-    if(raw) return migrateState(JSON.parse(raw));
-  }catch(e){ console.warn("state load failed", e); }
+    if(raw){
+      var parsed = JSON.parse(raw);
+      idbPut("main", parsed);   /* مهاجرت به IndexedDB */
+      return migrateState(parsed);
+    }
+  }catch(e){ console.warn("ls load failed", e); }
   return defaultState();
 }
 
-var state = loadState();
-var openId = null;
+var state    = defaultState();   /* موقتاً پیش‌فرض تا init آن را جایگزین کند */
+var openId   = null;
 var searchQuery = "";
 
 function setSaveStatus(text, kind){
@@ -892,22 +997,32 @@ function setSaveStatus(text, kind){
   el.textContent = text;
   el.className = "save-status " + (kind || "");
 }
+
+/* ذخیره‌سازی async روی IndexedDB با fallback */
 function saveState(){
-  try{
-    setSaveStatus("در حال ذخیره…", "saving");
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    updateStorageMeter();
-    setSaveStatus("ذخیره خودکار ✓", "saved");
-  }catch(e){
-    console.warn("ذخیره ناموفق:", e);
-    setSaveStatus("حافظه پر است", "error");
-    showToast("حافظه مرورگر پر است — لطفاً از «ذخیره پروژه در فایل» استفاده کنید");
-  }
+  setSaveStatus("در حال ذخیره…", "saving");
+  idbPut("main", state).then(function(ok){
+    if(ok){
+      setSaveStatus("ذخیره خودکار ✓", "saved");
+      updateStorageMeter();
+      return;
+    }
+    /* fallback به localStorage */
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      setSaveStatus("ذخیره خودکار ✓", "saved");
+      updateStorageMeter();
+    }catch(e){
+      console.warn("localStorage full", e);
+      setSaveStatus("حافظه پر است", "error");
+      showToast("حافظه پر است — از «ذخیره پروژه در فایل» استفاده کنید");
+    }
+  });
 }
 
 /* ---------- Undo/Redo ---------- */
 var history = [];
-var future = [];
+var future  = [];
 var commitTimer = null;
 function snap(){ return JSON.stringify(state); }
 function initHistory(){ history = [snap()]; future = []; }
@@ -957,50 +1072,192 @@ function showToast(msg){
   toastTimer = setTimeout(function(){ t.classList.remove("show"); }, 2400);
 }
 
-/* ---------- ابزار تصویر ---------- */
+/* ---------- ابزار فایل ---------- */
 function fileToOriginalDataURL(file){
   return new Promise(function(resolve, reject){
     var reader = new FileReader();
     reader.onerror = function(){ reject(new Error("خواندن فایل ناموفق")); };
-    reader.onload = function(){ resolve(reader.result); };
+    reader.onload  = function(){ resolve(reader.result); };
     reader.readAsDataURL(file);
   });
 }
 function loadImageInfo(dataUrl){
   return new Promise(function(resolve){
     var img = new Image();
-    img.onload = function(){ resolve({ w: img.naturalWidth || 0, h: img.naturalHeight || 0 }); };
+    img.onload  = function(){ resolve({ w: img.naturalWidth || 0, h: img.naturalHeight || 0 }); };
     img.onerror = function(){ resolve({ w: 0, h: 0 }); };
     img.src = dataUrl;
   });
 }
-function compressImage(dataUrl, maxDim, quality){
+
+/* ============================================================================
+   توابع اصلی تصویر: رسم لیبل، رندر نهایی (مقیاس+لیبل+فشرده‌سازی) در یک مرحله
+   ============================================================================ */
+function drawLabelOnContext(ctx, w, h, labelText){
+  var text = String(labelText || "").trim();
+  if(!text) return;
+  var parts = text.split(/\s*\|\s*/).filter(function(s){ return s.trim(); });
+  if(!parts.length) return;
+
+  var pad = Math.max(14, Math.round(w / 110));
+  var maxTextW = w - pad*2 - 12;
+  var fontSize = Math.max(20, Math.min(58, Math.round(w / 42)));
+  var lines, lineHeight;
+
+  function layout(size){
+    ctx.font = "800 " + size + "px Arial, Tahoma, sans-serif";
+    var out = [], cur = "";
+    for(var i=0;i<parts.length;i++){
+      var sep  = cur ? "   |   " : "";
+      var test = cur + sep + parts[i];
+      if(ctx.measureText(test).width <= maxTextW){ cur = test; }
+      else {
+        if(cur) out.push(cur);
+        cur = parts[i];
+        if(ctx.measureText(cur).width > maxTextW){
+          var t = cur;
+          while(ctx.measureText(t + "…").width > maxTextW && t.length > 4){
+            t = t.slice(0, -2).trim();
+          }
+          cur = t + "…";
+        }
+      }
+    }
+    if(cur) out.push(cur);
+    return out;
+  }
+
+  lines = layout(fontSize);
+  var guard = 0;
+  while(lines.length > 3 && fontSize > 14 && guard < 6){
+    fontSize = Math.round(fontSize * 0.87);
+    lines = layout(fontSize);
+    guard++;
+  }
+  lineHeight = Math.round(fontSize * 1.38);
+  var bottomY = h - pad;
+
+  ctx.font = "800 " + fontSize + "px Arial, Tahoma, sans-serif";
+  ctx.textAlign = "right";
+  ctx.textBaseline = "bottom";
+  ctx.direction = "rtl";
+  ctx.lineJoin = "round";
+  ctx.miterLimit = 2;
+
+  /* Outline تیره */
+  ctx.strokeStyle = "rgba(0,0,0,0.9)";
+  ctx.lineWidth = Math.max(4, Math.round(fontSize / 6));
+  for(var oi=0; oi<lines.length; oi++){
+    var oy = bottomY - (lines.length - 1 - oi) * lineHeight;
+    ctx.strokeText(lines[oi], w - pad, oy);
+  }
+  /* متن زرد مایل به نارنجی با سایه */
+  ctx.fillStyle = "#FFB733";
+  ctx.shadowColor = "rgba(0,0,0,0.55)";
+  ctx.shadowBlur = 4;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 1;
+  for(var fi=0; fi<lines.length; fi++){
+    var fy = bottomY - (lines.length - 1 - fi) * lineHeight;
+    ctx.fillText(lines[fi], w - pad, fy);
+  }
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetY = 0;
+}
+
+/* رندر نهایی: مقیاس‌دهی + حک لیبل + فشرده‌سازی انطباقی — تک‌مرحله */
+function renderFinalImage(dataUrl, labelText, options){
+  options = options || {};
+  var maxDim   = options.maxDim   || STORAGE_IMG_MAX_DIM;
+  var targetKB = options.targetKB || STORAGE_IMG_TARGET_KB;
+  var maxKB    = options.maxKB    || STORAGE_IMG_MAX_KB;
+  var format   = options.format   || preferredFormat();
+
   return new Promise(function(resolve, reject){
     if(!dataUrl){ reject(new Error("تصویر خالی")); return; }
     var img = new Image();
     img.onload = function(){
-      var w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
+      var w = img.naturalWidth || img.width;
+      var h = img.naturalHeight || img.height;
       if(!w || !h){ reject(new Error("ابعاد نامعتبر")); return; }
-      var scale = Math.min(1, (maxDim||STORAGE_IMG_MAX_DIM) / Math.max(w, h));
-      var nw = Math.max(1, Math.round(w*scale));
-      var nh = Math.max(1, Math.round(h*scale));
-      var c = document.createElement("canvas");
-      c.width = nw; c.height = nh;
-      var ctx = c.getContext("2d", {alpha:false});
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = "high";
-      ctx.drawImage(img, 0, 0, nw, nh);
-      try{ resolve(c.toDataURL("image/jpeg", quality || STORAGE_IMG_QUALITY)); }
-      catch(e){ reject(e); }
+
+      function drawAt(scale){
+        var nw = Math.max(1, Math.round(w * scale));
+        var nh = Math.max(1, Math.round(h * scale));
+        var c = document.createElement("canvas");
+        c.width = nw; c.height = nh;
+        var ctx = c.getContext("2d", {alpha:false});
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
+        ctx.drawImage(img, 0, 0, nw, nh);
+        if(labelText) drawLabelOnContext(ctx, nw, nh, labelText);
+        return { canvas:c, w:nw, h:nh };
+      }
+      function tryEncode(draw, quality){
+        var url = draw.canvas.toDataURL(format, quality);
+        return { url:url, bytes: estimateDataURLBytes(url), quality:quality };
+      }
+
+      /* مرحله ۱: مقیاس اولیه */
+      var scale = Math.min(1, maxDim / Math.max(w, h));
+      var draw  = drawAt(scale);
+
+      /* مرحله ۲: کیفیت انطباقی */
+      var quality = IMG_QUALITY_START;
+      var best    = tryEncode(draw, quality);
+      while(best.bytes > maxKB * 1024 && quality > IMG_QUALITY_MIN){
+        quality = Math.max(IMG_QUALITY_MIN, quality - 0.06);
+        var trial = tryEncode(draw, quality);
+        if(trial.bytes < best.bytes) best = trial;
+        if(quality === IMG_QUALITY_MIN) break;
+      }
+
+      /* مرحله ۳: در صورت لزوم کاهش بیشتر ابعاد */
+      if(best.bytes > maxKB * 1024 && scale > 0.55){
+        var newScale = Math.max(0.55, scale * 0.82);
+        var draw2    = drawAt(newScale);
+        var quality2 = 0.82;
+        var best2    = tryEncode(draw2, quality2);
+        while(best2.bytes > maxKB * 1024 && quality2 > IMG_QUALITY_MIN){
+          quality2 = Math.max(IMG_QUALITY_MIN, quality2 - 0.06);
+          var t2 = tryEncode(draw2, quality2);
+          if(t2.bytes < best2.bytes) best2 = t2;
+          if(quality2 === IMG_QUALITY_MIN) break;
+        }
+        if(best2.bytes < best.bytes){
+          best = best2;
+          draw = draw2;
+        }
+      }
+
+      resolve({
+        data:    best.url,
+        width:   draw.w,
+        height:  draw.h,
+        bytes:   best.bytes,
+        format:  format,
+        quality: best.quality
+      });
     };
-    img.onerror = function(){ reject(new Error("بارگذاری تصویر ناموفق")); };
+    img.onerror = function(){ reject(new Error("تصویر قابل پردازش نیست")); };
     img.src = dataUrl;
   });
 }
-function fileToCompressedDataURL(file, maxDim, quality){
-  return fileToOriginalDataURL(file).then(function(raw){
-    return compressImage(raw, maxDim || STORAGE_IMG_MAX_DIM, quality || STORAGE_IMG_QUALITY);
-  });
+
+/* توابع سازگار با کد قدیمی */
+function makeLabeledDataURL(dataUrl, label){
+  return renderFinalImage(dataUrl, label, {
+    maxDim: Math.max(2048, STORAGE_IMG_MAX_DIM),
+    targetKB: 600,
+    maxKB: 900
+  }).then(function(r){ return r.data; });
+}
+function compressImage(dataUrl, maxDim, quality){
+  return renderFinalImage(dataUrl, null, {
+    maxDim: maxDim || STORAGE_IMG_MAX_DIM,
+    targetKB: STORAGE_IMG_TARGET_KB,
+    maxKB: STORAGE_IMG_MAX_KB
+  }).then(function(r){ return r.data; });
 }
 function cropImage(dataUrl, rect){
   return new Promise(function(resolve, reject){
@@ -1031,7 +1288,7 @@ function logoToDataURL(file, maxDim){
         var w = img.naturalWidth, h = img.naturalHeight;
         var scale = Math.min(1, (maxDim||400) / Math.max(w,h));
         var c = document.createElement("canvas");
-        c.width = Math.max(1, Math.round(w*scale));
+        c.width  = Math.max(1, Math.round(w*scale));
         c.height = Math.max(1, Math.round(h*scale));
         var ctx = c.getContext("2d");
         ctx.imageSmoothingEnabled = true;
@@ -1049,9 +1306,9 @@ function logoToDataURL(file, maxDim){
 function currentCaptureMeta(){
   return {
     fieldExpert: String(state.meta.fieldExpert||"").trim(),
-    siteCode: String(state.meta.siteCode||"").trim(),
-    siteName: String(state.meta.siteName||"").trim(),
-    siteGPS: String(state.meta.siteGPS||"").trim()
+    siteCode:    String(state.meta.siteCode||"").trim(),
+    siteName:    String(state.meta.siteName||"").trim(),
+    siteGPS:     String(state.meta.siteGPS||"").trim()
   };
 }
 function captureTimestamp(){
@@ -1067,121 +1324,24 @@ function imageMeta(im){
   var cm = im && im.captureMeta ? im.captureMeta : {};
   return {
     fieldExpert: String(cm.fieldExpert || state.meta.fieldExpert || "").trim(),
-    siteCode: String(cm.siteCode || state.meta.siteCode || "").trim(),
-    siteName: String(cm.siteName || state.meta.siteName || "").trim(),
-    siteGPS: String(cm.siteGPS || state.meta.siteGPS || "").trim(),
-    capturedAt: String((im&&im.capturedAt)||"").trim()
+    siteCode:    String(cm.siteCode    || state.meta.siteCode    || "").trim(),
+    siteName:    String(cm.siteName    || state.meta.siteName    || "").trim(),
+    siteGPS:     String(cm.siteGPS     || state.meta.siteGPS     || "").trim(),
+    capturedAt:  String((im&&im.capturedAt)||"").trim()
   };
 }
 function buildLabelParts(meta, capturedAt){
   var parts = [];
-  if(meta.fieldExpert) parts.push("کارشناس: " + meta.fieldExpert);
-  if(meta.siteCode) parts.push("کد سایت: " + meta.siteCode);
-  if(meta.siteName) parts.push("نام سایت: " + meta.siteName);
-  if(meta.siteGPS) parts.push("GPS: " + meta.siteGPS);
-  if(capturedAt) parts.push("ثبت تصویر: " + capturedAt);
+  if(meta.fieldExpert) parts.push("کارشناس: "    + meta.fieldExpert);
+  if(meta.siteCode)    parts.push("کد سایت: "    + meta.siteCode);
+  if(meta.siteName)    parts.push("نام سایت: "   + meta.siteName);
+  if(meta.siteGPS)     parts.push("GPS: "        + meta.siteGPS);
+  if(capturedAt)       parts.push("ثبت تصویر: "  + capturedAt);
   return parts.join("  |  ");
 }
 function imageLabel(im){
   var m = imageMeta(im);
   return buildLabelParts(m, m.capturedAt) || "اطلاعات ثبت تصویر وارد نشده است";
-}
-
-/* ---------- لیبل: بدون پس‌زمینه، زرد مایل به نارنجی، بزرگ‌تر، با outline ---------- */
-function makeLabeledDataURL(dataUrl, label){
-  return new Promise(function(resolve,reject){
-    if(!dataUrl){ reject(new Error("تصویر خالی است")); return; }
-    var img = new Image();
-    img.onload = function(){
-      var w = img.naturalWidth || img.width;
-      var h = img.naturalHeight || img.height;
-      if(!w || !h){ reject(new Error("ابعاد نامعتبر")); return; }
-
-      var c = document.createElement("canvas");
-      c.width = w; c.height = h;
-      var ctx = c.getContext("2d", {alpha:false});
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = "high";
-      ctx.drawImage(img, 0, 0, w, h);
-
-      var text = String(label || "").trim() || "اطلاعات ثبت تصویر وارد نشده است";
-      var parts = text.split(/\s*\|\s*/).filter(function(s){ return s.trim(); });
-      if(!parts.length) parts = [text];
-
-      /* فونت بزرگ‌تر (یک درجه بزرگتر از قبل: w/42 به جای w/52) */
-      var pad = Math.max(14, Math.round(w / 110));
-      var maxTextW = w - pad*2 - 12;
-      var fontSize = Math.max(20, Math.min(58, Math.round(w / 42)));
-      var lineHeight, lines;
-
-      function layoutText(size){
-        ctx.font = "800 " + size + "px Arial, Tahoma, sans-serif";
-        var out = [], cur = "";
-        for(var i=0;i<parts.length;i++){
-          var sep = cur ? "   |   " : "";
-          var test = cur + sep + parts[i];
-          if(ctx.measureText(test).width <= maxTextW){
-            cur = test;
-          } else {
-            if(cur) out.push(cur);
-            cur = parts[i];
-            if(ctx.measureText(cur).width > maxTextW){
-              var t = cur;
-              while(ctx.measureText(t + "…").width > maxTextW && t.length > 4){
-                t = t.slice(0, -2).trim();
-              }
-              cur = t + "…";
-            }
-          }
-        }
-        if(cur) out.push(cur);
-        return out;
-      }
-
-      lines = layoutText(fontSize);
-      var guard = 0;
-      while(lines.length > 3 && fontSize > 14 && guard < 6){
-        fontSize = Math.round(fontSize * 0.87);
-        lines = layoutText(fontSize);
-        guard++;
-      }
-      lineHeight = Math.round(fontSize * 1.38);
-
-      var bottomY = h - pad;
-
-      /* ۱) Outline تیره برای خوانایی روی هر پس‌زمینه‌ای */
-      ctx.font = "800 " + fontSize + "px Arial, Tahoma, sans-serif";
-      ctx.textAlign = "right";
-      ctx.textBaseline = "bottom";
-      ctx.direction = "rtl";
-      ctx.lineJoin = "round";
-      ctx.miterLimit = 2;
-      ctx.strokeStyle = "rgba(0,0,0,0.9)";
-      ctx.lineWidth = Math.max(4, Math.round(fontSize / 6));
-      for(var oi=0; oi<lines.length; oi++){
-        var oy = bottomY - (lines.length - 1 - oi) * lineHeight;
-        ctx.strokeText(lines[oi], w - pad, oy);
-      }
-
-      /* ۲) متن اصلی زرد مایل به نارنجی */
-      ctx.fillStyle = "#FFB733";
-      ctx.shadowColor = "rgba(0,0,0,0.55)";
-      ctx.shadowBlur = 4;
-      ctx.shadowOffsetX = 0;
-      ctx.shadowOffsetY = 1;
-      for(var fi=0; fi<lines.length; fi++){
-        var fy = bottomY - (lines.length - 1 - fi) * lineHeight;
-        ctx.fillText(lines[fi], w - pad, fy);
-      }
-      ctx.shadowBlur = 0;
-      ctx.shadowOffsetY = 0;
-
-      try{ resolve(c.toDataURL("image/jpeg", LABEL_IMG_QUALITY)); }
-      catch(e){ reject(e); }
-    };
-    img.onerror = function(){ reject(new Error("تصویر قابل پردازش نیست")); };
-    img.src = dataUrl;
-  });
 }
 
 /* ---------- دانلود تصاویر ---------- */
@@ -1204,17 +1364,26 @@ async function exportLabeledImages(){
   showToast("در حال آماده‌سازی تصاویر…");
   try{
     if(typeof JSZip === "undefined") throw new Error("JSZip");
-    var zip=new JSZip();
+    var zip = new JSZip();
     for(var i=0;i<imgs.length;i++){
-      var x=imgs[i];
-      var base64=x.im.data.split(",")[1];
-      var ext=(x.im.data.indexOf("data:image/png")===0)?"png":"jpg";
-      var name=String(x.si+1).padStart(2,"0")+"-"+String(x.ii+1).padStart(2,"0")+"-"+fileSafeName(x.slide.title)+"."+ext;
-      zip.file(name,base64,{base64:true});
+      var x       = imgs[i];
+      var dataUrl = x.im.data;
+      var m       = dataUrl.match(/^data:(image\/[a-zA-Z+]+);base64,/);
+      var mime    = m ? m[1] : "image/jpeg";
+      var ext     = mime === "image/webp" ? "webp" : (mime === "image/png" ? "png" : "jpg");
+      var base64  = dataUrl.split(",")[1] || "";
+      var name    = String(x.si+1).padStart(2,"0") + "-" +
+                    String(x.ii+1).padStart(2,"0") + "-" +
+                    fileSafeName(x.slide.title) + "." + ext;
+      zip.file(name, base64, { base64:true });
     }
-    var blob=await zip.generateAsync({type:"blob",compression:"DEFLATE",compressionOptions:{level:6}});
-    downloadBlob(blob,"تصاویر-لیبل-خورده-"+Date.now()+".zip");
-    showToast(imgs.length+" تصویر دانلود شد");
+    var blob = await zip.generateAsync({
+      type:"blob",
+      compression:"DEFLATE",
+      compressionOptions:{ level:6 }
+    });
+    downloadBlob(blob, "تصاویر-لیبل-خورده-" + Date.now() + ".zip");
+    showToast(imgs.length + " تصویر دانلود شد");
   }catch(e){
     console.error(e);
     showToast("ساخت فایل دانلودی ناموفق بود");
@@ -1260,7 +1429,6 @@ function boardHTML(slide, meta, opts){
   }
   return '<div class="board' + coverCls + '" style="' + vars + '">' + inner + '</div>';
 }
-
 function tableHTML(rows){
   rows = (rows||[]).filter(function(r){ return (r.label && r.label.trim()) || (r.value && r.value.trim()); });
   if(!rows.length) return '<div style="font-size:3.2%;color:#a6adba;text-align:center;padding-top:8%;">ردیف جدول اضافه نشده</div>';
@@ -1276,20 +1444,17 @@ function tableHTML(rows){
   h += '</table>';
   return h;
 }
-
-/* ---------- چینش بهینه تصاویر در HTML بورد ---------- */
 function photoGridConfig(n){
   if(n <= 1) return { cols:1, rows:1 };
   if(n === 2) return { cols:2, rows:1 };
   if(n === 3) return { cols:3, rows:1 };
   if(n === 4) return { cols:2, rows:2 };
-  if(n === 5) return { cols:3, rows:2 };  /* 3 + 2 */
+  if(n === 5) return { cols:3, rows:2 };
   if(n === 6) return { cols:3, rows:2 };
-  if(n === 7) return { cols:4, rows:2 };  /* 4 + 3 */
+  if(n === 7) return { cols:4, rows:2 };
   if(n === 8) return { cols:4, rows:2 };
   return { cols:3, rows:Math.ceil(n/3) };
 }
-
 function photosHTML(images, slide){
   images = (images||[]).filter(function(i){ return i && i.data; });
   if(!images.length){
@@ -1310,7 +1475,6 @@ function photosHTML(images, slide){
   h += '</div>';
   return h;
 }
-
 function checklistHTML(items){
   items = (items||[]).filter(function(i){ return i.text && i.text.trim(); });
   if(!items.length) return '<div style="font-size:3.2%;color:#a6adba;text-align:center;padding-top:8%;">موردی اضافه نشده</div>';
@@ -1353,20 +1517,20 @@ function slideProgress(s){
 function render(){ renderSettings(); renderSlidesList(); updateStats(); updateStorageMeter(); }
 function renderSettings(){
   document.getElementById("fieldFieldExpert").value = state.meta.fieldExpert || "";
-  document.getElementById("fieldSiteCode").value = state.meta.siteCode || "";
-  document.getElementById("fieldSiteName").value = state.meta.siteName || "";
-  document.getElementById("fieldSiteGPS").value = state.meta.siteGPS || "";
-  document.getElementById("projectTitle").value = state.meta.projectTitle;
-  document.getElementById("projectSubtitle").value = state.meta.projectSubtitle || "";
-  document.getElementById("colorPrimary").value = state.meta.primary;
+  document.getElementById("fieldSiteCode").value    = state.meta.siteCode || "";
+  document.getElementById("fieldSiteName").value    = state.meta.siteName || "";
+  document.getElementById("fieldSiteGPS").value     = state.meta.siteGPS || "";
+  document.getElementById("projectTitle").value     = state.meta.projectTitle;
+  document.getElementById("projectSubtitle").value  = state.meta.projectSubtitle || "";
+  document.getElementById("colorPrimary").value     = state.meta.primary;
   document.getElementById("colorPrimaryVal").textContent = (state.meta.primary||"").toUpperCase();
-  document.getElementById("colorAccent").value = state.meta.accent;
-  document.getElementById("colorAccentVal").textContent = (state.meta.accent||"").toUpperCase();
-  document.getElementById("logoLeftThumb").src = state.meta.logoLeft || "";
-  document.getElementById("logoRightThumb").src = state.meta.logoRight || "";
+  document.getElementById("colorAccent").value      = state.meta.accent;
+  document.getElementById("colorAccentVal").textContent  = (state.meta.accent||"").toUpperCase();
+  document.getElementById("logoLeftThumb").src      = state.meta.logoLeft || "";
+  document.getElementById("logoRightThumb").src     = state.meta.logoRight || "";
   document.getElementById("swFooter").classList.toggle("on", !!state.meta.showFooter);
   document.getElementById("swMarks").classList.toggle("on", !!state.meta.showMarks);
-  document.getElementById("brandSub").textContent = state.meta.projectTitle || "تیم پاور شرکت نقش اول کیفیت (NAK) · nak-mci.ir";
+  document.getElementById("brandSub").textContent   = state.meta.projectTitle || "تیم پاور شرکت نقش اول کیفیت (NAK) · nak-mci.ir";
 }
 function slideMatches(s, q){
   if(!q) return true;
@@ -1378,7 +1542,7 @@ function slideMatches(s, q){
   return hay.indexOf(q) >= 0;
 }
 function renderSlidesList(){
-  var list = document.getElementById("slidesList");
+  var list  = document.getElementById("slidesList");
   var empty = document.getElementById("emptyState");
   list.innerHTML = "";
   if(!state.slides.length){ empty.style.display = ""; return; }
@@ -1394,8 +1558,8 @@ function renderSlidesList(){
     card.dataset.id = slide.id;
 
     var isOpen = openId === slide.id;
-    var meta = LAYOUT_META[slide.layout] || LAYOUT_META.text;
-    var prog = slideProgress(slide);
+    var meta   = LAYOUT_META[slide.layout] || LAYOUT_META.text;
+    var prog   = slideProgress(slide);
 
     var head = document.createElement("div");
     head.className = "sc-head";
@@ -1426,7 +1590,7 @@ function renderSlidesList(){
     card.appendChild(head);
 
     if(isOpen){
-      var body = document.createElement("div");
+      var body  = document.createElement("div");
       body.className = "sc-body";
       var inner = document.createElement("div");
       inner.className = "sc-body-inner";
@@ -1571,7 +1735,6 @@ function buildRowsEditor(slide){
   wrap.appendChild(bulkBtn);
   return wrap;
 }
-
 function buildRowItem(slide, row, i){
   var line = document.createElement("div");
   line.className = "row-item";
@@ -1621,10 +1784,9 @@ function buildRowItem(slide, row, i){
   if(row.type === FIELD.TEL && row.value && !isValidIranPhone(row.value)){ line.classList.add("phone-invalid"); }
   return line;
 }
-
 function buildValueInput(slide, row){
   var type = row.type || FIELD.TEXT;
-  var v = row.value || "";
+  var v    = row.value || "";
   var wrapper = document.createElement("div");
   wrapper.className = "val-wrap";
 
@@ -1802,7 +1964,6 @@ function buildValueInput(slide, row){
   wrapper.appendChild(txt);
   return wrapper;
 }
-
 function recalcBanks(infoSlide){
   var bcRow = (infoSlide.rows||[]).find(function(r){ return r.key === "batteryCount"; });
   var count = bcRow ? (parseInt(enDigits(String(bcRow.value||"")),10) || 0) : 0;
@@ -1824,7 +1985,6 @@ function recalcBanks(infoSlide){
   }
   scheduleCommit();
 }
-
 function buildChecklistEditor(slide){
   var wrap = document.createElement("div");
   wrap.className = "field";
@@ -1875,10 +2035,10 @@ function updateCameraLabel(){
   var el = document.getElementById("cameraLabel");
   if(!el) return;
   var parts = [];
-  if(state.meta.fieldExpert) parts.push("کارشناس: " + state.meta.fieldExpert);
-  if(state.meta.siteCode) parts.push("کد سایت: " + state.meta.siteCode);
-  if(state.meta.siteName) parts.push("نام سایت: " + state.meta.siteName);
-  if(state.meta.siteGPS) parts.push("GPS: " + state.meta.siteGPS);
+  if(state.meta.fieldExpert) parts.push("کارشناس: "  + state.meta.fieldExpert);
+  if(state.meta.siteCode)    parts.push("کد سایت: "  + state.meta.siteCode);
+  if(state.meta.siteName)    parts.push("نام سایت: " + state.meta.siteName);
+  if(state.meta.siteGPS)     parts.push("GPS: "      + state.meta.siteGPS);
   parts.push("زمان ثبت: " + captureTimestamp());
   el.textContent = parts.join("  |  ");
 }
@@ -1963,31 +2123,35 @@ async function captureCameraImage(){
   }
   var meta = {
     fieldExpert: String(state.meta.fieldExpert||"").trim(),
-    siteCode: String(state.meta.siteCode||"").trim(),
-    siteName: String(state.meta.siteName||"").trim(),
-    siteGPS: freshGPS || String(state.meta.siteGPS||"").trim()
+    siteCode:    String(state.meta.siteCode||"").trim(),
+    siteName:    String(state.meta.siteName||"").trim(),
+    siteGPS:     freshGPS || String(state.meta.siteGPS||"").trim()
   };
   var labelText = buildLabelParts(meta, capturedAt);
 
-  var labeledData;
-  try{ labeledData = await makeLabeledDataURL(rawData, labelText); }
-  catch(e){ console.warn("label burning failed", e); labeledData = rawData; }
-
-  var finalData;
-  try{ finalData = await compressImage(labeledData, STORAGE_IMG_MAX_DIM, STORAGE_IMG_QUALITY); }
-  catch(e){ console.warn("compression failed", e); finalData = labeledData; }
-
-  var finalInfo = await loadImageInfo(finalData);
+  /* فشرده‌سازی تک‌مرحله‌ای: مقیاس + حک لیبل + WebP/JPEG */
+  var final;
+  try{
+    final = await renderFinalImage(rawData, labelText, {});
+  }catch(e){
+    console.warn("render failed", e);
+    cameraState.capturing = false;
+    if(capBtn){ capBtn.disabled = false; capBtn.textContent = "● ثبت تصویر"; }
+    showToast("پردازش تصویر ناموفق بود");
+    return;
+  }
 
   slide.images = slide.images||[];
   slide.images.push({
-    data: finalData, caption:"",
+    data: final.data,
+    caption: "",
     capturedAt: capturedAt,
     captureMeta: meta,
-    naturalWidth: finalInfo.w || c.width,
-    naturalHeight: finalInfo.h || c.height,
-    sourceRatio: (finalInfo.w && finalInfo.h) ? finalInfo.w/finalInfo.h : c.width/c.height,
-    labeled: true
+    naturalWidth: final.width,
+    naturalHeight: final.height,
+    sourceRatio: final.width / final.height,
+    labeled: true,
+    bytes: final.bytes
   });
 
   cameraState.capturing = false;
@@ -1995,7 +2159,8 @@ async function captureCameraImage(){
 
   openId = slide.id;
   commit(); renderSlidesList();
-  showToast("تصویر ثبت شد ✓ " + (freshGPS ? "(GPS بروز شد)" : "(GPS از اطلاعات سایت)"));
+  showToast("تصویر ثبت شد (" + fmtBytes(final.bytes) + ") " +
+    (freshGPS ? "· GPS بروز شد" : "· GPS از اطلاعات سایت"));
 }
 
 /* ============================================================================
@@ -2010,9 +2175,7 @@ var cropState = {
   startPt: null
 };
 
-function openCropModal(){
-  document.getElementById("cropOverlay").classList.add("open");
-}
+function openCropModal(){ document.getElementById("cropOverlay").classList.add("open"); }
 function closeCropModal(){
   document.getElementById("cropOverlay").classList.remove("open");
   var sel = document.getElementById("cropSelection");
@@ -2026,8 +2189,6 @@ function resetCropSelection(){
   var sel = document.getElementById("cropSelection");
   if(sel) sel.style.display = "none";
 }
-
-/* Promise: نتیجه {x,y,w,h} در مختصات تصویر اصلی یا null در انصراف */
 function openCropForImage(dataUrl, naturalW, naturalH){
   return new Promise(function(resolve){
     cropState.resolve = resolve;
@@ -2037,19 +2198,16 @@ function openCropForImage(dataUrl, naturalW, naturalH){
     cropState.drawing = false;
     cropState.startPt = null;
 
-    var ov = document.getElementById("cropOverlay");
     var imgEl = document.getElementById("cropImg");
     var selEl = document.getElementById("cropSelection");
     selEl.style.display = "none";
 
     imgEl.onload = function(){
-      /* کمی تاخیر تا مرورگر ابعاد را محاسبه کند */
       requestAnimationFrame(function(){ openCropModal(); });
     };
     imgEl.src = dataUrl;
   });
 }
-
 function initCropHandlers(){
   var stage = document.getElementById("cropStage");
   var imgEl = document.getElementById("cropImg");
@@ -2084,7 +2242,7 @@ function initCropHandlers(){
     cropState.sel = { x: p.x, y: p.y, w: 0, h: 0 };
     var rect = p.rect;
     selEl.style.left = (rect.left + p.x) + "px";
-    selEl.style.top = (rect.top + p.y) + "px";
+    selEl.style.top  = (rect.top  + p.y) + "px";
     selEl.style.width = "0px";
     selEl.style.height = "0px";
     selEl.style.display = "block";
@@ -2101,8 +2259,8 @@ function initCropHandlers(){
     cropState.sel = { x: x, y: y, w: w, h: h };
     var rect = p.rect;
     selEl.style.left = (rect.left + x) + "px";
-    selEl.style.top = (rect.top + y) + "px";
-    selEl.style.width = w + "px";
+    selEl.style.top  = (rect.top  + y) + "px";
+    selEl.style.width  = w + "px";
     selEl.style.height = h + "px";
   }
   function endDraw(e){
@@ -2157,7 +2315,7 @@ function initCropHandlers(){
 }
 
 /* ============================================================================
-   پردازش فایل‌های گالری با برش
+   پردازش فایل‌های گالری با برش — فشرده‌سازی تک‌مرحله
    ============================================================================ */
 async function handlePhotoFiles(slide, files){
   if(!files || !files.length) return;
@@ -2165,64 +2323,60 @@ async function handlePhotoFiles(slide, files){
   var toProcess = files.slice(0, remaining);
   if(!toProcess.length){ showToast("حداکثر تعداد عکس پر شده است"); return; }
 
-  var added = 0;
+  var added = 0, totalBytes = 0;
   for(var i=0; i<toProcess.length; i++){
     var f = toProcess[i];
     var rawUrl, info;
     try{
       rawUrl = await fileToOriginalDataURL(f);
-      info = await loadImageInfo(rawUrl);
+      info   = await loadImageInfo(rawUrl);
     }catch(e){ console.warn("read failed", e); continue; }
     if(!info.w || !info.h) continue;
 
-    /* باز کردن مودال برش */
     var cropRect;
+    try{ cropRect = await openCropForImage(rawUrl, info.w, info.h); }
+    catch(e){ cropRect = null; }
+    if(cropRect === null) continue;   /* انصراف کاربر */
+
+    var croppedUrl = rawUrl;
+    try{ croppedUrl = await cropImage(rawUrl, cropRect); }
+    catch(e){ console.warn("crop failed", e); croppedUrl = rawUrl; }
+
+    var capturedAt = captureTimestamp();
+    var capMeta    = currentCaptureMeta();
+    var labelText  = buildLabelParts(capMeta, capturedAt);
+
+    /* فشرده‌سازی تک‌مرحله‌ای */
+    var final;
     try{
-      cropRect = await openCropForImage(rawUrl, info.w, info.h);
-    }catch(e){ cropRect = null; }
-    if(cropRect === null){
-      /* کاربر انصراف داد → این تصویر رد شود */
+      final = await renderFinalImage(croppedUrl, labelText, {});
+    }catch(e){
+      console.warn("render failed", e);
       continue;
     }
 
-    /* انجام برش */
-    var croppedUrl = rawUrl;
-    try{
-      croppedUrl = await cropImage(rawUrl, cropRect);
-    }catch(e){ console.warn("crop failed", e); croppedUrl = rawUrl; }
-
-    /* لحظه‌ی ثبت و اطلاعات */
-    var capturedAt = captureTimestamp();
-    var capMeta = currentCaptureMeta();
-    var labelText = buildLabelParts(capMeta, capturedAt);
-
-    /* حک لیبل */
-    var labeledUrl;
-    try{ labeledUrl = await makeLabeledDataURL(croppedUrl, labelText); }
-    catch(e){ console.warn("label burn failed", e); labeledUrl = croppedUrl; }
-
-    /* فشرده‌سازی */
-    var finalUrl;
-    try{ finalUrl = await compressImage(labeledUrl, STORAGE_IMG_MAX_DIM, STORAGE_IMG_QUALITY); }
-    catch(e){ finalUrl = labeledUrl; }
-
-    var finalInfo = await loadImageInfo(finalUrl);
-
     slide.images.push({
-      data: finalUrl, caption:"",
+      data: final.data,
+      caption: "",
       capturedAt: capturedAt,
       captureMeta: capMeta,
-      naturalWidth: finalInfo.w || info.w,
-      naturalHeight: finalInfo.h || info.h,
-      sourceRatio: (finalInfo.w && finalInfo.h) ? finalInfo.w/finalInfo.h : info.w/info.h,
-      labeled: true
+      naturalWidth: final.width,
+      naturalHeight: final.height,
+      sourceRatio: final.width / final.height,
+      labeled: true,
+      bytes: final.bytes
     });
+    totalBytes += final.bytes;
     added++;
   }
 
   openId = slide.id;
   commit(); renderSlidesList();
-  showToast(added ? (added + " تصویر اضافه شد") : "افزودن تصویر انجام نشد");
+  if(added){
+    showToast(added + " تصویر اضافه شد · " + fmtBytes(totalBytes));
+  } else {
+    showToast("افزودن تصویر انجام نشد");
+  }
 }
 
 /* ---------- ویرایشگر عکس ---------- */
@@ -2301,7 +2455,7 @@ function buildPhotosEditor(slide){
 
   var info=document.createElement("div");
   info.style.cssText="font-size:11px;color:var(--ink-soft);margin-top:8px;line-height:1.7;";
-  info.innerHTML="هر تصویر با نام کارشناس، کد سایت، نام سایت، GPS و زمان ثبت، <b>لیبل اختصاصی حک‌شده درون تصویر</b> دریافت می‌کند. تصاویر گالری پیش از حک لیبل، امکان <b>برش دستی</b> دارند.";
+  info.innerHTML="هر تصویر با نام کارشناس، کد سایت، نام سایت، GPS و زمان ثبت، <b>لیبل اختصاصی حک‌شده درون تصویر</b> دریافت می‌کند. تصاویر گالری پیش از حک لیبل، امکان <b>برش دستی</b> دارند. <b>فرمت:</b> WebP (یا JPEG در مرورگرهای قدیمی) با کیفیت انطباقی.";
   wrap.appendChild(info);
   return wrap;
 }
@@ -2379,9 +2533,14 @@ function closeFullPreview(){ document.getElementById("fullPreview").classList.re
 
 /* ---------- کنترل کیفیت ---------- */
 function getQualityReport(){
-  var report={slides:state.slides.length,photos:0,complete:0,issues:0,emptySlides:0,photoIssues:0,checkIssues:0};
+  var report={slides:state.slides.length,photos:0,complete:0,issues:0,emptySlides:0,photoIssues:0,checkIssues:0,totalBytes:0};
   state.slides.forEach(function(s){
-    report.photos += (s.images||[]).filter(function(i){ return i && i.data; }).length;
+    (s.images||[]).forEach(function(im){
+      if(im && im.data){
+        report.photos++;
+        report.totalBytes += im.bytes || estimateDataURLBytes(im.data);
+      }
+    });
     var p = slideProgress(s);
     if(p.ok) report.complete++; else report.issues++;
     if(s.layout === "photos" && !(s.images||[]).some(function(i){ return i && i.data; })) report.photoIssues++;
@@ -2401,6 +2560,7 @@ function runQualityCheck(){
     "گزارش کنترل کیفیت سامانه NAK","",
     "تعداد اسلاید: "+r.slides,
     "تعداد تصاویر: "+r.photos,
+    "حجم تقریبی تصاویر: "+fmtBytes(r.totalBytes),
     "درصد تکمیل ساختاری: "+r.percent+"٪",
     "اسلایدهای نیازمند تکمیل: "+r.issues,
     "گالری‌های بدون تصویر: "+r.photoIssues,
@@ -2409,7 +2569,6 @@ function runQualityCheck(){
   ];
   alert(lines.join("\n"));
 }
-
 function updateStats(){
   var el = document.getElementById("stats");
   if(!el) return;
@@ -2429,15 +2588,37 @@ function updateStats(){
 }
 function updateStorageMeter(){
   var meter = document.getElementById("storageMeter");
-  var txt = document.getElementById("storageText");
+  var txt   = document.getElementById("storageText");
   if(!meter || !txt) return;
-  var size = 0;
-  try{ size = JSON.stringify(state).length; }catch(e){ size = 0; }
-  var pct = Math.min(100, (size / SOFT_LIMIT) * 100);
+
+  /* تخمین سریع از روی بایت‌های تصاویر (بدون stringify کامل) */
+  var memBytes = 0;
+  try{
+    state.slides.forEach(function(s){
+      (s.images||[]).forEach(function(im){
+        if(im.data) memBytes += im.bytes || estimateDataURLBytes(im.data);
+      });
+    });
+    memBytes += (JSON.stringify(state.meta).length) + state.slides.length * 400;
+  }catch(e){ memBytes = 0; }
+
+  var pct = Math.min(100, (memBytes / SOFT_LIMIT) * 100);
   meter.querySelector("i").style.width = pct + "%";
-  meter.classList.toggle("warn", size > SOFT_LIMIT * 0.75);
-  txt.textContent = fmtBytes(size) + " از حدود " + fmtBytes(SOFT_LIMIT) + " — " +
-    (pct < 60 ? "وضعیت مناسب" : (pct < 90 ? "نزدیک به سقف" : "حافظه تقریباً پر است"));
+  meter.classList.toggle("warn", memBytes > SOFT_LIMIT * 0.75);
+
+  var base = fmtBytes(memBytes) + " از حدود " + fmtBytes(SOFT_LIMIT);
+
+  idbEstimate().then(function(est){
+    if(est && est.quota){
+      txt.textContent = base + " — مصرف کل مرورگر: " +
+        fmtBytes(est.usage) + " / " + fmtBytes(est.quota);
+    } else {
+      txt.textContent = base + " — " +
+        (pct < 60 ? "وضعیت مناسب" : (pct < 90 ? "نزدیک به سقف" : "حافظه تقریباً پر"));
+    }
+  }).catch(function(){
+    txt.textContent = base;
+  });
 }
 
 function applyTheme(){
@@ -2455,7 +2636,7 @@ function toggleTheme(){
 }
 
 /* ============================================================================
-   خروجی PPTX با چینش بهینه
+   خروجی PPTX
    ============================================================================ */
 function cellOpt(text, isLabel, softColor){
   return { text: text || "", options: {
@@ -2482,7 +2663,6 @@ function layoutPhotosOnSlide(pres, s, imgs, x, y, w, h){
     var cx = x + c*(cellW+gap);
     var cy = y + r*(cellH+gap);
 
-    /* تصویر با نسبت اصلی داخل سلول، بدون فریم، با مرکزچین */
     var iw = cellW, ih = cellH, ix = cx, iy = cy;
     var iw0 = im.naturalWidth||0, ih0 = im.naturalHeight||0;
     if(iw0 && ih0){
@@ -2522,14 +2702,13 @@ async function exportPPTX(){
     pres.company = "شرکت نقش اول کیفیت (NAK)";
     pres.subject = state.meta.projectSubtitle || "گزارش نصب و تست باتری";
 
-    var primary = hexNoHash(state.meta.primary);
-    var accent = hexNoHash(state.meta.accent);
+    var primary    = hexNoHash(state.meta.primary);
+    var accent     = hexNoHash(state.meta.accent);
     var accentSoft = softHexForPptx(state.meta.accent);
     var total = state.slides.length;
     var showFooter = !!state.meta.showFooter;
-    var exportSlides = state.slides;
 
-    exportSlides.forEach(function(slide, si){
+    state.slides.forEach(function(slide, si){
       var s = pres.addSlide();
       s.background = { color: "FFFFFF" };
       s.addShape(pres.ShapeType.rect, { x:0, y:0, w:13.333333, h:0.24, fill:{color:primary}, line:{type:"none"} });
@@ -2716,10 +2895,10 @@ function wireLogoUpload(inputId, key, thumbId){
    ============================================================================ */
 function loadBatteryTemplate(){
   if(state.slides.length && !confirm("اسلایدهای فعلی پاک شده و تمپلیت نصب باتری جایگزین می‌شود. ادامه می‌دهید؟")) return;
-  state.meta.projectTitle = "گزارش نصب باتری — Batteries Check List";
+  state.meta.projectTitle    = "گزارش نصب باتری — Batteries Check List";
   state.meta.projectSubtitle = "گزارش نصب و تست باتری سایت";
   state.meta.primary = "#00A651";
-  state.meta.accent = "#2F6FB5";
+  state.meta.accent  = "#2F6FB5";
 
   var slides = [];
   slides.push({ id: uid(), layout: "cover", title: "Batteries Check List", note: "گزارش نصب و تست باتری سایت", body: "Site ID: —  |  تاریخ نصب: —", rows: [], images: [], checklist: [] });
@@ -2809,14 +2988,17 @@ function loadBatteryTemplate(){
 }
 
 /* ============================================================================
-   اتصال رخدادها
+   اتصال رخدادها — async
    ============================================================================ */
-function init(){
+async function init(){
   applyTheme();
+
+  /* بارگذاری async از IndexedDB (یا fallback) */
+  state = await loadStateAsync();
+
   initHistory();
   updateUndoButtons();
   setSaveStatus("آماده", "saved");
-
   initCropHandlers();
 
   document.getElementById("btnLoadBatteryTpl").addEventListener("click", loadBatteryTemplate);
@@ -2974,7 +3156,6 @@ function init(){
     var typing = tag === "input" || tag === "textarea";
     if(e.key === "Escape"){
       closeLayoutSheet(); closeFullPreview(); closeLightbox(); closeJalaliPicker(); stopCamera();
-      /* مودال برش را با انصراف ببند */
       if(cropState.resolve){
         var r = cropState.resolve;
         cropState.resolve = null;
@@ -3021,12 +3202,17 @@ function init(){
   window.addEventListener("beforeunload", function(){ saveState(); });
 
   render();
+
+  /* تشخیص اولین اجرا */
   try{
-    var freshLaunch = !localStorage.getItem(STORAGE_KEY) && !localStorage.getItem(LEGACY_KEY);
+    var hasStored  = await idbGet("main");
+    var freshLaunch = !hasStored &&
+                      !localStorage.getItem(STORAGE_KEY) &&
+                      !localStorage.getItem(LEGACY_KEY);
     if(freshLaunch && !state.slides.length){ setTimeout(function(){ loadBatteryTemplate(); }, 80); }
   }catch(e){}
 
-  /* مهاجرت خودکار تصاویر قدیمی که لیبل ندارند */
+  /* مهاجرت تصاویر قدیمی که لیبل ندارند */
   (async function migrateOldImages(){
     var changed = false;
     for(var si=0; si<state.slides.length; si++){
@@ -3035,14 +3221,21 @@ function init(){
         var im = s.images[ii];
         if(im.data && !im.labeled){
           try{
-            im.data = await makeLabeledDataURL(im.data, imageLabel(im));
+            var r = await renderFinalImage(im.data, imageLabel(im), {});
+            im.data = r.data;
+            im.naturalWidth  = r.width;
+            im.naturalHeight = r.height;
+            im.bytes = r.bytes;
             im.labeled = true;
             changed = true;
           }catch(e){ console.warn("migrate failed", e); }
         }
       }
     }
-    if(changed){ saveState(); render(); showToast("تصاویر قدیمی با لیبل جدید به‌روز شدند"); }
+    if(changed){
+      saveState(); render();
+      showToast("تصاویر قدیمی با فشرده‌سازی جدید به‌روز شدند");
+    }
   })();
 }
 document.addEventListener("DOMContentLoaded", init);
