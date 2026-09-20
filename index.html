@@ -232,7 +232,20 @@
     overflow:hidden;text-overflow:ellipsis;}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
-  .lightbox{position:fixed;inset:0;background:rgba(8,10,14,.92);z-index:90;display:flex;
+  .camera-overlay{position:fixed;inset:0;z-index:1000;background:rgba(5,9,15,.94);display:none;align-items:center;justify-content:center;padding:16px;}
+.camera-overlay.open{display:flex;}
+.camera-panel{width:min(900px,100%);background:#151b24;border:1px solid #303846;border-radius:18px;overflow:hidden;box-shadow:0 18px 60px rgba(0,0,0,.45);}
+.camera-head{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;color:#fff;background:#1c2430;}
+.camera-head button{width:38px;height:38px;border:0;border-radius:10px;background:#2a3340;color:#fff;font-size:18px;cursor:pointer;}
+.camera-stage{position:relative;width:100%;aspect-ratio:16/9;background:#000;overflow:hidden;}
+.camera-stage video{width:100%;height:100%;display:block;object-fit:contain;background:#000;}
+.camera-frame-169{position:absolute;inset:0;border:2px solid rgba(255,255,255,.9);pointer-events:none;box-shadow:inset 0 0 0 9999px rgba(0,0,0,.03);}
+.camera-frame-169 span{position:absolute;top:10px;left:10px;padding:4px 8px;border-radius:7px;background:rgba(0,0,0,.55);color:#fff;font-size:11px;font-weight:800;}
+.camera-info{padding:10px 14px;color:#c8d0dc;font-size:12px;line-height:1.7;text-align:center;}
+.camera-actions{display:flex;gap:10px;padding:12px 14px;background:#11161e;}
+.camera-actions button{flex:1;border:0;border-radius:11px;padding:12px;font-family:inherit;font-weight:800;cursor:pointer;background:#2b3442;color:#fff;}
+.camera-actions button:last-child{background:#08a86a;}
+.lightbox{position:fixed;inset:0;background:rgba(8,10,14,.92);z-index:90;display:flex;
     align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .18s ease;}
   .lightbox.open{opacity:1;pointer-events:auto;}
   .lightbox img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;}
@@ -440,6 +453,24 @@
 <div class="lightbox" id="lightbox">
   <button class="lb-close" id="lbClose">✕</button>
   <img id="lbImg" alt="">
+</div>
+
+<div class="camera-overlay" id="cameraOverlay" aria-hidden="true">
+  <div class="camera-panel">
+    <div class="camera-head">
+      <b>ثبت تصویر با دوربین — فریم 16:9</b>
+      <button id="cameraClose" type="button">✕</button>
+    </div>
+    <div class="camera-stage">
+      <video id="cameraVideo" autoplay playsinline muted></video>
+      <div class="camera-frame-169"><span>16:9</span></div>
+    </div>
+    <div class="camera-info" id="cameraInfo">دوربین پشت با نسبت 16:9 درخواست می‌شود. تصویر با رزولوشن واقعی دوربین ثبت خواهد شد.</div>
+    <div class="camera-actions">
+      <button id="cameraSwitch" type="button">🔄 تعویض دوربین</button>
+      <button id="cameraCapture" type="button">● ثبت تصویر</button>
+    </div>
+  </div>
 </div>
 
 <div class="jdp-overlay" id="jdpOverlay">
@@ -682,11 +713,11 @@ var BOARD_CSS = [
   ".board .b-table td{border:1px solid #d5dbe3;padding:1.6% 2%;}",
   ".board .b-table td.lab{background:var(--b-accent-soft);font-weight:700;color:#213041;width:22%;}",
   ".board .b-table td.val{background:#fff;color:#333;width:28%;text-align:center;}",
-  ".board .b-photos{display:grid;gap:2%;height:100%;align-content:center;justify-content:center;}",
-  ".board .b-photo{position:relative;background:#eef0f3;border-radius:5px;overflow:hidden;border:1px solid #dfe3e9;aspect-ratio:16/9;min-width:0;}",
-  ".board .b-photo img{width:100%;height:100%;object-fit:contain;display:block;background:#111;}",
-  ".board .b-photo .ph-cap{position:absolute;bottom:0;left:0;right:0;background:rgba(20,25,35,.62);color:#fff;font-size:2.3%;padding:1.5% 2%;text-align:center;}",
-  ".board .b-photo .ph-meta{position:absolute;bottom:0;left:0;right:0;background:rgba(20,25,35,.72);color:#fff;font-size:1.9%;padding:1.2% 1.6%;text-align:right;line-height:1.45;}",
+  ".board .b-photos{display:grid;gap:2%;width:100%;height:100%;align-content:center;justify-content:center;}",
+  ".board .b-photo{position:relative;background:#eef0f3;border-radius:5px;overflow:hidden;border:1px solid #dfe3e9;aspect-ratio:16/9;min-width:0;width:100%;height:auto;align-self:center;}",
+  ".board .b-photo img{width:100%;height:100%;object-fit:contain;object-position:center center;display:block;background:#111;image-rendering:auto;}",
+  ".board .b-photo .ph-cap{position:absolute;left:0;right:0;bottom:0;background:rgba(20,25,35,.62);color:#fff;font-size:2.3%;padding:1.5% 2%;text-align:center;z-index:3;}",
+  ".board .b-photo .ph-meta{position:absolute;bottom:0;left:0;right:0;background:rgba(8,12,18,.72);color:#fff;font-size:1.9%;padding:1.2% 1.6%;text-align:right;line-height:1.45;}",
   ".board .b-photo-empty{grid-column:1/-1;grid-row:1/-1;border:2px dashed #c6ced9;border-radius:6px;background:#f7f9fb;",
   "display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2%;color:#98a2b0;text-align:center;padding:4%;}",
   ".board .b-photo-empty .pe-ic{font-size:5.5%;}",
@@ -941,23 +972,45 @@ function makeLabeledDataURL(dataUrl, label){
     if(!dataUrl){ reject(new Error("تصویر خالی است")); return; }
     var img=new Image();
     img.onload=function(){
-      var w=img.naturalWidth, h=img.naturalHeight;
-      var c=document.createElement("canvas"); c.width=w; c.height=h;
-      var ctx=c.getContext("2d"); ctx.drawImage(img,0,0,w,h);
-      var scale=Math.max(1,Math.min(w,h)/900);
-      var fontSize=Math.max(18,Math.round(24*scale));
-      var pad=Math.max(10,Math.round(16*scale));
-      var stripH=Math.max(Math.round(fontSize*2.35),Math.round(h*0.075));
-      var maxText=w-pad*2;
-      ctx.font="700 "+fontSize+"px Vazirmatn, Arial, sans-serif";
-      var text=String(label||"");
-      while(ctx.measureText(text).width>maxText && text.length>20) text=text.slice(0,-2).trim()+"…";
-      ctx.fillStyle="rgba(12,18,28,.78)";
+      var w=img.naturalWidth || img.width;
+      var h=img.naturalHeight || img.height;
+      if(!w || !h){ reject(new Error("ابعاد تصویر نامعتبر است")); return; }
+
+      /* مهم: canvas دقیقاً همان ابعاد پیکسلی عکس اصلی را نگه می‌دارد.
+         هیچ resize، crop، stretch یا تغییر نسبت تصویر انجام نمی‌شود. */
+      var c=document.createElement("canvas");
+      c.width=w; c.height=h;
+      var ctx=c.getContext("2d",{alpha:false});
+      ctx.imageSmoothingEnabled=false;
+      ctx.drawImage(img,0,0,w,h);
+
+      var text=String(label||"اطلاعات ثبت تصویر");
+      var shortText=text;
+      var maxW=w*0.94;
+      var fontSize=Math.max(16,Math.min(42,Math.round(w/48)));
+      ctx.font="700 "+fontSize+"px Arial, Tahoma, sans-serif";
+      while(ctx.measureText(shortText).width>maxW && shortText.length>12){
+        shortText=shortText.slice(0,-2).trim()+"…";
+      }
+      var pad=Math.max(10,Math.round(w/120));
+      var stripH=Math.max(Math.round(fontSize*2.15),Math.round(h*0.075));
+      stripH=Math.min(stripH,Math.round(h*0.20));
+
+      /* لیبل داخل خود تصویر و در همان canvas؛ ابعاد canvas ثابت می‌ماند. */
+      ctx.save();
+      ctx.fillStyle="rgba(7,12,20,0.86)";
       ctx.fillRect(0,h-stripH,w,stripH);
-      ctx.fillStyle="#fff"; ctx.font="700 "+fontSize+"px Vazirmatn, Arial, sans-serif";
-      ctx.textAlign="right"; ctx.textBaseline="middle";
-      ctx.fillText(text,w-pad,h-stripH/2);
-      try{ resolve(c.toDataURL("image/png")); }catch(e){ reject(e); }
+      ctx.fillStyle="#ffffff";
+      ctx.font="700 "+fontSize+"px Arial, Tahoma, sans-serif";
+      ctx.textAlign="right";
+      ctx.textBaseline="middle";
+      ctx.direction="rtl";
+      ctx.fillText(shortText,w-pad,h-stripH/2);
+      ctx.restore();
+
+      try{
+        resolve(c.toDataURL("image/png"));
+      }catch(e){ reject(e); }
     };
     img.onerror=function(){reject(new Error("تصویر قابل پردازش نیست"));};
     img.src=dataUrl;
@@ -1057,18 +1110,19 @@ function photosHTML(images, slide){
   images = (images||[]).filter(function(i){ return i && i.data; });
   if(!images.length){
     var t = slide && slide.title ? escapeHTML(slide.title) : "تصاویر این بخش";
-    return '<div class="b-photos" style="grid-template-columns:1fr;grid-template-rows:1fr;">' +
+    return '<div class="b-photos empty-photos" style="grid-template-columns:1fr;grid-template-rows:1fr;">' +
       '<div class="b-photo-empty"><div class="pe-ic">📷</div><div class="pe-tx">' + t + '</div>' +
       '<div class="pe-sub">هنوز تصویری اضافه نشده</div></div></div>';
   }
   var n = images.length;
   var cols = n === 1 ? 1 : (n === 2 ? 2 : (n <= 4 ? 2 : 4));
   var rows = Math.ceil(n / cols);
-  var h = '<div class="b-photos" style="grid-template-columns:repeat(' + cols + ',1fr); grid-template-rows:repeat(' + rows + ',1fr);">';
+  var h = '<div class="b-photos" style="grid-template-columns:repeat(' + cols + ',minmax(0,1fr));grid-template-rows:repeat(' + rows + ',auto);">';
   images.forEach(function(im){
-    h += '<div class="b-photo"><img src="' + im.data + '" alt="">';
+    h += '<div class="b-photo" data-natural="' + (im.naturalWidth||"") + 'x' + (im.naturalHeight||"") + '">';
+    h += '<img src="' + im.data + '" alt="">';
     h += '<div class="ph-meta">' + escapeHTML(imageLabel(im)) + '</div>';
-    if(im.caption) h += '<div class="ph-cap" style="bottom:18%;">' + escapeHTML(im.caption) + '</div>';
+    if(im.caption) h += '<div class="ph-cap">' + escapeHTML(im.caption) + '</div>';
     h += '</div>';
   });
   h += '</div>';
@@ -1684,6 +1738,80 @@ function buildChecklistEditor(slide){
   return wrap;
 }
 
+/* ---------- دوربین واقعی 16:9 ---------- */
+var cameraState = { stream:null, slide:null, facing:"environment" };
+
+function stopCamera(){
+  if(cameraState.stream){
+    cameraState.stream.getTracks().forEach(function(t){ try{t.stop();}catch(e){} });
+    cameraState.stream=null;
+  }
+  var v=document.getElementById("cameraVideo");
+  if(v) v.srcObject=null;
+  var ov=document.getElementById("cameraOverlay");
+  if(ov){ ov.classList.remove("open"); ov.setAttribute("aria-hidden","true"); }
+  cameraState.slide=null;
+}
+
+async function startCamera(slide){
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    showToast("مرورگر امکان دسترسی مستقیم به دوربین را ندارد؛ از گزینه انتخاب از گالری استفاده کنید.");
+    return;
+  }
+  stopCamera();
+  cameraState.slide=slide;
+  var ov=document.getElementById("cameraOverlay");
+  var video=document.getElementById("cameraVideo");
+  var info=document.getElementById("cameraInfo");
+  ov.classList.add("open"); ov.setAttribute("aria-hidden","false");
+  try{
+    var stream=await navigator.mediaDevices.getUserMedia({
+      audio:false,
+      video:{
+        facingMode:{ideal:cameraState.facing},
+        aspectRatio:{ideal:16/9},
+        width:{ideal:1920},
+        height:{ideal:1080}
+      }
+    });
+    cameraState.stream=stream;
+    video.srcObject=stream;
+    await video.play();
+    var tr=stream.getVideoTracks()[0], set=tr.getSettings ? tr.getSettings() : {};
+    var vw=video.videoWidth||set.width||0, vh=video.videoHeight||set.height||0;
+    var ratio=vw&&vh ? vw/vh : 16/9;
+    info.textContent="فریم نمایش 16:9 است · رزولوشن واقعی دوربین: "+(vw||"—")+"×"+(vh||"—")+" · نسبت: "+ratio.toFixed(3)+
+      " · هنگام ثبت، تصویر بدون Stretch/Crop و با ابعاد واقعی خود ذخیره می‌شود.";
+  }catch(e){
+    console.error(e);
+    stopCamera();
+    showToast("دسترسی به دوربین برقرار نشد. مجوز دوربین را بررسی کنید.");
+  }
+}
+
+function captureCameraImage(){
+  var slide=cameraState.slide, video=document.getElementById("cameraVideo");
+  if(!slide || !video || !video.videoWidth || !video.videoHeight) return;
+  var c=document.createElement("canvas");
+  c.width=video.videoWidth; c.height=video.videoHeight;
+  var ctx=c.getContext("2d",{alpha:false});
+  ctx.drawImage(video,0,0,c.width,c.height);
+  var data=c.toDataURL("image/jpeg",0.97);
+  slide.images=slide.images||[];
+  if(slide.images.length>=MAX_IMAGES){ showToast("حداکثر تعداد عکس پر شده است"); return; }
+  slide.images.push({
+    data:data, caption:"",
+    capturedAt:captureTimestamp(),
+    captureMeta:currentCaptureMeta(),
+    naturalWidth:c.width,
+    naturalHeight:c.height,
+    sourceRatio:c.width/c.height
+  });
+  openId=slide.id;
+  commit(); renderSlidesList();
+  showToast("تصویر با ابعاد "+c.width+"×"+c.height+" ثبت شد");
+}
+
 /* ---------- ویرایشگر عکس ---------- */
 function buildPhotosEditor(slide){
   var wrap = document.createElement("div");
@@ -1733,13 +1861,11 @@ function buildPhotosEditor(slide){
     actions.style.gridColumn="1/-1";
     actions.className="photo-actions";
 
-    var camLabel=document.createElement("label");
+    var camLabel=document.createElement("button");
+    camLabel.type="button";
     camLabel.className="photo-action camera";
     camLabel.innerHTML="📷 ثبت با دوربین (16:9)";
-    var cam=document.createElement("input");
-    cam.type="file"; cam.accept="image/*"; cam.setAttribute("capture","environment");
-    cam.addEventListener("change",function(){ handlePhotoFiles(slide,Array.prototype.slice.call(cam.files||[])); cam.value=""; });
-    camLabel.appendChild(cam);
+    camLabel.addEventListener("click",function(){ startCamera(slide); });
 
     var galLabel=document.createElement("label");
     galLabel.className="photo-action gallery";
@@ -1786,10 +1912,22 @@ function handlePhotoFiles(slide, files){
     }
     var f = toProcess[idx++];
     fileToOriginalDataURL(f).then(function(url){
+      return new Promise(function(resolve){
+        var probe=new Image();
+        probe.onload=function(){
+          resolve({url:url,w:probe.naturalWidth,h:probe.naturalHeight});
+        };
+        probe.onerror=function(){ resolve({url:url,w:0,h:0}); };
+        probe.src=url;
+      });
+    }).then(function(info){
       slide.images.push({
-        data:url, caption:"",
+        data:info.url, caption:"",
         capturedAt:captureTimestamp(),
-        captureMeta:currentCaptureMeta()
+        captureMeta:currentCaptureMeta(),
+        naturalWidth:info.w,
+        naturalHeight:info.h,
+        sourceRatio:(info.w&&info.h)?info.w/info.h:0
       });
       added++;
       next();
@@ -1991,20 +2129,62 @@ function layoutPhotosOnSlide(pres, s, imgs, x, y, w, h){
   var cols = n === 1 ? 1 : (n === 2 ? 2 : (n <= 4 ? 2 : 4));
   var rows = Math.ceil(n / cols);
   var gap = 0.14;
-  var cellW = (w - gap*(cols-1)) / cols;
-  var cellH = (h - gap*(rows-1)) / rows;
+  var frameW = (w - gap*(cols-1)) / cols;
+  var frameH = frameW * 9/16;
+  var totalH = frameH*rows + gap*(rows-1);
+
+  /* اگر ارتفاع موجود کمتر باشد، کل فریم‌ها متناسباً کوچک می‌شوند؛
+     نسبت 16:9 همیشه ثابت می‌ماند و عکس داخل آن contain می‌شود. */
+  if(totalH > h){
+    frameH = (h - gap*(rows-1)) / rows;
+    frameW = frameH * 16/9;
+    var totalW = frameW*cols + gap*(cols-1);
+    x = x + (w-totalW)/2;
+  } else {
+    y = y + (h-totalH)/2;
+  }
+
   imgs.forEach(function(im, i){
     var r = Math.floor(i / cols), c = i % cols;
-    var cx = x + c*(cellW+gap);
-    var cy = y + r*(cellH+gap);
-    var frameRatio=16/9;
-    var cellRatio=cellW/cellH;
-    var iw=cellW, ih=cellW/frameRatio, ix=cx, iy=cy+(cellH-ih)/2;
-    if(ih>cellH){ ih=cellH; iw=cellH*frameRatio; ix=cx+(cellW-iw)/2; iy=cy; }
-    s.addShape(pres.ShapeType.rect,{x:cx,y:cy,w:cellW,h:cellH,fill:{color:"111111"},line:{type:"none"}});
+    var cx = x + c*(frameW+gap);
+    var cy = y + r*(frameH+gap);
+
+    /* قاب دقیقاً 16:9 است. خود تصویر با نسبت واقعی داخل قاب قرار می‌گیرد. */
+    s.addShape(pres.ShapeType.rect,{
+      x:cx,y:cy,w:frameW,h:frameH,
+      fill:{color:"111111"},line:{color:"D9DEE6",pt:0.6}
+    });
+
+    var iw=frameW, ih=frameH, ix=cx, iy=cy;
+    var iw0=im.naturalWidth||0, ih0=im.naturalHeight||0;
+    if(iw0 && ih0){
+      var imageRatio=iw0/ih0, frameRatio=16/9;
+      if(imageRatio > frameRatio){
+        ih=frameW/imageRatio;
+        iy=cy+(frameH-ih)/2;
+      }else{
+        iw=frameH*imageRatio;
+        ix=cx+(frameW-iw)/2;
+      }
+    }
     s.addImage({data:im.data,x:ix,y:iy,w:iw,h:ih});
+
+    /* لیبل به صورت یک لایه واقعی روی تصویر؛ بدون دستکاری ابعاد تصویر */
+    var label=imageLabel(im);
+    s.addText(label,{
+      x:cx+0.03,y:cy+frameH-0.34,w:frameW-0.06,h:0.31,
+      align:"right",valign:"middle",fontSize:7.5,
+      color:"FFFFFF",fill:{color:"07101A",transparency:12},
+      line:{color:"07101A",transparency:100},
+      fontFace:"Arial",rtlMode:true,margin:0.04
+    });
     if(im.caption){
-      s.addText(im.caption,{x:cx,y:cy+cellH-0.25,w:cellW,h:0.25,align:"center",valign:"middle",fontSize:8,color:"FFFFFF",fill:{color:"2B3038",transparency:18},fontFace:"Arial",rtlMode:true});
+      s.addText(im.caption,{
+        x:cx+0.04,y:cy+0.04,w:frameW-0.08,h:0.24,
+        align:"center",valign:"middle",fontSize:7.5,
+        color:"FFFFFF",fill:{color:"2B3038",transparency:20},
+        fontFace:"Arial",rtlMode:true,margin:0.03
+      });
     }
   });
 }
@@ -2047,7 +2227,7 @@ async function exportPPTX(){
       var s = pres.addSlide();
       s.background = { color: "FFFFFF" };
 
-      s.addShape(pres.ShapeType.rect, { x:0, y:0, w:10, h:0.24, fill:{color:primary}, line:{type:"none"} });
+      s.addShape(pres.ShapeType.rect, { x:0, y:0, w:13.333333, h:0.24, fill:{color:primary}, line:{type:"none"} });
       s.addShape(pres.ShapeType.rect, { x:0, y:7.5-0.13, w:13.333333, h:0.13, fill:{color:primary}, line:{type:"none"} });
 
       if(state.meta.logoLeft){
@@ -2175,13 +2355,37 @@ async function exportPPTX(){
 }
 
 /* ---------- خروجی HTML ---------- */
-function buildExportHTML(){
+async function buildExportHTML(){
   var title = state.meta.projectTitle || "گزارش";
-  var pages = state.slides.map(function(s, i){
+
+  /* خروجی HTML نیز از نسخه لیبل‌خورده همان تصویر با همان ابعاد پیکسلی استفاده می‌کند.
+     تصویر اصلی در state دست‌نخورده باقی می‌ماند. */
+  var exportSlides = [];
+  for(var ei=0; ei<state.slides.length; ei++){
+    var original = state.slides[ei];
+    var cloned = Object.assign({}, original);
+    cloned.images = [];
+    for(var ej=0; ej<(original.images||[]).length; ej++){
+      var im = original.images[ej];
+      var copy = Object.assign({}, im);
+      if(im && im.data){
+        try{
+          copy.data = await makeLabeledDataURL(im.data, imageLabel(im));
+        }catch(err){
+          console.warn("Label generation failed; original image used.", err);
+          copy.data = im.data;
+        }
+      }
+      cloned.images.push(copy);
+    }
+    exportSlides.push(cloned);
+  }
+
+  var pages = exportSlides.map(function(s, i){
     return '<section class="page">' +
-      '<div class="page-idx">اسلاید ' + (i+1) + ' از ' + state.slides.length + ' — ' +
+      '<div class="page-idx">اسلاید ' + (i+1) + ' از ' + exportSlides.length + ' — ' +
       escapeHTML((LAYOUT_META[s.layout]||{}).type||"") + '</div>' +
-      '<div class="board-wrap">' + boardHTML(s, state.meta, {index:i, total:state.slides.length}) + '</div>' +
+      '<div class="board-wrap">' + boardHTML(s, state.meta, {index:i, total:exportSlides.length}) + '</div>' +
       '</section>';
   }).join("");
 
@@ -2203,21 +2407,21 @@ function buildExportHTML(){
     '.board{box-shadow:0 4px 18px rgba(20,30,50,.14);border-radius:10px;}' +
     '.toolbar{position:sticky;top:0;z-index:9;background:rgba(255,255,255,.94);border-bottom:1px solid #dde2ea;padding:10px 16px;text-align:center;}' +
     '.toolbar button{font-family:inherit;font-size:13px;font-weight:700;padding:9px 18px;border-radius:10px;border:none;background:#1c2230;color:#fff;cursor:pointer;}' +
-    '@media print{@page{size:A4 landscape;margin:8mm;}body{background:#fff;}' +
+    '@media print{@page{size:13.333in 7.5in;margin:0;}body{background:#fff;}' +
     '.head,.toolbar,.page-idx{display:none !important;}' +
     '.wrap{max-width:none;padding:0;}' +
     '.page{page-break-after:always;margin:0;}' +
-    '.board{box-shadow:none;width:100%;}}' +
+    '.board{box-shadow:none;width:100%;aspect-ratio:16/9;}}' +
     '</style></head><body>' +
     '<div class="head"><h1>' + escapeHTML(title) + '</h1><p>' + escapeHTML(state.meta.projectSubtitle||"") + '</p><div style="margin-top:8px;font-size:11px;opacity:.9;">تیم پاور شرکت نقش اول کیفیت (NAK) · <a href="https://www.nak-mci.ir" target="_blank" rel="noopener" style="color:#fff;">nak-mci.ir</a></div></div>' +
     '<div class="toolbar"><button onclick="window.print()">🖨 چاپ / ذخیره PDF</button></div>' +
     '<div class="wrap">' + (pages || '<p style="text-align:center;color:#8b939f;">اسلایدی موجود نیست.</p>') + '</div>' +
     '</body></html>';
 }
-function exportHTML(){
+async function exportHTML(){
   if(!state.slides.length){ showToast("ابتدا حداقل یک اسلاید اضافه کنید"); return; }
   try{
-    var html = buildExportHTML();
+    var html = await buildExportHTML();
     var blob = new Blob([html], { type: "text/html;charset=utf-8" });
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
@@ -2561,6 +2765,13 @@ function init(){
   document.getElementById("lightbox").addEventListener("click", function(e){
     if(e.target.id === "lightbox") closeLightbox();
   });
+  document.getElementById("cameraClose").addEventListener("click", stopCamera);
+  document.getElementById("cameraCapture").addEventListener("click", captureCameraImage);
+  document.getElementById("cameraSwitch").addEventListener("click", async function(){
+    cameraState.facing = cameraState.facing === "environment" ? "user" : "environment";
+    var sl=cameraState.slide;
+    if(sl) await startCamera(sl);
+  });
 
   document.getElementById("searchInput").addEventListener("input", function(e){
     searchQuery = e.target.value.trim();
@@ -2575,7 +2786,7 @@ function init(){
     var tag = (e.target.tagName || "").toLowerCase();
     var typing = tag === "input" || tag === "textarea";
     if(e.key === "Escape"){
-      closeLayoutSheet(); closeFullPreview(); closeLightbox(); closeJalaliPicker();
+      closeLayoutSheet(); closeFullPreview(); closeLightbox(); closeJalaliPicker(); stopCamera();
       return;
     }
     var ctrl = e.ctrlKey || e.metaKey;
@@ -2634,4 +2845,4 @@ document.addEventListener("DOMContentLoaded", init);
 })();
 </script>
 </body>
-  </html>
+</html>
