@@ -480,14 +480,14 @@
   .jdp-clear{background:var(--paper);color:var(--ink);border:1.5px solid var(--line);}
   .jdp-ok{background:var(--accent);color:#fff;}
 </style>
-<meta name="template-data-policy" content="empty-input-template"><meta name="template-version" content="7.3.2-chart-fit">
+<meta name="template-data-policy" content="empty-input-template"><meta name="template-version" content="7.3.3-layout-fix">
 </head>
 <body>
 
 <header class="appbar">
   <button class="icon-btn" id="btnSettings" aria-label="تنظیمات">⚙️</button>
   <div class="brand">
-    <b>سامانه حرفه‌ای گزارش نصب باتری <span class="version-badge">v7.3.2 Chart Fit · Flex/Container</span></b>
+    <b>سامانه حرفه‌ای گزارش نصب باتری <span class="version-badge">v7.3.3 Layout Fix · Flex Board</span></b>
     <span id="brandSub">تیم پاور شرکت نقش اول کیفیت (NAK) · nak-mci.ir</span>
   </div>
   <a class="company-link" href="https://www.nak-mci.ir" target="_blank" rel="noopener noreferrer">NAK ↗</a>
@@ -711,20 +711,17 @@ window.LOGO_RIGHT_DEFAULT = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.o
 
 <script>
 /* ============================================================================
-   قالب‌ساز گزارش پاورپوینت — نسخه ۷.۳.۲ (Chart Fit)
-   - ذخیره‌سازی IndexedDB با fallback به localStorage
-   - فشرده‌سازی تک‌مرحله‌ای روی canvas (WebP/JPEG، کیفیت انطباقی)
-   - حداکثر ۴ تصویر در هر اسلاید
-   - سرریز خودکار تصاویر به اسلایدهای جدید
-   - چیدمان هوشمند بر اساس نسبت ابعاد
-   - لیبل زرد مایل به نارنجی با outline تیره
-   - انتخاب نسبت فریم: ۱۶:۹ افقی / ۱۶:۹ عمودی / ۱:۱ مربع
-   - ★ مقیاس‌بندی خودکار جدول‌ها و نمودارها با container query و flex
+   قالب‌ساز گزارش پاورپوینت — نسخه ۷.۳.۳ (Layout Fix)
+   - چیدمان اسلاید با Flexbox (بدون position:absolute روی هدر/محتوا)
+   - واحد اندازه‌گیری: font-size:1cqw روی .board → 1em = ۱٪ عرض اسلاید
+   - ذخیره‌سازی IndexedDB + localStorage
+   - فشرده‌سازی تصویر با canvas (WebP/JPEG)
+   - حداکثر ۴ تصویر در هر اسلاید + سرریز خودکار
+   - لیبل زرد-نارنجی با outline تیره
    ============================================================================ */
 (function(){
 "use strict";
 
-/* ---------- ثابت‌های انواع ورودی ---------- */
 var FIELD = {
   TEXT:"text", NUMBER:"number", DECIMAL:"decimal", DATE:"date", TEL:"tel",
   SELECT:"select", PROVINCE:"province", CITY:"city", LOCATION:"location",
@@ -771,7 +768,6 @@ var IRAN_PROVINCES = {
 };
 var BATTERY_BRANDS = ["Nian","Sanat","Saba"];
 
-/* ---------- پیش‌تنظیم‌های نسبت ابعاد فریم ---------- */
 var ASPECT_PRESETS = {
   landscape: { key:"landscape", label:"۱۶:۹ افقی",  short:"16:9", w:16, h:9,  icon:"▭" },
   portrait:  { key:"portrait",  label:"۱۶:۹ عمودی", short:"9:16", w:9,  h:16, icon:"▯" },
@@ -807,17 +803,6 @@ function getGPSLocation(){
       {enableHighAccuracy:true, timeout:12000, maximumAge:0}
     );
   });
-}
-function buildVoltageTestRows(bankCount, cellsPerBank){
-  cellsPerBank = cellsPerBank || 4;
-  var times = [0,5,15,30,45,60];
-  var rows = [];
-  for(var b=1; b<=bankCount; b++){
-    for(var c=1; c<=cellsPerBank; c++){
-      rows.push({key:"b"+b+"c"+c, bank:b, battery:c, label:"Bank "+b+" Battery "+c, values:{}, type:FIELD.DECIMAL, unit:"V"});
-    }
-  }
-  return rows;
 }
 function ensureVoltageRows(slide, bankCount){
   var old = {};
@@ -882,12 +867,12 @@ function voltageCalc(slide){
     score=Math.max(0,Math.min(100,score));
     finalStatus=score>=80?"مناسب / پایدار":score>=55?"نیازمند پایش":"نیازمند بررسی فوری";
   }
-  return {times:times,banks:banks,avg60:avg60,complete:complete,status:finalStatus,score:score,reasons:reasons,all60:all60,min0:min0,min60:min60};
+  return {times:times,banks:banks,avg60:avg60,complete:complete,status:finalStatus,score:score,reasons:reasons,all60:all60};
 }
 function healthClass(status){return status.indexOf("مناسب")>=0?"health-good":status.indexOf("پایش")>=0?"health-warn":"health-bad";}
 function getVoltageSlide(){ return state.slides.find(function(s){ return s.layout==="voltage"; }); }
 
-/* رسم نمودار خطی با Canvas برای جاسازی در PPTX */
+/* رسم نمودار خطی با Canvas برای جاسازی در PPTX (خروجی تصویر) */
 function renderLineChartImage(seriesList, opts){
   opts=opts||{};
   var W=opts.width||900,H=opts.height||420,padL=62,padR=24,padT=44,padB=58;
@@ -933,7 +918,6 @@ function renderLineChartImage(seriesList, opts){
   }
   return canvas.toDataURL("image/png");
 }
-
 
 function voltageChartPalette(){
   return ["#00A651","#2F6FB5","#E08B1A","#D6483F","#7B2D8E","#00897B","#5D4037","#C2185B","#455A64","#F57C00","#1565C0","#6A1B9A"];
@@ -1003,8 +987,6 @@ function drawAdvancedVoltageChart(canvas, tip, seriesList, opts){
   var cssH = Math.max(80, Math.floor(rect.height || 220));
   canvas.width = Math.floor(cssW * dpr);
   canvas.height = Math.floor(cssH * dpr);
-  /* ★ توجه: عرض و ارتفاع canvas دیگر به‌صورت inline تنظیم نمی‌شود.
-     CSS با width:100%;height:100% آن را درون کانتینر Flex پر می‌کند. */
   var ctx = canvas.getContext("2d");
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, cssW, cssH);
@@ -1123,7 +1105,6 @@ function voltageBoardHTML(slide){
   }
   bankKeys.forEach(function(bk){
     var bcalc = calc.banks[bk];
-    /* ★ هر جدول در یک wrapper flex قرار می‌گیرد تا ارتفاع منصفانه بگیرد */
     h += '<div class="vb-table-wrap">';
     h += '<table class="vb-table"><thead><tr><th colspan="' + (times.length+3) + '">بانک ' + bk + ' · 48V</th></tr>';
     h += '<tr><th>باتری</th>' + times.map(function(t){ return '<th>'+t+'</th>'; }).join('') + '<th>Avg</th><th>Δ</th></tr></thead><tbody>';
@@ -1214,7 +1195,6 @@ function initAdvancedVoltageCharts(root){
       });
       canvas.addEventListener("mouseleave",function(){tip.style.display="none";});
       window.addEventListener("resize",redraw);
-      /* ★ ResizeObserver: با هر تغییر اندازه کانتینر (باز شدن پیش‌نمایش/تغییر چیدمان)، نمودار دوباره کشیده می‌شود */
       if(typeof ResizeObserver !== "undefined"){
         try{
           var ro = new ResizeObserver(function(){
@@ -1245,14 +1225,9 @@ function voltageChartHTML(slide){
   if(!vSlide) return '<div class="voltage-note">اسلاید تست ولتاژ یافت نشد. ابتدا جدول تست ولتاژ را تکمیل کنید.</div>';
   var calc=voltageCalc(vSlide);
   var h='<div class="voltage-wrap">';
-  h+='<div class="voltage-summary">';
-  h+='<div class="voltage-kpi"><b>'+Object.keys(calc.banks).length+'</b><span>بانک</span></div>';
-  h+='<div class="voltage-kpi"><b>'+(vSlide.rows||[]).length+'</b><span>باتری</span></div>';
-  h+='<div class="voltage-kpi"><b class="'+healthClass(calc.status)+'">'+(calc.score==null?'—':calc.score)+'</b><span>شاخص سلامت</span></div>';
-  h+='<div class="voltage-kpi"><b class="'+healthClass(calc.status)+'">'+calc.status+'</b><span>وضعیت</span></div></div>';
   h+='<div class="vchart-suite">';
   [
-    {kind:"battery",title:"۱. افت ولتاژ تک‌تک باتری‌ها",sub:"۶ نقطه زمانی · امکان روشن/خاموش‌کردن هر سری",note:"خط قرمز: حداقل ۱۱V در پایان تست · خط سبز: آستانه شارژ اولیه ۱۳V"},
+    {kind:"battery",title:"۱. افت ولتاژ تک‌تک باتری‌ها",sub:"۶ نقطه زمانی",note:"خط قرمز: حداقل ۱۱V در پایان تست · خط سبز: آستانه ۱۳V"},
     {kind:"bank",title:"۲. افت ولتاژ بانک‌ها",sub:"مجموع ۴ باتری هر بانک",note:"محدوده مرجع بانک: ۴۴ تا ۵۴V"},
     {kind:"site",title:"۳. پروفایل کلی سایت",sub:"میانگین همه باتری‌ها",note:"روند میانگین سایت در ۰ تا ۶۰ دقیقه"}
   ].forEach(function(c){
@@ -1269,7 +1244,6 @@ function voltageChartHTML(slide){
     h+='<div class="vchart-threshold-note">'+c.note+'</div></div>';
   });
   h+='</div>';
-  h+='<div class="voltage-note" style="margin-top:10px;"><b>راهنمای نمودار:</b> محور افقی زمان بر حسب دقیقه است؛ نقاط واقعی ثبت‌شده نمایش داده می‌شوند و فاصله ۵→۱۵ دقیقه نیز به‌صورت واقعی روی محور حفظ می‌شود. داده‌های خالی به خط مستقیم متصل نمی‌شوند. نمودارهای خروجی PPTX نیز از همین داده‌های تست تولید می‌شوند.</div>';
   h+='</div>';
   return h;
 }
@@ -1285,46 +1259,6 @@ function vCellClass(v, isBank){
   if(v < 12.0) return "health-warn";
   return "health-good";
 }
-function voltageInputHTML(slide){
-  var calc=voltageCalc(slide), times=calc.times, h='<div class="voltage-wrap">';
-  h+='<div class="voltage-summary">';
-  h+='<div class="voltage-kpi"><b>'+((slide.rows||[]).length/4||0)+'</b><span>بانک</span></div>';
-  h+='<div class="voltage-kpi"><b>۴</b><span>باتری / بانک</span></div>';
-  h+='<div class="voltage-kpi"><b>'+(calc.avg60!=null?calc.avg60.toFixed(2):'—')+' V</b><span>میانگین نهایی</span></div>';
-  h+='<div class="voltage-kpi"><b class="'+healthClass(calc.status)+'">'+(calc.score==null?'—':calc.score+' / 100')+'</b><span>شاخص سلامت</span></div></div>';
-
-  var banksMap={};
-  (slide.rows||[]).forEach(function(r){ if(!banksMap[r.bank]) banksMap[r.bank]=[]; banksMap[r.bank].push(r); });
-  Object.keys(banksMap).sort(function(a,b){return +a-+b;}).forEach(function(bk){
-    var bcalc = calc.banks[bk];
-    h+='<div class="voltage-table-scroll" style="margin-top:10px;"><table class="voltage-input-table"><thead><tr><th colspan="'+(times.length+4)+'" style="background:var(--accent);color:#fff;font-size:12px;">بانک '+bk+' · ۴۸V / ۲۰۰Ah</th></tr><tr><th>Battery</th>'+times.map(function(t){return '<th>'+t+' min</th>';}).join('')+'<th>Avg</th><th>Δ 0→60</th><th>Health</th></tr></thead><tbody>';
-    banksMap[bk].sort(function(a,b){return a.battery-b.battery;}).forEach(function(r){
-      var vals=times.map(function(t){return num(r.values&&r.values[t]);});
-      var filled=vals.filter(function(v){return v!=null;});
-      var av=filled.length?filled.reduce(function(a,v){return a+v;},0)/filled.length:null;
-      var d=(vals[0]!=null&&vals[5]!=null)?vals[0]-vals[5]:null;
-      var cls=d!=null&&d>2.0?'health-bad':d!=null&&d>1.2?'health-warn':'health-good';
-      h+='<tr><td>'+escapeHTML(r.label)+'</td>';
-      times.forEach(function(t,ti){
-        var v=vals[ti];
-        var cellCls=vCellClass(v,false);
-        h+='<td class="'+cellCls+'"><input inputmode="decimal" type="number" step="0.01" min="0" data-vbank="'+r.bank+'" data-vbattery="'+r.battery+'" data-vtime="'+t+'" value="'+(r.values&&r.values[t]!=null?r.values[t]:'')+'"></td>';
-      });
-      h+='<td class="'+(av!=null?vCellClass(av,false):'')+'">'+(av!=null?av.toFixed(2):'—')+'</td><td>'+(d!=null?d.toFixed(2):'—')+'</td><td class="'+cls+'">'+(d==null?'—':d>2.0?'بررسی':d>1.2?'پایش':'مناسب')+'</td></tr>';
-    });
-    if(bcalc){
-      var totVals=times.map(function(t){return bcalc.series[t]&&bcalc.series[t].sum!=null?bcalc.series[t].sum:null;});
-      var avgVals=times.map(function(t){return bcalc.series[t]&&bcalc.series[t].avg!=null?bcalc.series[t].avg:null;});
-      h+='<tr class="voltage-row-bank"><td>Bank '+bk+' TOTAL</td>'+totVals.map(function(v){return '<td class="'+vCellClass(v,true)+'">'+(v!=null?v.toFixed(2):'—')+'</td>';}).join('')+'<td>—</td><td>'+(bcalc.dropPct!=null?bcalc.dropPct.toFixed(1)+'%':'—')+'</td><td class="'+(bcalc.minBattery60<11.0||bcalc.imbalance60>0.5?'health-bad':bcalc.minBattery60<11.5||bcalc.imbalance60>0.3?'health-warn':'health-good')+'">'+(bcalc.minBattery60<11.0||bcalc.imbalance60>0.5?'بررسی':bcalc.minBattery60<11.5||bcalc.imbalance60>0.3?'پایش':'مناسب')+'</td></tr>';
-      h+='<tr class="voltage-row-avg"><td>Bank '+bk+' Avg Cell</td>'+avgVals.map(function(v){return '<td class="'+vCellClass(v,false)+'">'+(v!=null?v.toFixed(2):'—')+'</td>';}).join('')+'<td>—</td><td>—</td><td>—</td></tr>';
-    }
-    h+='</tbody></table></div>';
-  });
-
-  h+='<div class="voltage-health-grid"><div class="voltage-health-card"><div class="vh-title">نتیجه خودکار سلامت</div><div class="vh-value '+healthClass(calc.status)+'">'+calc.status+'</div><div class="vh-sub">'+(calc.reasons.length?calc.reasons.join(' • '):'ولتاژ اولیه معمولاً >۱۳V، پس از ۶۰ دقیقه >۱۱V و بانک در محدوده ۴۴–۵۴V قرار دارد.')+'</div></div><div class="voltage-health-card"><div class="vh-title">منطق بررسی (به‌روزشده)</div><div class="vh-sub">معیار: شروع >۱۳V (شارژ کامل)، پایان ۶۰ دقیقه >۱۱V، بانک ۴۴–۵۴V، بالانس سلول‌ها و افت کنترل‌شده. این شاخص غربالگری نگهداری است و جایگزین تست ظرفیت استاندارد نیست.</div></div></div>';
-  h+='<div class="voltage-note">⚠️ باتری‌های Sealed Lead-Acid 12V 200Ah در پیکربندی ۴ بانک‌تایی = سیستم ۴۸V. ولتاژهای سبز = سالم، زرد = نیازمند پایش، قرمز = بررسی فوری. رنگ‌آمیزی بر اساس آستانه‌های عملیاتی فوق انجام می‌شود.</div>';
-  h+='</div>';return h;
-}
 function buildVoltageEditor(slide){
   var wrap=document.createElement('div');
   wrap.className='voltage-editor';
@@ -1333,13 +1267,13 @@ function buildVoltageEditor(slide){
 
   var head=document.createElement('div');
   head.className='voltage-mobile-head';
-  head.innerHTML='<div class="voltage-bank-picker"><button type="button" class="voltage-step-btn" data-vstep="-1" aria-label="کاهش تعداد بانک">−</button><input class="bank-count" inputmode="numeric" pattern="[0-9]*" type="number" min="0" max="99" value="'+bankCount+'" aria-label="تعداد بانک"><button type="button" class="voltage-step-btn" data-vstep="1" aria-label="افزایش تعداد بانک">+</button></div><div class="voltage-help">هر بانک شامل ۴ باتری ۱۲V / ۲۰۰Ah است. با واردکردن تعداد بانک، کارت‌های ورود اطلاعات به‌صورت خودکار ساخته می‌شوند. برای ورود سریع، فقط اعداد ولتاژ را در خانه‌های بزرگ وارد کنید؛ ذخیره‌سازی بدون خروج از صفحه انجام می‌شود.</div>';
+  head.innerHTML='<div class="voltage-bank-picker"><button type="button" class="voltage-step-btn" data-vstep="-1" aria-label="کاهش تعداد بانک">−</button><input class="bank-count" inputmode="numeric" pattern="[0-9]*" type="number" min="0" max="99" value="'+bankCount+'" aria-label="تعداد بانک"><button type="button" class="voltage-step-btn" data-vstep="1" aria-label="افزایش تعداد بانک">+</button></div><div class="voltage-help">هر بانک شامل ۴ باتری ۱۲V / ۲۰۰Ah است. با واردکردن تعداد بانک، کارت‌های ورود اطلاعات به‌صورت خودکار ساخته می‌شوند.</div>';
   wrap.appendChild(head);
   var countInput=head.querySelector('.bank-count');
   var cards=document.createElement('div'); cards.className='voltage-mobile-cards'; wrap.appendChild(cards);
   var summary=document.createElement('div'); summary.className='voltage-mobile-summary'; wrap.appendChild(summary);
   var jumps=document.createElement('div'); jumps.className='voltage-jump'; wrap.appendChild(jumps);
-  var note=document.createElement('div'); note.className='voltage-note'; note.textContent='زمان‌های آزمون ثابت هستند: ۰، ۵، ۱۵، ۳۰، ۴۵ و ۶۰ دقیقه. نتیجه سلامت صرفاً «غربالگری نگهداری» است و جایگزین تست ظرفیت استاندارد سازنده نیست.'; wrap.appendChild(note);
+  var note=document.createElement('div'); note.className='voltage-note'; note.textContent='زمان‌های آزمون ثابت هستند: ۰، ۵، ۱۵، ۳۰، ۴۵ و ۶۰ دقیقه.'; wrap.appendChild(note);
 
   function refreshSummary(){
     var c=voltageCalc(slide), filled=0, total=(slide.rows||[]).length*times.length;
@@ -1419,7 +1353,7 @@ function buildVoltageEditor(slide){
     var stat=bank.querySelector('[data-bank-stat]');
     var c={series:{}}; times.forEach(function(t){var vals=rows.map(function(r){return num(r.values&&r.values[t]);}).filter(function(v){return v!=null;});c.series[t]=vals.length===4?{avg:vals.reduce(function(a,v){return a+v;},0)/4,sum:vals.reduce(function(a,v){return a+v;},0)}:null;});
     if(stat){
-      var s60=c.series[60], s0=c.series[0];
+      var s60=c.series[60];
       if(s60){
         var cls = vCellClass(s60.sum, true);
         stat.innerHTML = '<span class="'+cls+'">'+s60.sum.toFixed(2)+'V</span>';
@@ -1545,7 +1479,7 @@ function fmtBytes(n){
 }
 
 /* ============================================================================
-   ثابت‌های فشرده‌سازی و ظرفیت
+   ثابت‌های فشرده‌سازی
    ============================================================================ */
 var STORAGE_IMG_MAX_DIM   = 1600;
 var STORAGE_IMG_TARGET_KB = 250;
@@ -1574,7 +1508,7 @@ function estimateDataURLBytes(dataUrl){
 }
 
 /* ============================================================================
-   لایه ذخیره‌سازی IndexedDB
+   IndexedDB
    ============================================================================ */
 var IDB_NAME    = "nak_battery_report_db";
 var IDB_VERSION = 1;
@@ -1636,89 +1570,101 @@ function idbEstimate(){
 }
 
 /* ============================================================================
-   CSS اسلاید — با Container Query برای مقیاس‌بندی نسبی صحیح
+   CSS اسلاید — چیدمان Flexbox (نسخه اصلاح‌شده)
+   1em = ۱٪ عرض اسلاید (font-size:1cqw روی .board)
    ============================================================================ */
 var BOARD_CSS = [
   ".board-wrap{width:100%;container-type:inline-size;}",
-  /* font-size روی board = عرض کانتینر (100cqw). پس هر «%» = % عرض اسلاید */
   ".board{position:relative;width:100%;aspect-ratio:16/9;background:#fff;border-radius:6px;overflow:hidden;",
-  "box-shadow:0 1px 6px rgba(0,0,0,.18);direction:rtl;font-family:Vazirmatn,Tahoma,sans-serif;font-size:100cqw;}",
-  ".board .bar-top{position:absolute;top:0;left:0;right:0;height:5.6%;background:var(--b-primary);}",
-  ".board .bar-bottom{position:absolute;bottom:0;left:0;right:0;height:3%;background:var(--b-primary);}",
-  ".board .logo{position:absolute;top:7.2%;width:9%;aspect-ratio:1;background:#fff;border-radius:18%;box-shadow:0 1px 4px rgba(0,0,0,.16);}",
-  ".board .logo img{position:absolute;inset:8%;width:84%;height:84%;object-fit:contain;}",
-  ".board .logo.l{left:2.6%;}",
-  ".board .logo.r{right:2.6%;}",
-  ".board .b-title{position:absolute;top:7%;left:13%;right:13%;text-align:center;font-weight:800;color:var(--b-accent);line-height:1.35;font-size:4.6%;}",
-  ".board .b-note{position:absolute;left:6%;right:6%;text-align:center;color:#5c6470;font-size:2.7%;line-height:1.55;font-weight:500;}",
-  ".board .b-content{position:absolute;left:5%;right:5%;bottom:6%;overflow:hidden;}",
-  /* جدول اطلاعات: wrapper flex + جدول height:100% */
+  "box-shadow:0 1px 6px rgba(0,0,0,.18);direction:rtl;font-family:Vazirmatn,Tahoma,sans-serif;",
+  "font-size:1cqw;box-sizing:border-box;padding:6.5cqw 5cqw 2.6cqw 5cqw;",
+  "display:flex;flex-direction:column;color:#333;line-height:1.4;}",
+  ".board *{box-sizing:border-box;}",
+  ".board .bar-top{position:absolute;top:0;left:0;right:0;height:3cqw;background:var(--b-primary);}",
+  ".board .bar-bottom{position:absolute;bottom:0;left:0;right:0;height:1.7cqw;background:var(--b-primary);}",
+  ".board .logo{position:absolute;top:4cqw;width:9cqw;height:9cqw;background:#fff;border-radius:18%;",
+  "box-shadow:0 1px 4px rgba(0,0,0,.16);display:flex;align-items:center;justify-content:center;",
+  "padding:0.8cqw;overflow:hidden;}", 
+  ".board .logo img{width:100%;height:100%;object-fit:contain;display:block;}",
+  ".board .logo.l{left:2.6cqw;}",
+  ".board .logo.r{right:2.6cqw;}",
+  ".board .b-head{flex:0 0 auto;text-align:center;padding:0 10cqw;}",
+  ".board .b-title{font-size:4.6em;font-weight:800;color:var(--b-accent);line-height:1.3;margin:0;",
+  "word-wrap:break-word;overflow-wrap:break-word;}",
+  ".board .b-note{font-size:2.6em;color:#5c6470;line-height:1.5;font-weight:500;margin-top:0.8cqw;",
+  "word-wrap:break-word;overflow-wrap:break-word;}",
+  ".board .b-content{flex:1 1 auto;min-height:0;margin-top:1.5cqw;position:relative;overflow:hidden;}",
+  ".board .b-footer{position:absolute;bottom:0.5cqw;left:5cqw;right:5cqw;display:flex;align-items:center;",
+  "justify-content:space-between;font-size:1.9em;color:#9aa3b0;font-weight:600;pointer-events:none;}",
+  /* جدول اطلاعات */
   ".board .b-table-fit{width:100%;height:100%;overflow:hidden;}",
-  ".board .b-table{width:100%;height:100%;border-collapse:collapse;font-size:2.2%;table-layout:fixed;line-height:1.15;}",
-  ".board .b-table td{border:1px solid #d5dbe3;padding:0.4% 1%;overflow:hidden;text-overflow:ellipsis;}",
+  ".board .b-table{width:100%;height:100%;border-collapse:collapse;font-size:2.4em;table-layout:fixed;line-height:1.2;}",
+  ".board .b-table td{border:1px solid #d5dbe3;padding:0.5em 0.8em;overflow:hidden;text-overflow:ellipsis;vertical-align:middle;}",
   ".board .b-table td.lab{background:var(--b-accent-soft);font-weight:700;color:#213041;width:22%;}",
   ".board .b-table td.val{background:#fff;color:#333;width:28%;text-align:center;}",
-  ".board .b-photos{display:grid;gap:0.5%;width:100%;height:100%;box-sizing:border-box;}",
-  ".board .b-photo{position:relative;min-width:0;min-height:0;overflow:hidden;background:transparent;display:flex;align-items:center;justify-content:center;}",
+  /* گالری تصاویر */
+  ".board .b-photos{display:grid;gap:0.6cqw;width:100%;height:100%;}",
+  ".board .b-photo{position:relative;min-width:0;min-height:0;overflow:hidden;background:#f3f5f8;border-radius:0.4cqw;",
+  "display:flex;align-items:center;justify-content:center;}",
   ".board .b-photo img{max-width:100%;max-height:100%;width:auto;height:auto;display:block;object-fit:contain;}",
-  ".board .b-photo .ph-cap{position:absolute;left:0;right:0;bottom:0;background:rgba(20,25,35,.62);color:#fff;font-size:2.3%;padding:1.5% 2%;text-align:center;z-index:3;}",
-  ".board .b-photo-empty{grid-column:1/-1;grid-row:1/-1;border:2px dashed #c6ced9;border-radius:6px;background:#f7f9fb;",
-  "display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2%;color:#98a2b0;text-align:center;padding:4%;}",
-  ".board .b-photo-empty .pe-ic{font-size:5.5%;}",
-  ".board .b-photo-empty .pe-tx{font-size:2.6%;font-weight:700;color:#7b8794;}",
-  ".board .b-photo-empty .pe-sub{font-size:2.1%;color:#a6adba;}",
-  ".board .b-body{font-size:3.15%;line-height:1.85;color:#333;text-align:justify;white-space:pre-wrap;}",
-  ".board .b-chk{display:flex;flex-direction:column;gap:1.6%;font-size:3%;color:#333;}",
-  ".board .b-chk .ci{display:flex;align-items:flex-start;gap:1.6%;line-height:1.7;}",
-  ".board .b-chk .ci .bx{flex:0 0 auto;width:4.2%;aspect-ratio:1;border-radius:4px;border:1px solid #cbd3dd;background:#fff;",
-  "display:flex;align-items:center;justify-content:center;font-size:2.4%;color:#fff;font-weight:800;}",
+  ".board .b-photo .ph-cap{position:absolute;left:0;right:0;bottom:0;background:rgba(20,25,35,.62);color:#fff;",
+  "font-size:1.8em;padding:0.6cqw 1cqw;text-align:center;z-index:3;}",
+  ".board .b-photo-empty{grid-column:1/-1;grid-row:1/-1;border:2px dashed #c6ced9;border-radius:0.6cqw;background:#f7f9fb;",
+  "display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1cqw;color:#98a2b0;text-align:center;padding:3cqw;}",
+  ".board .b-photo-empty .pe-ic{font-size:6em;}",
+  ".board .b-photo-empty .pe-tx{font-size:2.6em;font-weight:700;color:#7b8794;}",
+  ".board .b-photo-empty .pe-sub{font-size:2.1em;color:#a6adba;}",
+  /* متن و چک‌لیست */
+  ".board .b-body{font-size:3em;line-height:1.85;color:#333;text-align:justify;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;}",
+  ".board .b-chk{display:flex;flex-direction:column;gap:1.4cqw;font-size:2.8em;color:#333;}",
+  ".board .b-chk .ci{display:flex;align-items:flex-start;gap:1.2cqw;line-height:1.65;}",
+  ".board .b-chk .ci .bx{flex:0 0 auto;width:1.4em;height:1.4em;border-radius:0.3em;border:1px solid #cbd3dd;background:#fff;",
+  "display:flex;align-items:center;justify-content:center;font-size:0.85em;color:#fff;font-weight:800;}",
   ".board .b-chk .ci.done .bx{background:var(--b-primary);border-color:var(--b-primary);}",
   ".board .b-chk .ci.done span{color:#7b8794;text-decoration:line-through;}",
-  ".board .b-footer{position:absolute;bottom:3.6%;left:5%;right:5%;display:flex;align-items:center;justify-content:space-between;",
-  "font-size:2.2%;color:#9aa3b0;font-weight:600;}",
-  ".board.cover .b-title{top:38%;font-size:6.2%;}",
-  ".board.cover .b-note{top:52%;font-size:3.6%;color:#3a4250;}",
-  ".board.cover .b-extra{position:absolute;top:60%;left:10%;right:10%;text-align:center;font-size:3%;color:#7c8390;}",
-  ".board.cover .b-mark{position:absolute;top:24%;left:50%;transform:translateX(-50%);width:14%;aspect-ratio:1;",
-  "border-radius:50%;background:var(--b-accent-soft);display:flex;align-items:center;justify-content:center;font-size:6%;}",
-
-  /* ===== جدول ولتاژ درون اسلاید — flex برای پخش ارتفاع ===== */
-  ".board .vb-board{width:100%;height:100%;overflow:hidden;display:flex;flex-direction:column;gap:0.5%;}",
-  ".board .vb-status{font-size:1.6%;font-weight:800;text-align:center;padding:0.5% 1%;border-radius:0.4%;background:#f3f6fa;flex:0 0 auto;}",
+  /* روی جلد */
+  ".board.cover{justify-content:center;align-items:center;padding:6.5cqw 10cqw 5cqw 10cqw;text-align:center;}",
+  ".board.cover .b-cover-inner{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1 1 auto;min-height:0;gap:0;}",
+  ".board.cover .b-mark{width:14cqw;height:14cqw;border-radius:50%;background:var(--b-accent-soft);",
+  "display:flex;align-items:center;justify-content:center;font-size:6em;flex:0 0 auto;margin-bottom:2cqw;}",
+  ".board.cover .b-title{font-size:6.2em;margin:0;}",
+  ".board.cover .b-note{font-size:3.4em;margin-top:1.5cqw;color:#3a4250;}",
+  ".board.cover .b-extra{font-size:2.8em;color:#7c8390;margin-top:2cqw;}",
+  /* جدول ولتاژ */
+  ".board .vb-board{width:100%;height:100%;overflow:hidden;display:flex;flex-direction:column;gap:0.8cqw;}",
+  ".board .vb-status{flex:0 0 auto;font-size:1.8em;font-weight:800;text-align:center;padding:0.6cqw 1cqw;border-radius:0.6cqw;background:#f3f6fa;color:#1c2230;}",
   ".board .vb-status.health-good{color:#00823f;background:#e8f5e9;}",
   ".board .vb-status.health-warn{color:#e08b1a;background:#fff8e1;}",
   ".board .vb-status.health-bad{color:#d6483f;background:#fdecea;}",
-  ".board .vb-empty{font-size:1.6%;color:#98a2b0;text-align:center;padding-top:8%;}",
-  ".board .vb-table-wrap{flex:1 1 0;min-height:0;overflow:hidden;}",
-  ".board .vb-table{width:100%;height:100%;border-collapse:collapse;font-size:1.05%;table-layout:fixed;margin:0;line-height:1.1;}",
-  ".board .vb-table th,.board .vb-table td{border:1px solid #d5dbe3;padding:0.2% 0.15%;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}",
-  ".board .vb-table thead tr:first-child th{background:var(--b-accent);color:#fff;font-weight:800;font-size:1.2%;}",
+  ".board .vb-empty{font-size:1.6em;color:#98a2b0;text-align:center;padding-top:6cqw;}",
+  ".board .vb-table-wrap{flex:1 1 0;min-height:0;overflow:hidden;display:flex;}",
+  ".board .vb-table{width:100%;height:100%;border-collapse:collapse;font-size:1.15em;table-layout:fixed;line-height:1.15;}",
+  ".board .vb-table th,.board .vb-table td{border:1px solid #d5dbe3;padding:0.3cqw 0.2cqw;text-align:center;",
+  "white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}",
+  ".board .vb-table thead tr:first-child th{background:var(--b-accent);color:#fff;font-weight:800;font-size:1.2em;}",
   ".board .vb-table thead tr:last-child th{background:var(--b-accent-soft);color:#1565c0;font-weight:700;}",
   ".board .vb-table td.lab{font-weight:800;background:#f7f9fb;}",
   ".board .vb-table tr.tot td{font-weight:800;background:#eef6ff;}",
   ".board .vb-table td.health-good{background:#e8f5e9;color:#1b5e20;}",
   ".board .vb-table td.health-warn{background:#fff8e1;color:#e65100;}",
   ".board .vb-table td.health-bad{background:#fdecea;color:#c62828;}",
-
-  /* ===== نمودارهای ولتاژ درون اسلاید — Grid/Flex ===== */
-  ".board .voltage-wrap{display:flex;flex-direction:column;height:100%;gap:0;width:100%;}",
+  /* نمودارهای ولتاژ داخل اسلاید */
+  ".board .voltage-wrap{display:flex;flex-direction:column;height:100%;width:100%;}",
   ".board .voltage-summary{display:none;}",
-  ".board .vchart-suite{",
-  "display:grid;grid-template-columns:repeat(3,minmax(0,1fr));",
-  "gap:0.6%;flex:1 1 auto;min-height:0;margin-top:0.4%;}",
-  ".board .vchart-card{min-width:0;border-radius:0.5%;box-shadow:none;display:flex;flex-direction:column;overflow:hidden;background:#fff;border:1px solid var(--b-accent-soft);}",
-  ".board .vchart-head{display:block;padding:0.5% 0.7%;min-height:0;flex:0 0 auto;border-bottom:1px solid var(--b-accent-soft);background:linear-gradient(180deg,#fff,#f5f6f8);}",
-  ".board .vchart-head .vch-title{font-size:1.15%;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:900;color:#1c2230;}",
+  ".board .vchart-suite{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1cqw;flex:1 1 auto;min-height:0;margin-top:0;}",
+  ".board .vchart-card{min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden;background:#fff;border:1px solid var(--b-accent-soft);border-radius:0.6cqw;box-shadow:none;}",
+  ".board .vchart-head{flex:0 0 auto;display:block;padding:0.6cqw 1cqw;border-bottom:1px solid var(--b-accent-soft);background:linear-gradient(180deg,#fff,#f5f6f8);}",
+  ".board .vchart-head .vch-title{font-size:1.6em;line-height:1.3;font-weight:900;color:#1c2230;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}",
   ".board .vchart-head .vch-sub{display:none;}",
   ".board .vchart-actions{display:none;}",
-  ".board .vchart-canvas-wrap{flex:1 1 auto;min-height:0;height:auto;position:relative;background:#fff;}",
+  ".board .vchart-canvas-wrap{flex:1 1 auto;min-height:0;position:relative;background:#fff;display:flex;align-items:center;justify-content:center;}",
   ".board .vchart-canvas{width:100%;height:100%;display:block;touch-action:none;}",
   ".board .vchart-legend{display:none;}",
-  ".board .vchart-metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:0.25%;padding:0.3%;flex:0 0 auto;border-top:1px solid var(--b-accent-soft);}",
-  ".board .vchart-metric{padding:0.3% 0.4%;border-radius:0.3%;background:#f5f6f8;border:1px solid var(--b-accent-soft);text-align:center;min-width:0;}",
-  ".board .vchart-metric b{display:block;font-size:0.9%;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}",
-  ".board .vchart-metric span{display:block;font-size:0.65%;color:#5b6472;margin-top:0.1%;}",
-  ".board .vchart-threshold-note{font-size:0.7%;line-height:1.35;padding:0.4% 0.6%;flex:0 0 auto;overflow:hidden;border-top:1px dashed var(--b-accent-soft);color:#5b6472;}",
+  ".board .vchart-metrics{flex:0 0 auto;display:grid;grid-template-columns:repeat(2,1fr);gap:0.4cqw;padding:0.6cqw;border-top:1px solid var(--b-accent-soft);}",
+  ".board .vchart-metric{padding:0.4cqw 0.6cqw;border-radius:0.4cqw;background:#f5f6f8;border:1px solid var(--b-accent-soft);text-align:center;min-width:0;}",
+  ".board .vchart-metric b{display:block;font-size:1.3em;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}",
+  ".board .vchart-metric span{display:block;font-size:1em;color:#5b6472;margin-top:0.1cqw;}",
+  ".board .vchart-threshold-note{display:none;}",
   ".board .voltage-wrap > .voltage-note:last-child{display:none;}"
 ].join("");
 (function injectBoardCSS(){
@@ -1745,7 +1691,7 @@ var LEGACY_KEY  = "pptxbuilder_state_v3";
 
 function defaultState(){
   return {
-    version: 7,
+    version: 8,
     meta: {
       projectTitle: "گزارش نصب باتری سایت",
       projectSubtitle: "گزارش نصب و تست باتری",
@@ -1778,7 +1724,7 @@ function migrateState(parsed){
   var base = defaultState();
   if(!parsed || typeof parsed !== "object") return base;
   var out = {
-    version: 7,
+    version: 8,
     meta: Object.assign({}, base.meta, parsed.meta||{}),
     slides: Array.isArray(parsed.slides) ? parsed.slides : []
   };
@@ -1880,7 +1826,6 @@ function setSaveStatus(text, kind){
   el.textContent = text;
   el.className = "save-status " + (kind || "");
 }
-
 function saveState(){
   setSaveStatus("در حال ذخیره…", "saving");
   idbPut("main", state).then(function(ok){
@@ -1953,7 +1898,7 @@ function showToast(msg){
   toastTimer = setTimeout(function(){ t.classList.remove("show"); }, 2600);
 }
 
-/* ---------- ابزار فایل ---------- */
+/* ---------- فایل ---------- */
 function fileToOriginalDataURL(file){
   return new Promise(function(resolve, reject){
     var reader = new FileReader();
@@ -1972,7 +1917,7 @@ function loadImageInfo(dataUrl){
 }
 
 /* ============================================================================
-   رسم لیبل + رندر نهایی
+   رسم لیبل + رندر نهایی تصویر
    ============================================================================ */
 function drawLabelOnContext(ctx, w, h, labelText){
   var text = String(labelText || "").trim();
@@ -2119,20 +2064,6 @@ function renderFinalImage(dataUrl, labelText, options){
   });
 }
 
-function makeLabeledDataURL(dataUrl, label){
-  return renderFinalImage(dataUrl, label, {
-    maxDim: Math.max(2048, STORAGE_IMG_MAX_DIM),
-    targetKB: 600,
-    maxKB: 900
-  }).then(function(r){ return r.data; });
-}
-function compressImage(dataUrl, maxDim, quality){
-  return renderFinalImage(dataUrl, null, {
-    maxDim: maxDim || STORAGE_IMG_MAX_DIM,
-    targetKB: STORAGE_IMG_TARGET_KB,
-    maxKB: STORAGE_IMG_MAX_KB
-  }).then(function(r){ return r.data; });
-}
 function cropImage(dataUrl, rect){
   return new Promise(function(resolve, reject){
     var img = new Image();
@@ -2176,7 +2107,7 @@ function logoToDataURL(file, maxDim){
   });
 }
 
-/* ---------- اطلاعات ثبت تصویر و لیبل ---------- */
+/* ---------- اطلاعات ثبت تصویر ---------- */
 function currentCaptureMeta(){
   return {
     fieldExpert: String(state.meta.fieldExpert||"").trim(),
@@ -2264,16 +2195,14 @@ async function exportLabeledImages(){
   }
 }
 
-/* ---------- تشخیص پرتره بودن تصویر ---------- */
+/* ---------- تشخیص پرتره ---------- */
 function isPortraitImage(im){
   var w = im && im.naturalWidth;
   var h = im && im.naturalHeight;
   return !!(w && h && h > w);
 }
 
-/* ============================================================================
-   چیدمان هوشمند گرید تصاویر
-   ============================================================================ */
+/* ---------- چیدمان گرید تصاویر ---------- */
 function photoGridConfig(n, images){
   images = images || [];
   var portraitCount = 0;
@@ -2293,7 +2222,9 @@ function photoGridConfig(n, images){
   return { cols:3, rows:Math.ceil(n/3) };
 }
 
-/* ---------- رندر بورد ---------- */
+/* ============================================================================
+   رندر بورد — ساختار Flex
+   ============================================================================ */
 function boardHTML(slide, meta, opts){
   opts = opts || {};
   var vars = "--b-primary:" + meta.primary + "; --b-accent:" + meta.accent +
@@ -2306,24 +2237,25 @@ function boardHTML(slide, meta, opts){
   inner += '<div class="logo r"><img src="' + (meta.logoRight||"") + '" alt=""></div>';
 
   if(slide.layout === "cover"){
+    inner += '<div class="b-cover-inner">';
     inner += '<div class="b-mark">📄</div>';
     inner += '<div class="b-title">' + escapeHTML(slide.title || "عنوان گزارش") + '</div>';
     if(slide.note) inner += '<div class="b-note">' + escapeHTML(slide.note) + '</div>';
     if(slide.body) inner += '<div class="b-extra">' + escapeHTML(slide.body) + '</div>';
+    inner += '</div>';
   } else {
+    inner += '<div class="b-head">';
     inner += '<div class="b-title">' + escapeHTML(slide.title || "(بدون عنوان)") + '</div>';
-    var contentTop = "top:17%;";
-    if(slide.note){
-      inner += '<div class="b-note" style="top:14.2%;">' + escapeHTML(slide.note) + '</div>';
-      contentTop = "top:21.5%;";
-    }
-    inner += '<div class="b-content" style="' + contentTop + ' bottom:8%;">';
-    if(slide.layout === "table")          inner += tableHTML(slide.rows);
-    else if(slide.layout === "voltage") inner += voltageBoardHTML(slide);
-    else if(slide.layout === "voltage-chart") inner += voltageChartHTML(slide);
-    else if(slide.layout === "photos")    inner += photosHTML(slide.images, slide);
-    else if(slide.layout === "checklist") inner += checklistHTML(slide.checklist);
-    else if(slide.layout === "text")      inner += '<div class="b-body">' + escapeHTML(slide.body || "متن توضیحی…") + '</div>';
+    if(slide.note) inner += '<div class="b-note">' + escapeHTML(slide.note) + '</div>';
+    inner += '</div>';
+
+    inner += '<div class="b-content">';
+    if(slide.layout === "table")               inner += tableHTML(slide.rows);
+    else if(slide.layout === "voltage")        inner += voltageBoardHTML(slide);
+    else if(slide.layout === "voltage-chart")  inner += voltageChartHTML(slide);
+    else if(slide.layout === "photos")         inner += photosHTML(slide.images, slide);
+    else if(slide.layout === "checklist")      inner += checklistHTML(slide.checklist);
+    else if(slide.layout === "text")           inner += '<div class="b-body">' + escapeHTML(slide.body || "متن توضیحی…") + '</div>';
     inner += '</div>';
   }
 
@@ -2337,7 +2269,7 @@ function boardHTML(slide, meta, opts){
 function tableHTML(rows){
   rows = (rows||[]).filter(function(r){ return (r.label && r.label.trim()) || (r.value && r.value.trim()); });
   if(!rows.length){
-    return '<div class="b-table-fit"><div style="font-size:3.2%;color:#a6adba;text-align:center;padding-top:8%;">ردیف جدول اضافه نشده</div></div>';
+    return '<div class="b-table-fit"><div style="font-size:3.2em;color:#a6adba;text-align:center;padding-top:8cqw;">ردیف جدول اضافه نشده</div></div>';
   }
   var h = '<div class="b-table-fit"><table class="b-table">';
   for(var i=0; i<rows.length; i+=2){
@@ -2373,7 +2305,7 @@ function photosHTML(images, slide){
 }
 function checklistHTML(items){
   items = (items||[]).filter(function(i){ return i.text && i.text.trim(); });
-  if(!items.length) return '<div style="font-size:3.2%;color:#a6adba;text-align:center;padding-top:8%;">موردی اضافه نشده</div>';
+  if(!items.length) return '<div style="font-size:3.2em;color:#a6adba;text-align:center;padding-top:8cqw;">موردی اضافه نشده</div>';
   var h = '<div class="b-chk">';
   items.forEach(function(i){
     h += '<div class="ci ' + (i.done?"done":"") + '"><div class="bx">' + (i.done?"✓":"") + '</div><span>' + escapeHTML(i.text) + '</span></div>';
@@ -2413,7 +2345,7 @@ function slideProgress(s){
   return { ok: true, txt: "" };
 }
 
-/* ---------- سرریز خودکار به اسلاید جدید ---------- */
+/* ---------- سرریز خودکار عکس ---------- */
 function createOverflowPhotoSlide(sourceSlide){
   var idx = state.slides.indexOf(sourceSlide);
   var newSlideObj = {
@@ -2635,7 +2567,6 @@ function buildEditor(slide){
   return wrap;
 }
 
-/* ---------- ویرایشگر ردیف‌ها ---------- */
 function buildRowsEditor(slide){
   var wrap = document.createElement("div");
   wrap.className = "field rows-editor";
@@ -2947,7 +2878,7 @@ function buildChecklistEditor(slide){
 }
 
 /* ============================================================================
-   دوربین با انتخاب نسبت فریم
+   دوربین
    ============================================================================ */
 var cameraState = {
   stream:null, slide:null, facing:"environment",
@@ -2973,7 +2904,6 @@ function startCameraLabelTimer(){
 function stopCameraLabelTimer(){
   if(cameraState.labelTimer){ clearInterval(cameraState.labelTimer); cameraState.labelTimer = null; }
 }
-
 function setCameraAspect(key){
   if(!ASPECT_PRESETS[key]) key = "landscape";
   cameraState.aspect = key;
@@ -3006,7 +2936,6 @@ function setCameraAspect(key){
     }
   }
 }
-
 function stopCamera(){
   stopCameraLabelTimer();
   if(cameraState.stream){
@@ -3136,7 +3065,7 @@ async function captureCameraImage(){
 }
 
 /* ============================================================================
-   برش دستی (Crop)
+   برش دستی
    ============================================================================ */
 var cropState = {
   resolve: null,
@@ -3287,21 +3216,19 @@ function initCropHandlers(){
 }
 
 /* ============================================================================
-   پردازش فایل‌های گالری با سرریز خودکار به اسلاید جدید
+   پردازش فایل‌های گالری
    ============================================================================ */
 async function handlePhotoFiles(slide, files){
   if(!files || !files.length) return;
 
   var currentSlide = slide;
   var added = 0, totalBytes = 0, createdNew = 0;
-  var lastSlideId = slide.id;
 
   for(var i=0; i<files.length; i++){
     if((currentSlide.images||[]).length >= MAX_IMAGES){
       currentSlide = createOverflowPhotoSlide(currentSlide);
       createdNew++;
     }
-    lastSlideId = currentSlide.id;
 
     var f = files[i];
     var rawUrl, info;
@@ -3495,7 +3422,7 @@ function buildPhotosEditor(slide){
   return wrap;
 }
 
-/* ---------- تقویم شمسی ---------- */
+/* ---------- تقویم ---------- */
 var jdpState = { jy:0, jm:0, jd:0, cb:null };
 var JP_MONTHS = ["فروردین","اردیبهشت","خرداد","تیر","مرداد","شهریور","مهر","آبان","آذر","دی","بهمن","اسفند"];
 function openJalaliPicker(currentValue, callback){
@@ -3844,13 +3771,13 @@ async function exportPPTX(){
             fontFace:"Arial", fontSize:7, autoPage:false, rtlMode:true, valign:"middle"
           });
         });
-        s.addText("معیار: شروع >۱۳V · پایان ۶۰min >۱۱V · بانک ۴۴–۵۴V · بالانس و افت کنترل‌شده. رنگ سبز=سالم · زرد=پایش · قرمز=بررسی. غربالگری نگهداری؛ نه حکم ظرفیت نهایی.",{x:0.50,y:6.58,w:12.3,h:0.38,fontSize:8,color:"666666",fontFace:"Arial",align:"center",rtlMode:true});
+        s.addText("معیار: شروع >۱۳V · پایان ۶۰min >۱۱V · بانک ۴۴–۵۴V · بالانس و افت کنترل‌شده.",{x:0.50,y:6.58,w:12.3,h:0.38,fontSize:8,color:"666666",fontFace:"Arial",align:"center",rtlMode:true});
       }
       else if(slide.layout === "voltage-chart") {
         var vSlide = getVoltageSlide();
         if(!vSlide){ addPlaceholder(pres, s, 0.5, contentTop, 12, contentHeight, "نمودار افت ولتاژ", "اسلاید تست ولتاژ یافت نشد"); }
         else {
-          var vc = voltageCalc(vSlide);
+          var vc2 = voltageCalc(vSlide);
           var times = [0,5,15,30,45,60];
           var cats = times.map(String);
           var chartColors = ["00A651","2F6FB5","E08B1A","D6483F","7B2D8E","00897B","5D4037","C2185B","455A64","F57C00","1565C0","6A1B9A"];
@@ -3870,11 +3797,11 @@ async function exportPPTX(){
               emptyText: "ولتاژ باتری‌ها را وارد کنید"
             });
             s.addImage({ data: img1, x: 0.30, y: contentTop, w: 6.35, h: 2.50 });
-          } catch(e){ console.warn(e); s.addText("خطا در نمودار باتری", {x:0.5,y:contentTop+1,w:6,h:0.3,fontSize:11,color:"D6483F",align:"center"}); }
+          } catch(e){ console.warn(e); }
 
           var bankSeries = [];
-          Object.keys(vc.banks).sort(function(a,b){return +a-+b;}).forEach(function(bk){
-            var b = vc.banks[bk];
+          Object.keys(vc2.banks).sort(function(a,b){return +a-+b;}).forEach(function(bk){
+            var b = vc2.banks[bk];
             var vals = times.map(function(t){ return b.series[t] ? b.series[t].sum : null; });
             if(vals.some(function(v){ return v != null; })){
               bankSeries.push({ name: "Bank " + bk, values: vals });
@@ -3888,7 +3815,7 @@ async function exportPPTX(){
               emptyText: "ولتاژ بانک‌ها را وارد کنید"
             });
             s.addImage({ data: img2, x: 6.80, y: contentTop, w: 6.20, h: 2.50 });
-          } catch(e){ console.warn(e); s.addText("خطا در نمودار بانک", {x:7,y:contentTop+1,w:5.8,h:0.3,fontSize:11,color:"D6483F",align:"center"}); }
+          } catch(e){ console.warn(e); }
 
           var siteVals = times.map(function(t){
             var vs = (vSlide.rows||[]).map(function(r){ return num(r.values && r.values[t]); }).filter(function(v){ return v != null; });
@@ -3902,10 +3829,10 @@ async function exportPPTX(){
               emptyText: "داده کافی برای میانگین سایت نیست"
             });
             s.addImage({ data: img3, x: 3.40, y: contentTop + 2.65, w: 6.50, h: 2.30 });
-          } catch(e){ console.warn(e); s.addText("خطا در نمودار کلی", {x:3.5,y:contentTop+3.5,w:6.3,h:0.3,fontSize:11,color:"D6483F",align:"center"}); }
+          } catch(e){ console.warn(e); }
 
-          var statusColor2 = vc.status.indexOf("مناسب")>=0 ? primary : (vc.status.indexOf("پایش")>=0 ? "E08B1A" : "D6483F");
-          s.addText("وضعیت: " + vc.status + (vc.score!=null?" ("+vc.score+"/100)":"") + "  |  معیار: شروع >۱۳V · پایان >۱۱V · بانک ۴۴–۵۴V", {
+          var statusColor2 = vc2.status.indexOf("مناسب")>=0 ? primary : (vc2.status.indexOf("پایش")>=0 ? "E08B1A" : "D6483F");
+          s.addText("وضعیت: " + vc2.status + (vc2.score!=null?" ("+vc2.score+"/100)":"") + "  |  معیار: شروع >۱۳V · پایان >۱۱V · بانک ۴۴–۵۴V", {
             x:0.4, y:6.58, w:12.5, h:0.35, fontSize:9, color:statusColor2, fontFace:"Arial", align:"center", rtlMode:true, bold:true
           });
         }
@@ -3973,10 +3900,6 @@ async function buildExportHTML(){
       '</section>';
   }).join("");
 
-  /* 
-     برای اینکه نمودارهای Canvas در خروجی HTML ثابت شوند، یک‌بار در سند جاری رندر می‌کنیم
-     و سپس Canvas ها را با تصویر PNG جایگزین می‌کنیم.
-  */
   var renderHost = document.createElement("div");
   renderHost.style.cssText =
     "position:fixed;left:-20000px;top:0;width:1280px;opacity:0;pointer-events:none;z-index:-1;background:#fff;";
@@ -4043,7 +3966,6 @@ async function buildExportHTML(){
     if(renderHost.parentNode) renderHost.parentNode.removeChild(renderHost);
   }
 
-  /* استایل تکمیلی برای خروجی HTML — هماهنگ با BOARD_CSS */
   var chartCss = `
   .vchart-suite{display:flex;flex-direction:column;gap:10px;margin-top:10px;}
   .vchart-card{border:1px solid var(--line,#e3e6ec);border-radius:12px;background:#fff;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.04);}
@@ -4056,11 +3978,8 @@ async function buildExportHTML(){
   .vchart-metric b{display:block;font-size:11px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .vchart-metric span{display:block;font-size:8.5px;color:#5b6472;margin-top:1px;}
   .vchart-threshold-note{padding:7px 9px;font-size:9px;color:#5b6472;line-height:1.7;border-top:1px dashed #e3e6ec;}
-
-  /* درون اسلاید: استایل با container query از BOARD_CSS اعمال می‌شود.
-     در صورت پشتیبانی نشدن container query در مرورگر مقصد، این قواعد پشتیبان عمل می‌کنند. */
   .board .vchart-canvas-wrap{flex:1 1 auto;min-height:0;height:auto;}
-  .board .vchart-canvas{width:100%;height:100%;display:block;}
+  .board .vchart-export-image{width:100%;height:100%;display:block;object-fit:contain;}
   .board .vchart-suite{grid-template-columns:repeat(3,minmax(0,1fr));}
   `;
 
@@ -4228,7 +4147,7 @@ function loadBatteryTemplate(){
   var voltageSlide = {
     id: uid(), layout: "voltage",
     title: "جدول تست ولتاژ — Voltage Test Results",
-    note: "ثبت سل‌به‌سل در زمان‌های ۰ / ۵ / ۱۵ / ۳۰ / ۴۵ / ۶۰ دقیقه • بانک‌های جدا با رنگ‌آمیزی سلامت",
+    note: "ثبت سل‌به‌سل در زمان‌های ۰ / ۵ / ۱۵ / ۳۰ / ۴۵ / ۶۰ دقیقه",
     body: "", rows: [], images: [], checklist: [], photoAspect:"auto",
     autoFromBatteryCount: true,
     voltageSpec: {nominalBatteryV:12, nominalBankV:48, capacityAh:200, batteriesPerBank:4}
@@ -4531,4 +4450,4 @@ document.addEventListener("DOMContentLoaded", init);
 })();
 </script>
 </body>
-</html>
+  </html>
