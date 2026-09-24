@@ -3735,6 +3735,88 @@ async function buildExportHTML(){
       '<div class="board-wrap">' + boardHTML(s, state.meta, {index:i, total:exportSlides.length}) + '</div>' +
       '</section>';
   }).join("");
+
+  /* 
+     Render the export once inside the current document before serializing it.
+     This is important for voltage-chart slides because Canvas elements are not
+     persisted when only boardHTML() is serialized. The charts are converted
+     to self-contained PNG data URLs, so both HTML and browser-print/PDF show
+     exactly the same chart image as the PPTX rendering.
+  */
+  var renderHost = document.createElement("div");
+  renderHost.style.cssText =
+    "position:fixed;left:-20000px;top:0;width:1280px;opacity:0;pointer-events:none;z-index:-1;background:#fff;";
+  renderHost.innerHTML =
+    '<div class="export-render-wrap">' + pages + '</div>';
+  document.body.appendChild(renderHost);
+
+  try{
+    initAdvancedVoltageCharts(renderHost);
+    await new Promise(function(resolve){
+      requestAnimationFrame(function(){
+        requestAnimationFrame(resolve);
+      });
+    });
+
+    var canvases = renderHost.querySelectorAll(".vchart-canvas");
+    for(var ci=0; ci<canvases.length; ci++){
+      var cv = canvases[ci];
+      try{
+        var img = document.createElement("img");
+        img.src = cv.toDataURL("image/png");
+        img.alt = "نمودار ولتاژ";
+        img.className = "vchart-export-image";
+        img.style.cssText = "width:100%;height:100%;display:block;object-fit:contain;";
+        cv.parentNode.replaceChild(img, cv);
+      }catch(err){
+        console.warn("Voltage chart export image failed:", err);
+      }
+    }
+
+    /* Export is presentation-oriented: interactive editor controls are hidden. */
+    var controls = renderHost.querySelectorAll(".vchart-actions");
+    for(var ai=0; ai<controls.length; ai++) controls[ai].remove();
+    var tips = renderHost.querySelectorAll(".vchart-tip");
+    for(var ti=0; ti<tips.length; ti++) tips[ti].remove();
+
+    pages = renderHost.querySelector(".export-render-wrap").innerHTML;
+  }finally{
+    if(renderHost.parentNode) renderHost.parentNode.removeChild(renderHost);
+  }
+
+  /* The exported HTML must contain all chart/board styles locally. */
+  var chartCss = `
+  .vchart-suite{display:flex;flex-direction:column;gap:10px;margin-top:10px;}
+  .vchart-card{border:1px solid var(--line);border-radius:12px;background:var(--card);overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+  .vchart-head{display:flex;align-items:center;gap:8px;padding:9px 10px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,var(--card),var(--paper));}
+  .vchart-head .vch-title{font-size:12px;font-weight:900;flex:1;}
+  .vchart-head .vch-sub{font-size:9px;color:var(--ink-soft);font-weight:700;white-space:nowrap;}
+  .vchart-canvas-wrap{position:relative;height:260px;min-height:220px;background:var(--card);}
+  .vchart-export-image{width:100%;height:100%;display:block;object-fit:contain;}
+  .vchart-legend{display:flex;gap:5px 9px;flex-wrap:wrap;padding:7px 9px;border-top:1px solid var(--line);background:var(--paper);}
+  .vchart-legend button{border:0;background:transparent;color:var(--ink);padding:3px 4px;border-radius:6px;font-size:9px;font-weight:800;display:inline-flex;align-items:center;gap:5px;}
+  .vchart-dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:0 0 auto;}
+  .vchart-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:7px 9px;}
+  .vchart-metric{padding:6px 7px;border-radius:8px;background:var(--paper);border:1px solid var(--line);min-width:0;text-align:center;}
+  .vchart-metric b{display:block;font-size:11px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .vchart-metric span{display:block;font-size:8.5px;color:var(--ink-soft);margin-top:1px;}
+  .vchart-threshold-note{padding:7px 9px;font-size:9px;color:var(--ink-soft);line-height:1.7;border-top:1px dashed var(--line);}
+  .board .vchart-suite{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin-top:3px;}
+  .board .vchart-card{min-width:0;border-radius:6px;box-shadow:none;}
+  .board .vchart-head{display:block;padding:4px 5px;min-height:26px;}
+  .board .vchart-head .vch-title{font-size:7px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .board .vchart-head .vch-sub{display:none;}
+  .board .vchart-canvas-wrap{height:92px;min-height:92px;}
+  .board .vchart-legend{display:none;}
+  .board .vchart-metrics{grid-template-columns:repeat(2,1fr);gap:2px;padding:3px;}
+  .board .vchart-metric{padding:2px 3px;border-radius:3px;}
+  .board .vchart-metric b{font-size:6.5px;}
+  .board .vchart-metric span{font-size:5px;}
+  .board .vchart-threshold-note{font-size:5.5px;line-height:1.35;padding:3px 4px;max-height:22px;overflow:hidden;}
+  .board .voltage-note:last-child{display:none;}
+  .board .voltage-summary{display:none;}
+  `;
+
   return '<!DOCTYPE html>' +
     '<html lang="fa" dir="rtl"><head><meta charset="UTF-8">' +
     '<meta name="viewport" content="width=device-width, initial-scale=1">' +
@@ -3742,22 +3824,29 @@ async function buildExportHTML(){
     '<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">' +
     '<style>' +
     '*{box-sizing:border-box;}' +
+    ':root{--paper:#f4f6f9;--card:#fff;--line:#dfe4eb;--ink:#1c2230;--ink-soft:#687180;--accent:' + state.meta.accent + ';--accent-soft:' + hexToSoft(state.meta.accent) + ';}' +
     'body{margin:0;background:#eef1f5;font-family:Vazirmatn,Tahoma,sans-serif;direction:rtl;color:#1c2230;}' +
     '.head{background:' + state.meta.primary + ';color:#fff;padding:22px 18px;text-align:center;}' +
     '.head h1{margin:0 0 6px;font-size:20px;font-weight:800;}' +
     '.head p{margin:0;font-size:13px;opacity:.9;}' +
-    '.wrap{max-width:1000px;margin:0 auto;padding:22px 16px 60px;}' +
+    '.wrap{max-width:1200px;margin:0 auto;padding:22px 16px 60px;}' +
     '.page{margin-bottom:28px;}' +
     '.page-idx{font-size:12px;color:#67707d;font-weight:700;margin-bottom:8px;}' +
     BOARD_CSS +
+    chartCss +
     '.board{box-shadow:0 4px 18px rgba(20,30,50,.14);border-radius:10px;}' +
     '.toolbar{position:sticky;top:0;z-index:9;background:rgba(255,255,255,.94);border-bottom:1px solid #dde2ea;padding:10px 16px;text-align:center;}' +
     '.toolbar button{font-family:inherit;font-size:13px;font-weight:700;padding:9px 18px;border-radius:10px;border:none;background:#1c2230;color:#fff;cursor:pointer;}' +
-    '@media print{@page{size:13.333in 7.5in;margin:0;}body{background:#fff;}' +
+    '@media print{@page{size:13.333in 7.5in;margin:0;}html,body{background:#fff!important;}body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}' +
     '.head,.toolbar,.page-idx{display:none !important;}' +
     '.wrap{max-width:none;padding:0;}' +
-    '.page{page-break-after:always;margin:0;}' +
-    '.board{box-shadow:none;width:100%;aspect-ratio:16/9;}}' +
+    '.page{page-break-after:always;margin:0;width:100%;height:100vh;break-after:page;}' +
+    '.page:last-child{page-break-after:auto;break-after:auto;}' +
+    '.board{box-shadow:none!important;border-radius:0;width:100%;height:auto;aspect-ratio:16/9;overflow:hidden;}' +
+    '.board .vchart-canvas-wrap{height:92px;min-height:92px;}' +
+    '.vchart-export-image{image-rendering:auto;}' +
+    '}' +
+    '@media(max-width:900px){.wrap{padding:12px 8px;}.board .vchart-suite{grid-template-columns:repeat(3,minmax(0,1fr));}}' +
     '</style></head><body>' +
     '<div class="head"><h1>' + escapeHTML(title) + '</h1><p>' + escapeHTML(state.meta.projectSubtitle||"") + '</p><div style="margin-top:8px;font-size:11px;opacity:.9;">تیم پاور شرکت نقش اول کیفیت (NAK) · <a href="https://www.nak-mci.ir" target="_blank" rel="noopener" style="color:#fff;">nak-mci.ir</a></div></div>' +
     '<div class="toolbar"><button onclick="window.print()">🖨 چاپ / ذخیره PDF</button></div>' +
