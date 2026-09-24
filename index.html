@@ -399,24 +399,6 @@
   .vchart-metric span{display:block;font-size:8.5px;color:var(--ink-soft);margin-top:1px;}
   .vchart-empty{height:100%;display:flex;align-items:center;justify-content:center;color:var(--ink-soft);font-size:12px;font-weight:800;}
   .vchart-threshold-note{padding:7px 9px;font-size:9px;color:var(--ink-soft);line-height:1.7;border-top:1px dashed var(--line);}
-  /* Chart slide preview must fit inside the fixed 16:9 board. Keep the full chart UI in the editor,
-     but use a compact, non-clipping presentation inside the board preview. */
-  .board .vchart-suite{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin-top:3px;}
-  .board .vchart-card{min-width:0;border-radius:6px;box-shadow:none;}
-  .board .vchart-head{display:block;padding:4px 5px;min-height:26px;}
-  .board .vchart-head .vch-title{font-size:7px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .board .vchart-head .vch-sub{display:none;}
-  .board .vchart-actions{display:none;}
-  .board .vchart-canvas-wrap{height:92px;min-height:92px;}
-  .board .vchart-legend{display:none;}
-  .board .vchart-metrics{grid-template-columns:repeat(2,1fr);gap:2px;padding:3px;}
-  .board .vchart-metric{padding:2px 3px;border-radius:3px;}
-  .board .vchart-metric b{font-size:6.5px;}
-  .board .vchart-metric span{font-size:5px;}
-  .board .vchart-threshold-note{font-size:5.5px;line-height:1.35;padding:3px 4px;max-height:22px;overflow:hidden;}
-  .board .voltage-note:last-child{display:none;}
-  .board .voltage-summary{display:none;}
-  @media(max-width:900px){.board .vchart-suite{grid-template-columns:1fr;}.board .vchart-canvas-wrap{height:82px;min-height:82px;}}
   .vchart-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
   @media(max-width:560px){
     .vchart-grid{grid-template-columns:1fr;}
@@ -498,14 +480,14 @@
   .jdp-clear{background:var(--paper);color:var(--ink);border:1.5px solid var(--line);}
   .jdp-ok{background:var(--accent);color:#fff;}
 </style>
-<meta name="template-data-policy" content="empty-input-template"><meta name="template-version" content="7.3.1-preview-html-fix">
+<meta name="template-data-policy" content="empty-input-template"><meta name="template-version" content="7.3.2-chart-fit">
 </head>
 <body>
 
 <header class="appbar">
   <button class="icon-btn" id="btnSettings" aria-label="تنظیمات">⚙️</button>
   <div class="brand">
-    <b>سامانه حرفه‌ای گزارش نصب باتری <span class="version-badge">v7.3.1 Chart Pro · Preview+HTML Fix</span></b>
+    <b>سامانه حرفه‌ای گزارش نصب باتری <span class="version-badge">v7.3.2 Chart Fit · Flex/Container</span></b>
     <span id="brandSub">تیم پاور شرکت نقش اول کیفیت (NAK) · nak-mci.ir</span>
   </div>
   <a class="company-link" href="https://www.nak-mci.ir" target="_blank" rel="noopener noreferrer">NAK ↗</a>
@@ -729,14 +711,15 @@ window.LOGO_RIGHT_DEFAULT = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.o
 
 <script>
 /* ============================================================================
-   قالب‌ساز گزارش پاورپوینت — نسخه ۵.۷
+   قالب‌ساز گزارش پاورپوینت — نسخه ۷.۳.۲ (Chart Fit)
    - ذخیره‌سازی IndexedDB با fallback به localStorage
    - فشرده‌سازی تک‌مرحله‌ای روی canvas (WebP/JPEG، کیفیت انطباقی)
    - حداکثر ۴ تصویر در هر اسلاید
    - سرریز خودکار تصاویر به اسلایدهای جدید
-   - چیدمان هوشمند بر اساس نسبت ابعاد (پرتره: افقی، منظره: 2x2)
+   - چیدمان هوشمند بر اساس نسبت ابعاد
    - لیبل زرد مایل به نارنجی با outline تیره
    - انتخاب نسبت فریم: ۱۶:۹ افقی / ۱۶:۹ عمودی / ۱:۱ مربع
+   - ★ مقیاس‌بندی خودکار جدول‌ها و نمودارها با container query و flex
    ============================================================================ */
 (function(){
 "use strict";
@@ -880,7 +863,6 @@ function voltageCalc(slide){
     var min0=all0.length?Math.min.apply(null,all0):null;
     var dropAll=[]; Object.keys(banks).forEach(function(k){if(banks[k].dropPct!=null)dropAll.push(banks[k].dropPct);});
     var avgDrop=dropAll.length?dropAll.reduce(function(a,v){return a+v;},0)/dropAll.length:0;
-    /* معیار کاربر: شروع معمولاً بالای ۱۳V، پس از ۶۰ دقیقه بالای ۱۱V؛ بانک ۴۴–۵۴V */
     score=100;
     if(min0!=null && min0<12.8){score-=20; reasons.push("ولتاژ اولیه یک یا چند باتری زیر ۱۲٫۸V (شارژ کامل معمولاً >۱۳V)");}
     if(min60<11.0){score-=40; reasons.push("ولتاژ نهایی یک یا چند باتری زیر ۱۱٫۰V (حداقل قابل قبول پس از ۱ ساعت)");}
@@ -889,7 +871,6 @@ function voltageCalc(slide){
     else if(imb>0.30){score-=12; reasons.push("عدم بالانس ولتاژ بین باتری‌ها بیش از ۰٫۳۰V");}
     if(avgDrop>15){score-=20; reasons.push("افت متوسط ولتاژ تا ۶۰ دقیقه بیش از ۱۵٪");}
     else if(avgDrop>10){score-=10; reasons.push("افت متوسط ولتاژ تا ۶۰ دقیقه بیش از ۱۰٪");}
-    /* بررسی محدوده بانک (۴ باتری × ~۱۱–۱۳٫۵ ≈ ۴۴–۵۴V) */
     Object.keys(banks).forEach(function(k){
       var s0=banks[k].series[0], s60=banks[k].series[60];
       if(s0 && s0.sum!=null){
@@ -906,7 +887,7 @@ function voltageCalc(slide){
 function healthClass(status){return status.indexOf("مناسب")>=0?"health-good":status.indexOf("پایش")>=0?"health-warn":"health-bad";}
 function getVoltageSlide(){ return state.slides.find(function(s){ return s.layout==="voltage"; }); }
 
-/* رسم نمودار خطی با Canvas برای جاسازی در PPTX (قابل‌اعتمادتر از موتور چارت کتابخانه) */
+/* رسم نمودار خطی با Canvas برای جاسازی در PPTX */
 function renderLineChartImage(seriesList, opts){
   opts=opts||{};
   var W=opts.width||900,H=opts.height||420,padL=62,padR=24,padT=44,padB=58;
@@ -1019,11 +1000,11 @@ function drawAdvancedVoltageChart(canvas, tip, seriesList, opts){
   var rect = wrap ? wrap.getBoundingClientRect() : { width: 320, height: 220 };
   var dpr = Math.min(2, window.devicePixelRatio || 1);
   var cssW = Math.max(120, Math.floor(rect.width || 320));
-  var cssH = Math.max(100, Math.floor(rect.height || 220));
+  var cssH = Math.max(80, Math.floor(rect.height || 220));
   canvas.width = Math.floor(cssW * dpr);
   canvas.height = Math.floor(cssH * dpr);
-  canvas.style.width = cssW + "px";
-  canvas.style.height = cssH + "px";
+  /* ★ توجه: عرض و ارتفاع canvas دیگر به‌صورت inline تنظیم نمی‌شود.
+     CSS با width:100%;height:100% آن را درون کانتینر Flex پر می‌کند. */
   var ctx = canvas.getContext("2d");
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, cssW, cssH);
@@ -1046,7 +1027,7 @@ function drawAdvancedVoltageChart(canvas, tip, seriesList, opts){
   }
 
   var isBank = kind === "bank";
-  var padL = 36, padR = 10, padT = 12, padB = 28;
+  var padL = 34, padR = 8, padT = 10, padB = 24;
   var plotW = cssW - padL - padR, plotH = cssH - padT - padB;
   var minV, maxV;
   if(isBank){
@@ -1142,6 +1123,8 @@ function voltageBoardHTML(slide){
   }
   bankKeys.forEach(function(bk){
     var bcalc = calc.banks[bk];
+    /* ★ هر جدول در یک wrapper flex قرار می‌گیرد تا ارتفاع منصفانه بگیرد */
+    h += '<div class="vb-table-wrap">';
     h += '<table class="vb-table"><thead><tr><th colspan="' + (times.length+3) + '">بانک ' + bk + ' · 48V</th></tr>';
     h += '<tr><th>باتری</th>' + times.map(function(t){ return '<th>'+t+'</th>'; }).join('') + '<th>Avg</th><th>Δ</th></tr></thead><tbody>';
     banksMap[bk].sort(function(a,b){ return a.battery - b.battery; }).forEach(function(r){
@@ -1165,7 +1148,7 @@ function voltageBoardHTML(slide){
       });
       h += '<td>—</td><td>' + (bcalc.dropPct!=null?bcalc.dropPct.toFixed(1)+'%':'—') + '</td></tr>';
     }
-    h += '</tbody></table>';
+    h += '</tbody></table></div>';
   });
   h += '</div>';
   return h;
@@ -1231,12 +1214,24 @@ function initAdvancedVoltageCharts(root){
       });
       canvas.addEventListener("mouseleave",function(){tip.style.display="none";});
       window.addEventListener("resize",redraw);
+      /* ★ ResizeObserver: با هر تغییر اندازه کانتینر (باز شدن پیش‌نمایش/تغییر چیدمان)، نمودار دوباره کشیده می‌شود */
+      if(typeof ResizeObserver !== "undefined"){
+        try{
+          var ro = new ResizeObserver(function(){
+            clearTimeout(canvas._roTimer);
+            canvas._roTimer = setTimeout(function(){
+              try{ redraw(); }catch(e){}
+            }, 80);
+          });
+          ro.observe(canvas.parentNode);
+          canvas._ro = ro;
+        }catch(e){}
+      }
       buildLegend();updateMetrics();redraw();
       }catch(err){
         canvas.dataset.ready="0";
         canvas.style.display="none";
         if(tip) tip.style.display="none";
-        /* Do not let chart rendering make the selected slide disappear. */
         var fallback=card.querySelector(".vchart-canvas-wrap");
         if(fallback && !fallback.querySelector(".vchart-empty")){
           var msg=document.createElement("div"); msg.className="vchart-empty"; msg.textContent="نمودار پس از تکمیل داده‌های تست نمایش داده می‌شود."; fallback.appendChild(msg);
@@ -1286,7 +1281,6 @@ function vCellClass(v, isBank){
     if(v > 55) return "health-warn";
     return "health-good";
   }
-  /* باتری ۱۲V: خوب ≥۱۲٫۸ شروع / ≥۱۱٫۰ پایان؛ زرد ۱۱–۱۲٫۸؛ قرمز <۱۱ */
   if(v < 11.0) return "health-bad";
   if(v < 12.0) return "health-warn";
   return "health-good";
@@ -1299,7 +1293,6 @@ function voltageInputHTML(slide){
   h+='<div class="voltage-kpi"><b>'+(calc.avg60!=null?calc.avg60.toFixed(2):'—')+' V</b><span>میانگین نهایی</span></div>';
   h+='<div class="voltage-kpi"><b class="'+healthClass(calc.status)+'">'+(calc.score==null?'—':calc.score+' / 100')+'</b><span>شاخص سلامت</span></div></div>';
 
-  /* جداول جداگانه برای هر بانک */
   var banksMap={};
   (slide.rows||[]).forEach(function(r){ if(!banksMap[r.bank]) banksMap[r.bank]=[]; banksMap[r.bank].push(r); });
   Object.keys(banksMap).sort(function(a,b){return +a-+b;}).forEach(function(bk){
@@ -1319,7 +1312,6 @@ function voltageInputHTML(slide){
       });
       h+='<td class="'+(av!=null?vCellClass(av,false):'')+'">'+(av!=null?av.toFixed(2):'—')+'</td><td>'+(d!=null?d.toFixed(2):'—')+'</td><td class="'+cls+'">'+(d==null?'—':d>2.0?'بررسی':d>1.2?'پایش':'مناسب')+'</td></tr>';
     });
-    /* ردیف مجموع و میانگین بانک */
     if(bcalc){
       var totVals=times.map(function(t){return bcalc.series[t]&&bcalc.series[t].sum!=null?bcalc.series[t].sum:null;});
       var avgVals=times.map(function(t){return bcalc.series[t]&&bcalc.series[t].avg!=null?bcalc.series[t].avg:null;});
@@ -1416,7 +1408,6 @@ function buildVoltageEditor(slide){
       dr.className = drop==null?'':(drop>2.0?'health-bad':drop>1.2?'health-warn':'health-good');
     }
     if(badge) badge.textContent=vals.length+'/'+times.length+' ثبت';
-    /* رنگ‌آمیزی ورودی‌ها بر اساس مقدار */
     card.querySelectorAll('input[data-vtime]').forEach(function(inp){
       var v = num(inp.value);
       inp.classList.remove('health-good','health-warn','health-bad');
@@ -1562,8 +1553,6 @@ var STORAGE_IMG_MAX_KB    = 450;
 var IMG_QUALITY_START     = 0.90;
 var IMG_QUALITY_MIN       = 0.70;
 var SOFT_LIMIT            = 10 * 1024 * 1024;
-
-/* ★ حداکثر ۴ تصویر در هر اسلاید؛ مازاد خودکار به اسلاید بعد منتقل می‌شود */
 var MAX_IMAGES = 4;
 
 var _webpSupport = null;
@@ -1647,12 +1636,13 @@ function idbEstimate(){
 }
 
 /* ============================================================================
-   CSS اسلاید
+   CSS اسلاید — با Container Query برای مقیاس‌بندی نسبی صحیح
    ============================================================================ */
 var BOARD_CSS = [
-  ".board-wrap{width:100%;}",
+  ".board-wrap{width:100%;container-type:inline-size;}",
+  /* font-size روی board = عرض کانتینر (100cqw). پس هر «%» = % عرض اسلاید */
   ".board{position:relative;width:100%;aspect-ratio:16/9;background:#fff;border-radius:6px;overflow:hidden;",
-  "box-shadow:0 1px 6px rgba(0,0,0,.18);direction:rtl;font-family:Vazirmatn,Tahoma,sans-serif;}",
+  "box-shadow:0 1px 6px rgba(0,0,0,.18);direction:rtl;font-family:Vazirmatn,Tahoma,sans-serif;font-size:100cqw;}",
   ".board .bar-top{position:absolute;top:0;left:0;right:0;height:5.6%;background:var(--b-primary);}",
   ".board .bar-bottom{position:absolute;bottom:0;left:0;right:0;height:3%;background:var(--b-primary);}",
   ".board .logo{position:absolute;top:7.2%;width:9%;aspect-ratio:1;background:#fff;border-radius:18%;box-shadow:0 1px 4px rgba(0,0,0,.16);}",
@@ -1662,8 +1652,10 @@ var BOARD_CSS = [
   ".board .b-title{position:absolute;top:7%;left:13%;right:13%;text-align:center;font-weight:800;color:var(--b-accent);line-height:1.35;font-size:4.6%;}",
   ".board .b-note{position:absolute;left:6%;right:6%;text-align:center;color:#5c6470;font-size:2.7%;line-height:1.55;font-weight:500;}",
   ".board .b-content{position:absolute;left:5%;right:5%;bottom:6%;overflow:hidden;}",
-  ".board .b-table{width:100%;border-collapse:collapse;font-size:3.05%;}",
-  ".board .b-table td{border:1px solid #d5dbe3;padding:1.6% 2%;}",
+  /* جدول اطلاعات: wrapper flex + جدول height:100% */
+  ".board .b-table-fit{width:100%;height:100%;overflow:hidden;}",
+  ".board .b-table{width:100%;height:100%;border-collapse:collapse;font-size:2.2%;table-layout:fixed;line-height:1.15;}",
+  ".board .b-table td{border:1px solid #d5dbe3;padding:0.4% 1%;overflow:hidden;text-overflow:ellipsis;}",
   ".board .b-table td.lab{background:var(--b-accent-soft);font-weight:700;color:#213041;width:22%;}",
   ".board .b-table td.val{background:#fff;color:#333;width:28%;text-align:center;}",
   ".board .b-photos{display:grid;gap:0.5%;width:100%;height:100%;box-sizing:border-box;}",
@@ -1689,21 +1681,45 @@ var BOARD_CSS = [
   ".board.cover .b-extra{position:absolute;top:60%;left:10%;right:10%;text-align:center;font-size:3%;color:#7c8390;}",
   ".board.cover .b-mark{position:absolute;top:24%;left:50%;transform:translateX(-50%);width:14%;aspect-ratio:1;",
   "border-radius:50%;background:var(--b-accent-soft);display:flex;align-items:center;justify-content:center;font-size:6%;}",
-  ".board .vb-board{width:100%;height:100%;overflow:hidden;display:flex;flex-direction:column;gap:1.2%;}",
-  ".board .vb-status{font-size:2.4%;font-weight:800;text-align:center;padding:0.6% 1%;border-radius:4px;background:#f3f6fa;}",
+
+  /* ===== جدول ولتاژ درون اسلاید — flex برای پخش ارتفاع ===== */
+  ".board .vb-board{width:100%;height:100%;overflow:hidden;display:flex;flex-direction:column;gap:0.5%;}",
+  ".board .vb-status{font-size:1.6%;font-weight:800;text-align:center;padding:0.5% 1%;border-radius:0.4%;background:#f3f6fa;flex:0 0 auto;}",
   ".board .vb-status.health-good{color:#00823f;background:#e8f5e9;}",
   ".board .vb-status.health-warn{color:#e08b1a;background:#fff8e1;}",
   ".board .vb-status.health-bad{color:#d6483f;background:#fdecea;}",
-  ".board .vb-empty{font-size:2.8%;color:#98a2b0;text-align:center;padding-top:8%;}",
-  ".board .vb-table{width:100%;border-collapse:collapse;font-size:1.85%;table-layout:fixed;margin-bottom:0.8%;}",
-  ".board .vb-table th,.board .vb-table td{border:1px solid #d5dbe3;padding:0.35% 0.2%;text-align:center;white-space:nowrap;overflow:hidden;}",
-  ".board .vb-table thead tr:first-child th{background:var(--b-accent);color:#fff;font-weight:800;font-size:2%;}",
+  ".board .vb-empty{font-size:1.6%;color:#98a2b0;text-align:center;padding-top:8%;}",
+  ".board .vb-table-wrap{flex:1 1 0;min-height:0;overflow:hidden;}",
+  ".board .vb-table{width:100%;height:100%;border-collapse:collapse;font-size:1.05%;table-layout:fixed;margin:0;line-height:1.1;}",
+  ".board .vb-table th,.board .vb-table td{border:1px solid #d5dbe3;padding:0.2% 0.15%;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}",
+  ".board .vb-table thead tr:first-child th{background:var(--b-accent);color:#fff;font-weight:800;font-size:1.2%;}",
   ".board .vb-table thead tr:last-child th{background:var(--b-accent-soft);color:#1565c0;font-weight:700;}",
   ".board .vb-table td.lab{font-weight:800;background:#f7f9fb;}",
   ".board .vb-table tr.tot td{font-weight:800;background:#eef6ff;}",
   ".board .vb-table td.health-good{background:#e8f5e9;color:#1b5e20;}",
   ".board .vb-table td.health-warn{background:#fff8e1;color:#e65100;}",
-  ".board .vb-table td.health-bad{background:#fdecea;color:#c62828;}"
+  ".board .vb-table td.health-bad{background:#fdecea;color:#c62828;}",
+
+  /* ===== نمودارهای ولتاژ درون اسلاید — Grid/Flex ===== */
+  ".board .voltage-wrap{display:flex;flex-direction:column;height:100%;gap:0;width:100%;}",
+  ".board .voltage-summary{display:none;}",
+  ".board .vchart-suite{",
+  "display:grid;grid-template-columns:repeat(3,minmax(0,1fr));",
+  "gap:0.6%;flex:1 1 auto;min-height:0;margin-top:0.4%;}",
+  ".board .vchart-card{min-width:0;border-radius:0.5%;box-shadow:none;display:flex;flex-direction:column;overflow:hidden;background:#fff;border:1px solid var(--b-accent-soft);}",
+  ".board .vchart-head{display:block;padding:0.5% 0.7%;min-height:0;flex:0 0 auto;border-bottom:1px solid var(--b-accent-soft);background:linear-gradient(180deg,#fff,#f5f6f8);}",
+  ".board .vchart-head .vch-title{font-size:1.15%;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:900;color:#1c2230;}",
+  ".board .vchart-head .vch-sub{display:none;}",
+  ".board .vchart-actions{display:none;}",
+  ".board .vchart-canvas-wrap{flex:1 1 auto;min-height:0;height:auto;position:relative;background:#fff;}",
+  ".board .vchart-canvas{width:100%;height:100%;display:block;touch-action:none;}",
+  ".board .vchart-legend{display:none;}",
+  ".board .vchart-metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:0.25%;padding:0.3%;flex:0 0 auto;border-top:1px solid var(--b-accent-soft);}",
+  ".board .vchart-metric{padding:0.3% 0.4%;border-radius:0.3%;background:#f5f6f8;border:1px solid var(--b-accent-soft);text-align:center;min-width:0;}",
+  ".board .vchart-metric b{display:block;font-size:0.9%;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}",
+  ".board .vchart-metric span{display:block;font-size:0.65%;color:#5b6472;margin-top:0.1%;}",
+  ".board .vchart-threshold-note{font-size:0.7%;line-height:1.35;padding:0.4% 0.6%;flex:0 0 auto;overflow:hidden;border-top:1px dashed var(--b-accent-soft);color:#5b6472;}",
+  ".board .voltage-wrap > .voltage-note:last-child{display:none;}"
 ].join("");
 (function injectBoardCSS(){
   var st = document.createElement("style");
@@ -1801,7 +1817,6 @@ function migrateState(parsed){
       voltageSpec: s.voltageSpec || null
     };
   });
-  // مهاجرت جدول قدیمی تست ولتاژ به ساختار جدید ۶ نقطه زمانی
   out.slides.forEach(function(s){
     if(s.autoFromBatteryCount && s.layout === "table"){
       var legacy = s.rows || [], maxBank=0;
@@ -1814,7 +1829,6 @@ function migrateState(parsed){
         var parts=String(old[k]).split(/\s*\/\s*|\s*,\s*/); [0,5,15,30,45,60].forEach(function(t,i){if(parts[i]!=null && parts[i]!=="") r.values[t]=parts[i];});
       });
     }
-    /* تبدیل اسلاید متنی قدیمی «تحلیل سلامت» به اسلاید نمودار */
     if(s.layout === "text" && /تحلیل سلامت|Health Assessment|سلامت باتری/i.test(s.title||"")){
       s.layout = "voltage-chart";
       s.title = "نمودارهای افت ولتاژ — Voltage Drop Charts";
@@ -1823,7 +1837,6 @@ function migrateState(parsed){
       s.isVoltageChart = true;
     }
   });
-  /* اگر اسلاید تست ولتاژ هست ولی اسلاید نمودار نیست، اضافه کن */
   var hasVoltage = out.slides.some(function(s){ return s.layout === "voltage"; });
   var hasChart = out.slides.some(function(s){ return s.layout === "voltage-chart"; });
   if(hasVoltage && !hasChart){
@@ -2259,9 +2272,7 @@ function isPortraitImage(im){
 }
 
 /* ============================================================================
-   ★★★ چیدمان هوشمند گرید تصاویر
-   - تصاویر پرتره (بلند): چیدمان افقی (ستون‌های بیشتر، ردیف کمتر)
-   - تصاویر منظره/مربع: چیدمان 2x2
+   چیدمان هوشمند گرید تصاویر
    ============================================================================ */
 function photoGridConfig(n, images){
   images = images || [];
@@ -2325,8 +2336,10 @@ function boardHTML(slide, meta, opts){
 }
 function tableHTML(rows){
   rows = (rows||[]).filter(function(r){ return (r.label && r.label.trim()) || (r.value && r.value.trim()); });
-  if(!rows.length) return '<div style="font-size:3.2%;color:#a6adba;text-align:center;padding-top:8%;">ردیف جدول اضافه نشده</div>';
-  var h = '<table class="b-table">';
+  if(!rows.length){
+    return '<div class="b-table-fit"><div style="font-size:3.2%;color:#a6adba;text-align:center;padding-top:8%;">ردیف جدول اضافه نشده</div></div>';
+  }
+  var h = '<div class="b-table-fit"><table class="b-table">';
   for(var i=0; i<rows.length; i+=2){
     var a = rows[i], b = rows[i+1];
     h += '<tr>';
@@ -2335,7 +2348,7 @@ function tableHTML(rows){
     else  h += '<td class="lab"></td><td class="val"></td>';
     h += '</tr>';
   }
-  h += '</table>';
+  h += '</table></div>';
   return h;
 }
 function photosHTML(images, slide){
@@ -3046,7 +3059,6 @@ async function captureCameraImage(){
   var slide = cameraState.slide, video = document.getElementById("cameraVideo");
   if(!slide || !video || !video.videoWidth || !video.videoHeight) return;
 
-  /* ★ سرریز خودکار: اگر اسلاید پر است، اسلاید جدید بساز */
   var createdNew = false;
   if((slide.images||[]).length >= MAX_IMAGES){
     slide = createOverflowPhotoSlide(slide);
@@ -3275,7 +3287,7 @@ function initCropHandlers(){
 }
 
 /* ============================================================================
-   ★★★ پردازش فایل‌های گالری با سرریز خودکار به اسلاید جدید
+   پردازش فایل‌های گالری با سرریز خودکار به اسلاید جدید
    ============================================================================ */
 async function handlePhotoFiles(slide, files){
   if(!files || !files.length) return;
@@ -3285,7 +3297,6 @@ async function handlePhotoFiles(slide, files){
   var lastSlideId = slide.id;
 
   for(var i=0; i<files.length; i++){
-    /* ★ اگر اسلاید فعلی پر است، اسلاید جدید بساز */
     if((currentSlide.images||[]).length >= MAX_IMAGES){
       currentSlide = createOverflowPhotoSlide(currentSlide);
       createdNew++;
@@ -3344,7 +3355,7 @@ async function handlePhotoFiles(slide, files){
     added++;
   }
 
-  openId = slide.id;   /* اسلاید اصلی باز بماند */
+  openId = slide.id;
   commit(); renderSlidesList();
 
   if(added){
@@ -3365,7 +3376,6 @@ function buildPhotosEditor(slide){
   var grid = document.createElement("div");
   grid.className = "img-grid";
 
-  /* ردیف انتخاب نسبت فریم گالری */
   var aspectRow = document.createElement("div");
   aspectRow.className = "photo-aspect-row";
   aspectRow.style.gridColumn = "1/-1";
@@ -3396,7 +3406,6 @@ function buildPhotosEditor(slide){
   });
   grid.appendChild(aspectRow);
 
-  /* ★ نمایش هشدار پر بودن اسلاید */
   if(slide.images.length >= MAX_IMAGES){
     var fullHint = document.createElement("div");
     fullHint.className = "photo-full-hint";
@@ -3447,7 +3456,6 @@ function buildPhotosEditor(slide){
     grid.appendChild(item);
   });
 
-  /* ★ دکمه‌های افزودن همیشه نمایش داده می‌شوند (سرریز خودکار) */
   var actions=document.createElement("div");
   actions.style.gridColumn="1/-1";
   actions.className="photo-actions";
@@ -3680,10 +3688,10 @@ function cellOpt(text, isLabel, softColor){
 function voltageCellColor(v, isBank){
   if(v == null) return { bg: "FFFFFF", fg: "333333" };
   if(isBank){
-    if(v < 44) return { bg: "FDECEA", fg: "C62828" };      // bad
-    if(v < 48) return { bg: "FFF8E1", fg: "E65100" };      // warn
+    if(v < 44) return { bg: "FDECEA", fg: "C62828" };
+    if(v < 48) return { bg: "FFF8E1", fg: "E65100" };
     if(v > 55) return { bg: "FFF8E1", fg: "E65100" };
-    return { bg: "E8F5E9", fg: "1B5E20" };                 // good
+    return { bg: "E8F5E9", fg: "1B5E20" };
   }
   if(v < 11.0) return { bg: "FDECEA", fg: "C62828" };
   if(v < 12.0) return { bg: "FFF8E1", fg: "E65100" };
@@ -3707,7 +3715,7 @@ function addPlaceholder(pres, s, x, y, w, h, title, sub){
 }
 function layoutPhotosOnSlide(pres, s, imgs, x, y, w, h){
   var n = imgs.length;
-  var cfg = photoGridConfig(n, imgs);   /* ★ نسبت‌آگاه */
+  var cfg = photoGridConfig(n, imgs);
   var cols = cfg.cols, rows = cfg.rows;
   var gap = 0.08;
   var cellW = (w - gap*(cols-1)) / cols;
@@ -3823,7 +3831,6 @@ async function exportPPTX(){
             row.push(vCell(drop==null?"—":drop.toFixed(2), drop!=null?(13-drop):null, false, false));
             vt.push(row);
           });
-          /* Total row */
           var totVals = [0,5,15,30,45,60].map(function(t){return b.series[t]?b.series[t].sum:null;});
           var totRow = [vCell("BANK "+bk+" TOTAL", null, true, true)];
           totVals.forEach(function(v){ totRow.push(vCell(v==null?"—":v.toFixed(2), v, true, false)); });
@@ -3848,7 +3855,6 @@ async function exportPPTX(){
           var cats = times.map(String);
           var chartColors = ["00A651","2F6FB5","E08B1A","D6483F","7B2D8E","00897B","5D4037","C2185B","455A64","F57C00","1565C0","6A1B9A"];
 
-          /* ۱. نمودار هر باتری — با Canvas */
           var batSeries = [];
           (vSlide.rows||[]).forEach(function(r){
             var vals = times.map(function(t){ return num(r.values && r.values[t]); });
@@ -3866,7 +3872,6 @@ async function exportPPTX(){
             s.addImage({ data: img1, x: 0.30, y: contentTop, w: 6.35, h: 2.50 });
           } catch(e){ console.warn(e); s.addText("خطا در نمودار باتری", {x:0.5,y:contentTop+1,w:6,h:0.3,fontSize:11,color:"D6483F",align:"center"}); }
 
-          /* ۲. نمودار هر بانک */
           var bankSeries = [];
           Object.keys(vc.banks).sort(function(a,b){return +a-+b;}).forEach(function(bk){
             var b = vc.banks[bk];
@@ -3885,7 +3890,6 @@ async function exportPPTX(){
             s.addImage({ data: img2, x: 6.80, y: contentTop, w: 6.20, h: 2.50 });
           } catch(e){ console.warn(e); s.addText("خطا در نمودار بانک", {x:7,y:contentTop+1,w:5.8,h:0.3,fontSize:11,color:"D6483F",align:"center"}); }
 
-          /* ۳. نمودار کلی سایت */
           var siteVals = times.map(function(t){
             var vs = (vSlide.rows||[]).map(function(r){ return num(r.values && r.values[t]); }).filter(function(v){ return v != null; });
             return vs.length ? +(vs.reduce(function(a,v){return a+v;},0)/vs.length).toFixed(3) : null;
@@ -3970,11 +3974,8 @@ async function buildExportHTML(){
   }).join("");
 
   /* 
-     Render the export once inside the current document before serializing it.
-     This is important for voltage-chart slides because Canvas elements are not
-     persisted when only boardHTML() is serialized. The charts are converted
-     to self-contained PNG data URLs, so both HTML and browser-print/PDF show
-     exactly the same chart image as the PPTX rendering.
+     برای اینکه نمودارهای Canvas در خروجی HTML ثابت شوند، یک‌بار در سند جاری رندر می‌کنیم
+     و سپس Canvas ها را با تصویر PNG جایگزین می‌کنیم.
   */
   var renderHost = document.createElement("div");
   renderHost.style.cssText =
@@ -3988,7 +3989,7 @@ async function buildExportHTML(){
     await new Promise(function(resolve){
       requestAnimationFrame(function(){
         requestAnimationFrame(function(){
-          setTimeout(resolve, 80);
+          setTimeout(resolve, 120);
         });
       });
     });
@@ -4032,7 +4033,6 @@ async function buildExportHTML(){
       }
     }
 
-    /* Export is presentation-oriented: interactive editor controls are hidden. */
     var controls = renderHost.querySelectorAll(".vchart-actions");
     for(var ai=0; ai<controls.length; ai++) controls[ai].remove();
     var tips = renderHost.querySelectorAll(".vchart-tip");
@@ -4043,53 +4043,25 @@ async function buildExportHTML(){
     if(renderHost.parentNode) renderHost.parentNode.removeChild(renderHost);
   }
 
-  /* The exported HTML must contain all chart/board styles locally. */
+  /* استایل تکمیلی برای خروجی HTML — هماهنگ با BOARD_CSS */
   var chartCss = `
   .vchart-suite{display:flex;flex-direction:column;gap:10px;margin-top:10px;}
-  .vchart-card{border:1px solid var(--line);border-radius:12px;background:var(--card);overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.04);}
-  .vchart-head{display:flex;align-items:center;gap:8px;padding:9px 10px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,var(--card),var(--paper));}
+  .vchart-card{border:1px solid var(--line,#e3e6ec);border-radius:12px;background:#fff;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+  .vchart-head{display:flex;align-items:center;gap:8px;padding:9px 10px;border-bottom:1px solid #e3e6ec;background:linear-gradient(180deg,#fff,#f5f6f8);}
   .vchart-head .vch-title{font-size:12px;font-weight:900;flex:1;}
-  .vchart-head .vch-sub{font-size:9px;color:var(--ink-soft);font-weight:700;white-space:nowrap;}
-  .vchart-canvas-wrap{position:relative;height:260px;min-height:220px;background:var(--card);}
+  .vchart-canvas-wrap{position:relative;height:260px;min-height:220px;background:#fff;}
   .vchart-export-image{width:100%;height:100%;display:block;object-fit:contain;}
-  .vchart-legend{display:flex;gap:5px 9px;flex-wrap:wrap;padding:7px 9px;border-top:1px solid var(--line);background:var(--paper);}
-  .vchart-legend button{border:0;background:transparent;color:var(--ink);padding:3px 4px;border-radius:6px;font-size:9px;font-weight:800;display:inline-flex;align-items:center;gap:5px;}
-  .vchart-dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:0 0 auto;}
   .vchart-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:7px 9px;}
-  .vchart-metric{padding:6px 7px;border-radius:8px;background:var(--paper);border:1px solid var(--line);min-width:0;text-align:center;}
+  .vchart-metric{padding:6px 7px;border-radius:8px;background:#f5f6f8;border:1px solid #e3e6ec;min-width:0;text-align:center;}
   .vchart-metric b{display:block;font-size:11px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .vchart-metric span{display:block;font-size:8.5px;color:var(--ink-soft);margin-top:1px;}
-  .vchart-threshold-note{padding:7px 9px;font-size:9px;color:var(--ink-soft);line-height:1.7;border-top:1px dashed var(--line);}
-  .board .vchart-suite{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin-top:3px;}
-  .board .vchart-card{min-width:0;border-radius:6px;box-shadow:none;}
-  .board .vchart-head{display:block;padding:4px 5px;min-height:26px;}
-  .board .vchart-head .vch-title{font-size:7px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .board .vchart-head .vch-sub{display:none;}
-  .board .vchart-canvas-wrap{height:92px;min-height:92px;}
-  .board .vchart-legend{display:none;}
-  .board .vchart-metrics{grid-template-columns:repeat(2,1fr);gap:2px;padding:3px;}
-  .board .vchart-metric{padding:2px 3px;border-radius:3px;}
-  .board .vchart-metric b{font-size:6.5px;}
-  .board .vchart-metric span{font-size:5px;}
-  .board .vchart-threshold-note{font-size:5.5px;line-height:1.35;padding:3px 4px;max-height:22px;overflow:hidden;}
-  .board .voltage-note:last-child{display:none;}
-  .board .voltage-summary{display:none;}
-  .board .vb-board{width:100%;height:100%;overflow:hidden;display:flex;flex-direction:column;gap:1.2%;}
-  .board .vb-status{font-size:2.4%;font-weight:800;text-align:center;padding:0.6% 1%;border-radius:4px;background:#f3f6fa;}
-  .board .vb-status.health-good{color:#00823f;background:#e8f5e9;}
-  .board .vb-status.health-warn{color:#e08b1a;background:#fff8e1;}
-  .board .vb-status.health-bad{color:#d6483f;background:#fdecea;}
-  .board .vb-empty{font-size:2.8%;color:#98a2b0;text-align:center;padding-top:8%;}
-  .board .vb-table{width:100%;border-collapse:collapse;font-size:1.85%;table-layout:fixed;margin-bottom:0.8%;}
-  .board .vb-table th,.board .vb-table td{border:1px solid #d5dbe3;padding:0.35% 0.2%;text-align:center;white-space:nowrap;overflow:hidden;}
-  .board .vb-table thead tr:first-child th{background:var(--b-accent,#2F6FB5);color:#fff;font-weight:800;font-size:2%;}
-  .board .vb-table thead tr:last-child th{background:var(--b-accent-soft,#eaf2fb);color:#1565c0;font-weight:700;}
-  .board .vb-table td.lab{font-weight:800;background:#f7f9fb;}
-  .board .vb-table tr.tot td{font-weight:800;background:#eef6ff;}
-  .board .vb-table td.health-good{background:#e8f5e9;color:#1b5e20;}
-  .board .vb-table td.health-warn{background:#fff8e1;color:#e65100;}
-  .board .vb-table td.health-bad{background:#fdecea;color:#c62828;}
+  .vchart-metric span{display:block;font-size:8.5px;color:#5b6472;margin-top:1px;}
+  .vchart-threshold-note{padding:7px 9px;font-size:9px;color:#5b6472;line-height:1.7;border-top:1px dashed #e3e6ec;}
 
+  /* درون اسلاید: استایل با container query از BOARD_CSS اعمال می‌شود.
+     در صورت پشتیبانی نشدن container query در مرورگر مقصد، این قواعد پشتیبان عمل می‌کنند. */
+  .board .vchart-canvas-wrap{flex:1 1 auto;min-height:0;height:auto;}
+  .board .vchart-canvas{width:100%;height:100%;display:block;}
+  .board .vchart-suite{grid-template-columns:repeat(3,minmax(0,1fr));}
   `;
 
   return '<!DOCTYPE html>' +
@@ -4118,10 +4090,10 @@ async function buildExportHTML(){
     '.page{page-break-after:always;margin:0;width:100%;height:100vh;break-after:page;}' +
     '.page:last-child{page-break-after:auto;break-after:auto;}' +
     '.board{box-shadow:none!important;border-radius:0;width:100%;height:auto;aspect-ratio:16/9;overflow:hidden;}' +
-    '.board .vchart-canvas-wrap{height:92px;min-height:92px;}' +
+    '.board .vchart-canvas-wrap{flex:1 1 auto;min-height:0;height:auto;}' +
     '.vchart-export-image{image-rendering:auto;}' +
     '}' +
-    '@media(max-width:900px){.wrap{padding:12px 8px;}.board .vchart-suite{grid-template-columns:repeat(3,minmax(0,1fr));}}' +
+    '@media(max-width:900px){.wrap{padding:12px 8px;}}' +
     '</style></head><body>' +
     '<div class="head"><h1>' + escapeHTML(title) + '</h1><p>' + escapeHTML(state.meta.projectSubtitle||"") + '</p><div style="margin-top:8px;font-size:11px;opacity:.9;">تیم پاور شرکت نقش اول کیفیت (NAK) · <a href="https://www.nak-mci.ir" target="_blank" rel="noopener" style="color:#fff;">nak-mci.ir</a></div></div>' +
     '<div class="toolbar"><button onclick="window.print()">🖨 چاپ / ذخیره PDF</button></div>' +
@@ -4559,4 +4531,4 @@ document.addEventListener("DOMContentLoaded", init);
 })();
 </script>
 </body>
-  </html>
+</html>
