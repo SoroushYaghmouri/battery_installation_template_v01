@@ -312,6 +312,38 @@
   input[type=file]{display:none;}
   .hidden{display:none !important;}
   .kbd-hint{font-size:10.5px;color:var(--ink-soft);text-align:center;margin-top:8px;}
+  /* ============ VOLTAGE TEST ============ */
+  .voltage-wrap{display:flex;flex-direction:column;gap:10px;}
+  .voltage-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;}
+  .voltage-kpi{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:8px;min-width:0;}
+  .voltage-kpi b{display:block;font-size:15px;font-weight:800;}
+  .voltage-kpi span{font-size:9.5px;color:var(--ink-soft);font-weight:700;}
+  .voltage-table-scroll{overflow:auto;border:1px solid var(--line);border-radius:10px;background:var(--card);}
+  .voltage-input-table{width:100%;min-width:760px;border-collapse:collapse;font-size:10.5px;direction:ltr;}
+  .voltage-input-table th,.voltage-input-table td{border-bottom:1px solid var(--line);padding:5px;text-align:center;white-space:nowrap;}
+  .voltage-input-table th{background:var(--accent-soft);color:var(--accent);font-weight:800;}
+  .voltage-input-table td:first-child,.voltage-input-table th:first-child{position:sticky;left:0;background:var(--card);z-index:2;font-weight:800;}
+  .voltage-input-table input{width:72px;padding:6px 5px;border:1px solid var(--line);border-radius:7px;background:var(--paper);color:var(--ink);text-align:center;font-size:11px;}
+  .voltage-input-table input:focus{outline:2px solid var(--accent);outline-offset:-1px;}
+  .voltage-row-bank{background:rgba(47,111,181,.06);font-weight:800;}
+  .voltage-row-avg{background:rgba(0,166,81,.06);font-weight:800;}
+  .voltage-row-health{background:rgba(224,139,26,.06);font-weight:800;}
+  .voltage-health-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .voltage-health-card{border:1px solid var(--line);border-radius:10px;padding:9px;background:var(--card);}
+  .voltage-health-card .vh-title{font-size:11px;font-weight:800;margin-bottom:5px;}
+  .voltage-health-card .vh-value{font-size:18px;font-weight:900;}
+  .voltage-health-card .vh-sub{font-size:9.5px;color:var(--ink-soft);line-height:1.6;margin-top:3px;}
+  .health-good{color:var(--primary-deep)}.health-warn{color:var(--warn)}.health-bad{color:var(--danger)}
+  .voltage-note{font-size:10px;color:var(--ink-soft);line-height:1.7;padding:8px 10px;background:var(--paper);border-radius:9px;border:1px dashed var(--line);}
+  .voltage-editor .field{margin-bottom:8px;}
+  .voltage-bank-editor{border:1px solid var(--line);border-radius:11px;padding:9px;margin-top:8px;background:var(--paper);}
+  .voltage-bank-editor h4{margin:0 0 7px;font-size:12px;}
+  .voltage-config-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;}
+  .voltage-config-grid input{width:100%;padding:7px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font-size:11px;}
+  .voltage-config-actions{display:flex;gap:7px;margin-top:8px;}
+  .voltage-config-actions button{flex:1;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--card);font-weight:800;cursor:pointer;}
+  .voltage-graph{height:230px;border:1px solid var(--line);border-radius:10px;background:var(--card);overflow:hidden;}
+  @media(max-width:560px){.voltage-summary{grid-template-columns:repeat(2,1fr)}.voltage-health-grid{grid-template-columns:1fr}.voltage-config-grid{grid-template-columns:1fr 1fr}}
 
   .jdp-overlay{position:fixed;inset:0;background:rgba(10,12,16,.5);z-index:95;display:flex;
     align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .18s;}
@@ -466,6 +498,7 @@
     <div class="lp-grid">
       <div class="lp-item" data-layout="cover"><div class="lp-ic">🏳️</div><b>روی جلد</b><span>عنوان و توضیح مرکزی</span></div>
       <div class="lp-item" data-layout="table"><div class="lp-ic">📋</div><b>جدول اطلاعات</b><span>ردیف‌های برچسب/مقدار</span></div>
+      <div class="lp-item" data-layout="voltage"><div class="lp-ic">🔋</div><b>تست ولتاژ باتری</b><span>۰ تا ۶۰ دقیقه + سلامت</span></div>
       <div class="lp-item" data-layout="photos"><div class="lp-ic">🖼️</div><b>گالری تصاویر</b><span>تا ۴ عکس با زیرنویس</span></div>
       <div class="lp-item" data-layout="text"><div class="lp-ic">📝</div><b>متن توضیحی</b><span>پاراگراف آزاد</span></div>
       <div class="lp-item" data-layout="checklist"><div class="lp-ic">✅</div><b>چک‌لیست</b><span>موارد تیک‌دار</span></div>
@@ -665,17 +698,91 @@ function getGPSLocation(){
 }
 function buildVoltageTestRows(bankCount, cellsPerBank){
   cellsPerBank = cellsPerBank || 4;
+  var times = [0,5,15,30,45,60];
   var rows = [];
   for(var b=1; b<=bankCount; b++){
-    rows.push({ label:"BANK "+b+" Total (0 min)",  type:FIELD.DECIMAL, value:"", unit:"V" });
-    rows.push({ label:"BANK "+b+" Total (5 min)",  type:FIELD.DECIMAL, value:"", unit:"V" });
-    rows.push({ label:"BANK "+b+" Total (30 min)", type:FIELD.DECIMAL, value:"", unit:"V" });
     for(var c=1; c<=cellsPerBank; c++){
-      rows.push({ label:"BANK "+b+" Cell "+c+" (0/5/30)", type:FIELD.TEXT, value:"", placeholder:"0 / 5 / 30" });
+      rows.push({key:"b"+b+"c"+c, bank:b, battery:c, label:"Bank "+b+" Battery "+c, values:{}, type:FIELD.DECIMAL, unit:"V"});
     }
   }
   return rows;
 }
+function ensureVoltageRows(slide, bankCount){
+  var old = {};
+  (slide.rows||[]).forEach(function(r){
+    if(r.key) old[r.key]=r;
+    else if(r.label) old[r.label]=r;
+  });
+  slide.rows = [];
+  for(var b=1;b<=bankCount;b++){
+    for(var c=1;c<=4;c++){
+      var key="b"+b+"c"+c, o=old[key] || old["Bank "+b+" Battery "+c] || {};
+      slide.rows.push({key:key,bank:b,battery:c,label:"Bank "+b+" Battery "+c,values:o.values||{},type:FIELD.DECIMAL,unit:"V"});
+    }
+  }
+}
+function voltageTimes(){ return [0,5,15,30,45,60]; }
+function num(v){ var n=parseFloat(enDigits(String(v==null?"":v))); return isFinite(n)?n:null; }
+function voltageCalc(slide){
+  var times=voltageTimes(), rows=(slide.rows||[]), banks={};
+  rows.forEach(function(r){
+    if(!r.bank) return;
+    if(!banks[r.bank]) banks[r.bank]={batteries:[]};
+    banks[r.bank].batteries.push(r);
+  });
+  Object.keys(banks).forEach(function(bk){
+    var bs=banks[bk].batteries; banks[bk].series={};
+    times.forEach(function(t){
+      var vals=bs.map(function(r){return num(r.values&&r.values[t]);}).filter(function(v){return v!=null;});
+      banks[bk].series[t]=vals.length?{sum:vals.reduce(function(a,v){return a+v;},0),avg:vals.reduce(function(a,v){return a+v;},0)/vals.length,count:vals.length}:null;
+    });
+    var t0=banks[bk].series[0], t60=banks[bk].series[60];
+    banks[bk].dropPct=(t0&&t60&&t0.sum)?Math.max(0,(t0.sum-t60.sum)/t0.sum*100):null;
+    banks[bk].minBattery60=Math.min.apply(null,bs.map(function(r){var v=num(r.values&&r.values[60]);return v==null?99:v;}));
+    banks[bk].imbalance60=(function(){var vals=bs.map(function(r){return num(r.values&&r.values[60]);}).filter(function(v){return v!=null;});return vals.length?Math.max.apply(null,vals)-Math.min.apply(null,vals):null;})();
+  });
+  var all60=[]; rows.forEach(function(r){var v=num(r.values&&r.values[60]);if(v!=null)all60.push(v);});
+  var complete=rows.length>0 && rows.every(function(r){return times.every(function(t){return num(r.values&&r.values[t])!=null;});});
+  var avg60=all60.length?all60.reduce(function(a,v){return a+v;},0)/all60.length:null;
+  var finalStatus="داده کافی نیست", score=null, reasons=[];
+  if(complete){
+    var min60=Math.min.apply(null,all60), max60=Math.max.apply(null,all60), imb=max60-min60;
+    var dropAll=[]; Object.keys(banks).forEach(function(k){if(banks[k].dropPct!=null)dropAll.push(banks[k].dropPct);});
+    var avgDrop=dropAll.length?dropAll.reduce(function(a,v){return a+v;},0)/dropAll.length:0;
+    score=100;
+    if(min60<10.5){score-=45; reasons.push("ولتاژ نهایی یک یا چند باتری زیر 10.5V است");}
+    else if(min60<11.2){score-=25; reasons.push("ولتاژ نهایی پایین یک یا چند باتری");}
+    if(imb>0.60){score-=30; reasons.push("عدم بالانس ولتاژ بین باتری‌ها بیش از 0.60V");}
+    else if(imb>0.30){score-=15; reasons.push("عدم بالانس ولتاژ بین باتری‌ها بیش از 0.30V");}
+    if(avgDrop>12){score-=25; reasons.push("افت متوسط ولتاژ تا 60 دقیقه بیش از 12% است");}
+    else if(avgDrop>8){score-=12; reasons.push("افت متوسط ولتاژ تا 60 دقیقه بیش از 8% است");}
+    score=Math.max(0,score);
+    finalStatus=score>=80?"مناسب / پایدار":score>=60?"نیازمند پایش": "نیازمند بررسی فوری";
+  }
+  return {times:times,banks:banks,avg60:avg60,complete:complete,status:finalStatus,score:score,reasons:reasons,all60:all60};
+}
+function healthClass(status){return status.indexOf("مناسب")>=0?"health-good":status.indexOf("پایش")>=0?"health-warn":"health-bad";}
+function voltageInputHTML(slide){
+  var calc=voltageCalc(slide), times=calc.times, h='<div class="voltage-wrap">';
+  h+='<div class="voltage-summary">';
+  h+='<div class="voltage-kpi"><b>'+((slide.rows||[]).length/4||0)+'</b><span>بانک</span></div>';
+  h+='<div class="voltage-kpi"><b>۴</b><span>باتری / بانک</span></div>';
+  h+='<div class="voltage-kpi"><b>'+(calc.avg60!=null?calc.avg60.toFixed(2):'—')+' V</b><span>میانگین نهایی</span></div>';
+  h+='<div class="voltage-kpi"><b class="'+healthClass(calc.status)+'">'+(calc.score==null?'—':calc.score+' / 100')+'</b><span>شاخص سلامت</span></div></div>';
+  h+='<div class="voltage-table-scroll"><table class="voltage-input-table"><thead><tr><th>Battery</th>'+times.map(function(t){return '<th>'+t+' min<br>V</th>';}).join('')+'<th>Avg</th><th>Δ 0→60</th><th>Health</th></tr></thead><tbody>';
+  (slide.rows||[]).forEach(function(r){var vals=times.map(function(t){return num(r.values&&r.values[t]);});var filled=vals.filter(function(v){return v!=null;});var av=filled.length?filled.reduce(function(a,v){return a+v;},0)/filled.length:null;var d=(vals[0]!=null&&vals[5]!=null)?vals[0]-vals[5]:null;var cls=d!=null&&d>1.5?'health-bad':d!=null&&d>1?'health-warn':'health-good';h+='<tr><td>'+escapeHTML(r.label)+'</td>'+times.map(function(t){return '<td><input inputmode="decimal" type="number" step="0.01" min="0" data-vbank="'+r.bank+'" data-vbattery="'+r.battery+'" data-vtime="'+t+'" value="'+(r.values&&r.values[t]!=null?r.values[t]:'')+'"></td>';}).join('')+'<td>'+ (av!=null?av.toFixed(2):'—')+'</td><td>'+ (d!=null?d.toFixed(2):'—')+'</td><td class="'+cls+'">'+(d==null?'—':d>1.5?'بررسی':d>1?'پایش':'مناسب')+'</td></tr>';});
+  Object.keys(calc.banks).forEach(function(bk){var b=calc.banks[bk], vals=times.map(function(t){return b.series[t]&&b.series[t].sum!=null?b.series[t].sum:null;});h+='<tr class="voltage-row-bank"><td>Bank '+bk+' Total</td>'+vals.map(function(v){return '<td>'+ (v!=null?v.toFixed(2):'—') +'</td>';}).join('')+'<td>'+ (b.series[60]?b.series[60].avg.toFixed(2):'—') +'</td><td>'+ (b.dropPct!=null?b.dropPct.toFixed(1)+'%':'—')+'</td><td>'+ (b.minBattery60<10.5||b.imbalance60>0.6?'بررسی':b.minBattery60<11.2||b.imbalance60>0.3?'پایش':'مناسب')+'</td></tr>';});
+  h+='</tbody></table></div>';
+  h+='<div class="voltage-health-grid"><div class="voltage-health-card"><div class="vh-title">نتیجه خودکار سلامت</div><div class="vh-value '+healthClass(calc.status)+'">'+calc.status+'</div><div class="vh-sub">'+(calc.reasons.length?calc.reasons.join(' • '):'افت ولتاژ، ولتاژ نهایی و بالانس باتری‌ها در محدوده شاخص انتخابی قرار گرفته‌اند.')+'</div></div><div class="voltage-health-card"><div class="vh-title">منطق بررسی</div><div class="vh-sub">شاخص نرم‌افزاری از ولتاژ نهایی ۶۰ دقیقه، افت ۰→۶۰ دقیقه و اختلاف بیشینه ولتاژ باتری‌های یک بانک استفاده می‌کند. این شاخص جایگزین تست ظرفیت استاندارد سازنده نیست.</div></div></div>';
+  h+='<div class="voltage-note">⚠️ برای باتری VRLA/Sealed Lead Acid مقدار نامی هر باتری ۱۲V و بانک چهار‌تایی ۴۸V است. حد قطع دشارژ باید مطابق مدل/سازنده و نرخ دشارژ تعیین شود؛ در مستند Yuasa، حد معمول می‌تواند به نرخ دشارژ وابسته باشد و ۱.۶V/cell به‌عنوان حداقل برای محدودکردن آسیب دائمی ذکر شده است. بنابراین آستانه‌های این داشبورد «غربالگری نگهداری» هستند، نه حکم قطعی ظرفیت باتری.</div>';
+  h+='</div>';return h;
+}
+function buildVoltageEditor(slide){
+  var wrap=document.createElement('div');wrap.className='voltage-editor';
+  wrap.appendChild(fieldText('تعداد بانک‌ها', String((slide.rows||[]).length/4||1), function(v){var n=Math.max(0,parseInt(enDigits(v),10)||0);ensureVoltageRows(slide,n);commit();renderSlidesList();}, 'مثلاً 2'));
+  var info=document.createElement('div');info.className='voltage-note';info.textContent='برای هر بانک دقیقاً ۴ باتری وارد می‌شود. زمان‌های آزمون به‌صورت ثابت ۰، ۵، ۱۵، ۳۰، ۴۵ و ۶۰ دقیقه هستند. مجموع بانک، میانگین باتری‌ها، افت ولتاژ، عدم‌بالانس و نتیجه سلامت خودکار محاسبه می‌شود.';wrap.appendChild(info);return wrap;
+}
+
 
 /* ---------- تقویم شمسی ---------- */
 function _div(a,b){ return Math.floor(a/b); }
@@ -924,6 +1031,7 @@ var BOARD_CSS = [
 
 /* ---------- متادیتا ---------- */
 var LAYOUT_META = {
+  voltage:{icon:"🔋",type:"تست ولتاژ",label:"تست ولتاژ"},
   cover:     { label:"روی جلد",      type:"روی جلد",      icon:"🏳️" },
   table:     { label:"جدول اطلاعات", type:"جدول اطلاعات", icon:"📋" },
   photos:    { label:"گالری تصاویر", type:"گالری تصاویر", icon:"🖼️" },
@@ -937,7 +1045,7 @@ var LEGACY_KEY  = "pptxbuilder_state_v3";
 
 function defaultState(){
   return {
-    version: 5,
+    version: 6,
     meta: {
       projectTitle: "گزارش نصب باتری سایت",
       projectSubtitle: "گزارش نصب و تست باتری",
@@ -954,9 +1062,12 @@ function defaultState(){
 }
 function normalizeRow(r){
   var o = { label: r.label||"", value: r.value||"" };
+  if(r.key) o.key = r.key;
+  if(r.bank != null) o.bank = r.bank;
+  if(r.battery != null) o.battery = r.battery;
+  if(r.values && typeof r.values === "object") o.values = Object.assign({}, r.values);
   if(r.type) o.type = r.type;
   if(r.options) o.options = r.options.slice();
-  if(r.key) o.key = r.key;
   if(r.unit) o.unit = r.unit;
   if(r.placeholder) o.placeholder = r.placeholder;
   if(r.dependsOn) o.dependsOn = r.dependsOn;
@@ -967,7 +1078,7 @@ function migrateState(parsed){
   var base = defaultState();
   if(!parsed || typeof parsed !== "object") return base;
   var out = {
-    version: 5,
+    version: 6,
     meta: Object.assign({}, base.meta, parsed.meta||{}),
     slides: Array.isArray(parsed.slides) ? parsed.slides : []
   };
@@ -1001,8 +1112,23 @@ function migrateState(parsed){
        }) : [],
       checklist: Array.isArray(s.checklist) ? s.checklist.map(function(c){ return { text:c.text||"", done:!!c.done }; }) : [],
       photoAspect: s.photoAspect || "auto",
-      autoFromBatteryCount: !!s.autoFromBatteryCount
+      autoFromBatteryCount: !!s.autoFromBatteryCount,
+      voltageSpec: s.voltageSpec || null
     };
+  });
+  // مهاجرت جدول قدیمی تست ولتاژ به ساختار جدید ۶ نقطه زمانی
+  out.slides.forEach(function(s){
+    if(s.autoFromBatteryCount && s.layout === "table"){
+      var legacy = s.rows || [], maxBank=0;
+      legacy.forEach(function(r){ var m=String(r.label||"").match(/BANK\s*(\d+)/i); if(m) maxBank=Math.max(maxBank,parseInt(m[1],10)||0); });
+      s.layout="voltage"; s.voltageSpec={nominalBatteryV:12,nominalBankV:48,capacityAh:200,batteriesPerBank:4};
+      var old={}; legacy.forEach(function(r){ var m=String(r.label||"").match(/BANK\s*(\d+)\s*Cell\s*(\d+)/i); if(m) old["b"+m[1]+"c"+m[2]]=r.value||""; });
+      ensureVoltageRows(s,maxBank);
+      Object.keys(old).forEach(function(k){
+        var r=s.rows.find(function(x){return x.key===k;}); if(!r) return;
+        var parts=String(old[k]).split(/\s*\/\s*|\s*,\s*/); [0,5,15,30,45,60].forEach(function(t,i){if(parts[i]!=null && parts[i]!=="") r.values[t]=parts[i];});
+      });
+    }
   });
   return out;
 }
@@ -1475,6 +1601,7 @@ function boardHTML(slide, meta, opts){
     }
     inner += '<div class="b-content" style="' + contentTop + ' bottom:8%;">';
     if(slide.layout === "table")          inner += tableHTML(slide.rows);
+    else if(slide.layout === "voltage") inner += voltageInputHTML(slide);
     else if(slide.layout === "photos")    inner += photosHTML(slide.images, slide);
     else if(slide.layout === "checklist") inner += checklistHTML(slide.checklist);
     else if(slide.layout === "text")      inner += '<div class="b-body">' + escapeHTML(slide.body || "متن توضیحی…") + '</div>';
@@ -1539,6 +1666,7 @@ function newSlide(layout){
   var s = { id: uid(), layout: layout, title:"", note:"", body:"", rows:[], images:[], checklist:[], photoAspect:"auto" };
   if(layout === "cover"){ s.title = state.meta.projectTitle || "عنوان گزارش"; s.note = state.meta.projectSubtitle || ""; }
   if(layout === "table"){ s.rows = [{label:"",value:"",type:FIELD.TEXT},{label:"",value:"",type:FIELD.TEXT}]; }
+  if(layout === "voltage"){ s.title="جدول تست ولتاژ — Voltage Test Results"; s.note="۰ / ۵ / ۱۵ / ۳۰ / ۴۵ / ۶۰ دقیقه"; s.rows=[]; ensureVoltageRows(s,0); }
   if(layout === "checklist"){ s.checklist = [{text:"",done:false},{text:"",done:false}]; }
   if(layout === "photos"){ s.title = "گالری تصاویر"; }
   return s;
@@ -1549,6 +1677,7 @@ function slideProgress(s){
     var n = (s.rows||[]).filter(function(r){ return (r.label && r.label.trim()) || (r.value && r.value.trim()); }).length;
     return { ok: n > 0, txt: n + " ردیف" };
   }
+  if(s.layout === "voltage"){ var vc=voltageCalc(s); return {ok:vc.complete,txt:(s.rows||[]).length/4+" بانک · "+vc.status}; }
   if(s.layout === "photos"){
     var c = (s.images||[]).filter(function(i){ return i.data; }).length;
     var full = c >= MAX_IMAGES;
@@ -1602,7 +1731,7 @@ function slideMatches(s, q){
   if(!q) return true;
   q = q.toLowerCase();
   var hay = [s.title, s.note, s.body]
-    .concat((s.rows||[]).map(function(r){ return (r.label||"") + " " + (r.value||""); }))
+    .concat((s.rows||[]).map(function(r){ return (r.label||"") + " " + (r.value||"") + " " + (r.values?Object.keys(r.values).map(function(k){return r.values[k]}).join(" "):""); }))
     .concat((s.checklist||[]).map(function(c){ return c.text||""; }))
     .join(" ").toLowerCase();
   return hay.indexOf(q) >= 0;
@@ -1768,6 +1897,7 @@ function buildEditor(slide){
       function(v){ slide.note = v; refreshOpenCardLive(slide); }, "یک خط توضیح کوتاه"));
   }
   if(slide.layout === "table")          wrap.appendChild(buildRowsEditor(slide));
+  else if(slide.layout === "voltage")   wrap.appendChild(buildVoltageEditor(slide));
   else if(slide.layout === "photos")    wrap.appendChild(buildPhotosEditor(slide));
   else if(slide.layout === "checklist") wrap.appendChild(buildChecklistEditor(slide));
   else if(slide.layout === "text"){
@@ -2043,12 +2173,8 @@ function recalcBanks(infoSlide){
       for(var k=0; k<ro.length; k++) ro[k].value = autoRow.value;
     }
   }
-  var vSlide = state.slides.find(function(s){ return s.autoFromBatteryCount; });
-  if(vSlide){
-    var old = {};
-    (vSlide.rows||[]).forEach(function(r){ old[r.label] = r.value; });
-    vSlide.rows = buildVoltageTestRows(banks, 4).map(function(r){ r.value = old[r.label] || ""; return r; });
-  }
+  var vSlide = state.slides.find(function(s){ return s.autoFromBatteryCount || s.layout === "voltage"; });
+  if(vSlide){ ensureVoltageRows(vSlide, banks); }
   scheduleCommit();
 }
 function buildChecklistEditor(slide){
@@ -2930,7 +3056,18 @@ async function exportPPTX(){
       var contentBottom = showFooter ? 6.95 : 7.20;
       var contentHeight = contentBottom - contentTop;
 
-      if(slide.layout === "table"){
+      if(slide.layout === "voltage") {
+        var vc = voltageCalc(slide);
+        var y0 = contentTop;
+        s.addText("نتیجه سلامت: " + vc.status + (vc.score!=null?" — "+vc.score+"/100":""), {x:0.70,y:y0,w:12,h:0.35,fontSize:13,bold:true,color:vc.status.indexOf("مناسب")>=0?primary:(vc.status.indexOf("پایش")>=0?"E08B1A":"D6483F"),fontFace:"Arial",align:"center",rtlMode:true});
+        y0 += 0.42;
+        var vt = [["Battery","0","5","15","30","45","60","Avg","Δ0-60"]];
+        (slide.rows||[]).forEach(function(r){ var vals=[0,5,15,30,45,60].map(function(t){return num(r.values&&r.values[t]);}); var av=vals.filter(function(v){return v!=null;}); var avg=av.length?av.reduce(function(a,v){return a+v;},0)/av.length:null; vt.push([r.label].concat(vals.map(function(v){return v==null?"—":v.toFixed(2);}),[avg==null?"—":avg.toFixed(2),vals[0]!=null&&vals[5]!=null?(vals[0]-vals[5]).toFixed(2):"—"])); });
+        Object.keys(vc.banks).forEach(function(bk){var b=vc.banks[bk];vt.push(["BANK "+bk+" TOTAL"].concat([0,5,15,30,45,60].map(function(t){return b.series[t]?b.series[t].sum.toFixed(2):"—";}),[b.series[60]?b.series[60].avg.toFixed(2):"—",b.dropPct!=null?b.dropPct.toFixed(1)+"%":"—"]));});
+        s.addTable(vt,{x:0.35,y:y0,w:12.63,h:Math.min(4.65,contentHeight-0.55),colW:[2.0,0.9,0.9,0.9,0.9,0.9,0.9,1.0,1.0],border:{type:"solid",color:"D5DBE3",pt:0.6},fontFace:"Arial",fontSize:7.2,autoPage:false,rtlMode:true,valign:"middle"});
+        s.addText("شاخص غربالگری بر اساس ولتاژ نهایی، افت ۰→۶۰ دقیقه و اختلاف ولتاژ باتری‌هاست؛ برای حکم ظرفیت، تست ظرفیت استاندارد سازنده لازم است.",{x:0.60,y:6.55,w:12.1,h:0.42,fontSize:8.5,color:"666666",fontFace:"Arial",align:"center",rtlMode:true});
+      }
+      else if(slide.layout === "table"){
         var rows = (slide.rows||[]).filter(function(r){ return (r.label && r.label.trim()) || (r.value && r.value.trim()); });
         if(rows.length){
           var tblRows = [];
@@ -3136,8 +3273,8 @@ function loadBatteryTemplate(){
     { title:"اسکرین‌شات کلیه آلارم‌های سایت", note:"Battery Dis, Battery door, Door open, ..." },
     { title:"تنظیمات رکتی‌فایر و Load ماژول‌ها", note:"بالانس جریان مصرفی" },
     { title:"بروزرسانی تاریخ نصب باتری در سیستم", note:"اسکرین‌شات از سیستم" },
-    { title:"تست ولتاژ مجموع بانک‌ها", note:"قبل / ۵ دقیقه / ۳۰ دقیقه" },
-    { title:"ولتاژ سل‌های باتری (تست)", note:"ولتاژ هر سل قبل، ۵ و ۳۰ دقیقه" },
+    { title:"تست ولتاژ مجموع بانک‌ها", note:"قبل / ۵ / ۱۵ / ۳۰ / ۴۵ / ۶۰ دقیقه" },
+    { title:"ولتاژ باتری‌های هر بانک (تست)", note:"ولتاژ هر باتری در ۰ / ۵ / ۱۵ / ۳۰ / ۴۵ / ۶۰ دقیقه" },
     { title:"محل قرارگیری سنسور باتری", note:"عکس محل نصب سنسور" },
     { title:"سیستم سرمایش رک باتری", note:"عکس سیستم سرمایش" },
     { title:"شناسنامه سایت", note:"عکس شناسنامه / پلاک سایت" }
