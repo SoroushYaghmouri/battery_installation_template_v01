@@ -498,14 +498,14 @@
   .jdp-clear{background:var(--paper);color:var(--ink);border:1.5px solid var(--line);}
   .jdp-ok{background:var(--accent);color:#fff;}
 </style>
-<meta name="template-data-policy" content="empty-input-template"><meta name="template-version" content="7.3-chart-pro">
+<meta name="template-data-policy" content="empty-input-template"><meta name="template-version" content="7.3.1-preview-html-fix">
 </head>
 <body>
 
 <header class="appbar">
   <button class="icon-btn" id="btnSettings" aria-label="تنظیمات">⚙️</button>
   <div class="brand">
-    <b>سامانه حرفه‌ای گزارش نصب باتری <span class="version-badge">v7.3 Chart Pro · Fixed Preview</span></b>
+    <b>سامانه حرفه‌ای گزارش نصب باتری <span class="version-badge">v7.3.1 Chart Pro · Preview+HTML Fix</span></b>
     <span id="brandSub">تیم پاور شرکت نقش اول کیفیت (NAK) · nak-mci.ir</span>
   </div>
   <a class="company-link" href="https://www.nak-mci.ir" target="_blank" rel="noopener noreferrer">NAK ↗</a>
@@ -951,6 +951,224 @@ function renderLineChartImage(seriesList, opts){
     });
   }
   return canvas.toDataURL("image/png");
+}
+
+
+function voltageChartPalette(){
+  return ["#00A651","#2F6FB5","#E08B1A","#D6483F","#7B2D8E","#00897B","#5D4037","#C2185B","#455A64","#F57C00","#1565C0","#6A1B9A"];
+}
+function voltageChartSeries(slide, kind){
+  var times = voltageTimes();
+  var series = [];
+  kind = kind || "battery";
+  if(kind === "battery"){
+    (slide.rows||[]).forEach(function(r){
+      var vals = times.map(function(t){ return num(r.values && r.values[t]); });
+      if(vals.some(function(v){ return v != null; })){
+        series.push({ name: r.label || ("B"+r.bank+"-"+r.battery), values: vals, bank: r.bank, battery: r.battery });
+      }
+    });
+  } else if(kind === "bank"){
+    var calc = voltageCalc(slide);
+    Object.keys(calc.banks).sort(function(a,b){ return +a - +b; }).forEach(function(bk){
+      var b = calc.banks[bk];
+      var vals = times.map(function(t){ return b.series[t] ? b.series[t].sum : null; });
+      if(vals.some(function(v){ return v != null; })){
+        series.push({ name: "Bank " + bk, values: vals, bank: +bk });
+      }
+    });
+  } else {
+    var vals = times.map(function(t){
+      var vs = (slide.rows||[]).map(function(r){ return num(r.values && r.values[t]); }).filter(function(v){ return v != null; });
+      return vs.length ? +(vs.reduce(function(a,v){ return a+v; },0)/vs.length).toFixed(3) : null;
+    });
+    if(vals.some(function(v){ return v != null; })){
+      series.push({ name: "میانگین سایت", values: vals });
+    }
+  }
+  return { times: times, series: series, kind: kind };
+}
+function voltageChartMetrics(seriesList, kind){
+  seriesList = seriesList || [];
+  var starts = [], fins = [], drops = [];
+  seriesList.forEach(function(s){
+    var vals = s.values || [];
+    var first = null, last = null;
+    for(var i=0;i<vals.length;i++){ if(vals[i]!=null && isFinite(vals[i])){ first = vals[i]; break; } }
+    for(var j=vals.length-1;j>=0;j--){ if(vals[j]!=null && isFinite(vals[j])){ last = vals[j]; break; } }
+    if(first!=null) starts.push(first);
+    if(last!=null) fins.push(last);
+    if(first!=null && last!=null && first!==0) drops.push((first-last)/Math.abs(first)*100);
+  });
+  var avg = function(arr){ return arr.length ? arr.reduce(function(a,v){return a+v;},0)/arr.length : null; };
+  return {
+    start: avg(starts),
+    fin: avg(fins),
+    drop: avg(drops),
+    count: seriesList.length,
+    kind: kind
+  };
+}
+function drawAdvancedVoltageChart(canvas, tip, seriesList, opts){
+  opts = opts || {};
+  seriesList = seriesList || [];
+  var times = opts.times || voltageTimes();
+  var active = opts.active || seriesList.map(function(){ return true; });
+  var kind = opts.kind || "battery";
+  var wrap = canvas.parentNode;
+  var rect = wrap ? wrap.getBoundingClientRect() : { width: 320, height: 220 };
+  var dpr = Math.min(2, window.devicePixelRatio || 1);
+  var cssW = Math.max(120, Math.floor(rect.width || 320));
+  var cssH = Math.max(100, Math.floor(rect.height || 220));
+  canvas.width = Math.floor(cssW * dpr);
+  canvas.height = Math.floor(cssH * dpr);
+  canvas.style.width = cssW + "px";
+  canvas.style.height = cssH + "px";
+  var ctx = canvas.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, cssW, cssH);
+  ctx.fillStyle = "#FFFFFF";
+  ctx.fillRect(0, 0, cssW, cssH);
+
+  var activeSeries = [];
+  seriesList.forEach(function(s, i){ if(active[i] !== false) activeSeries.push(s); });
+  var allVals = [];
+  activeSeries.forEach(function(s){ (s.values||[]).forEach(function(v){ if(v!=null && isFinite(v)) allVals.push(v); }); });
+
+  if(!allVals.length){
+    ctx.fillStyle = "#8A93A0";
+    ctx.font = "12px Vazirmatn, Arial, sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("داده کافی نیست", cssW/2, cssH/2);
+    canvas._chartGeom = null;
+    return;
+  }
+
+  var isBank = kind === "bank";
+  var padL = 36, padR = 10, padT = 12, padB = 28;
+  var plotW = cssW - padL - padR, plotH = cssH - padT - padB;
+  var minV, maxV;
+  if(isBank){
+    minV = Math.min(40, Math.min.apply(null, allVals) - 1);
+    maxV = Math.max(56, Math.max.apply(null, allVals) + 1);
+  } else {
+    minV = Math.min(10, Math.min.apply(null, allVals) - 0.3);
+    maxV = Math.max(14.5, Math.max.apply(null, allVals) + 0.3);
+  }
+  if(minV >= maxV){ minV = isBank ? 40 : 10; maxV = isBank ? 56 : 14.5; }
+
+  function xPos(i){ return padL + (times.length <= 1 ? plotW/2 : i/(times.length-1)*plotW); }
+  function yPos(v){ return padT + (1 - (v - minV)/(maxV - minV)) * plotH; }
+
+  for(var g=0; g<=5; g++){
+    var gy = padT + g/5 * plotH;
+    var gv = maxV - g/5 * (maxV - minV);
+    ctx.strokeStyle = "#EEF1F5";
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(padL, gy); ctx.lineTo(padL+plotW, gy); ctx.stroke();
+    ctx.fillStyle = "#6B7582";
+    ctx.font = "9px Arial";
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+    ctx.fillText(gv.toFixed(1), padL - 4, gy);
+  }
+  times.forEach(function(t, i){
+    ctx.fillStyle = "#6B7582";
+    ctx.font = "9px Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    ctx.fillText(String(t), xPos(i), padT + plotH + 6);
+  });
+
+  var lowY = isBank ? 44 : 11;
+  var highY = isBank ? 54 : 13;
+  ctx.save();
+  ctx.setLineDash([5, 4]);
+  [{v:lowY,c:"#D6483F"},{v:highY,c:"#00A651"}].forEach(function(z){
+    if(z.v < minV || z.v > maxV) return;
+    var yy = yPos(z.v);
+    ctx.strokeStyle = z.c;
+    ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(padL, yy); ctx.lineTo(padL+plotW, yy); ctx.stroke();
+  });
+  ctx.restore();
+
+  var colors = voltageChartPalette();
+  seriesList.forEach(function(ser, si){
+    if(active[si] === false) return;
+    var col = colors[si % colors.length];
+    var vals = ser.values || [];
+    var started = false;
+    ctx.strokeStyle = col;
+    ctx.lineWidth = 2;
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    vals.forEach(function(v, i){
+      if(v==null || !isFinite(v)){ started = false; return; }
+      var x = xPos(i), y = yPos(v);
+      if(!started){ ctx.moveTo(x, y); started = true; }
+      else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+    vals.forEach(function(v, i){
+      if(v==null || !isFinite(v)) return;
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.arc(xPos(i), yPos(v), 3.2, 0, Math.PI*2);
+      ctx.fill();
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+    });
+  });
+
+  canvas._chartGeom = { times: times, xp: xPos, yp: yPos, padL: padL, padR: padR, padT: padT, padB: padB, plotW: plotW, plotH: plotH };
+}
+
+function voltageBoardHTML(slide){
+  var calc = voltageCalc(slide);
+  var times = calc.times;
+  var h = '<div class="vb-board">';
+  h += '<div class="vb-status ' + healthClass(calc.status) + '">وضعیت: ' + escapeHTML(calc.status) +
+       (calc.score!=null ? ' — ' + calc.score + '/100' : '') + '</div>';
+  var banksMap = {};
+  (slide.rows||[]).forEach(function(r){ if(!banksMap[r.bank]) banksMap[r.bank]=[]; banksMap[r.bank].push(r); });
+  var bankKeys = Object.keys(banksMap).sort(function(a,b){ return +a - +b; });
+  if(!bankKeys.length){
+    h += '<div class="vb-empty">تعداد بانک را در ویرایشگر وارد کنید</div></div>';
+    return h;
+  }
+  bankKeys.forEach(function(bk){
+    var bcalc = calc.banks[bk];
+    h += '<table class="vb-table"><thead><tr><th colspan="' + (times.length+3) + '">بانک ' + bk + ' · 48V</th></tr>';
+    h += '<tr><th>باتری</th>' + times.map(function(t){ return '<th>'+t+'</th>'; }).join('') + '<th>Avg</th><th>Δ</th></tr></thead><tbody>';
+    banksMap[bk].sort(function(a,b){ return a.battery - b.battery; }).forEach(function(r){
+      var vals = times.map(function(t){ return num(r.values && r.values[t]); });
+      var filled = vals.filter(function(v){ return v!=null; });
+      var av = filled.length ? filled.reduce(function(a,v){return a+v;},0)/filled.length : null;
+      var d = (vals[0]!=null && vals[5]!=null) ? vals[0]-vals[5] : null;
+      h += '<tr><td class="lab">' + escapeHTML(String(r.battery)) + '</td>';
+      vals.forEach(function(v){
+        var cls = vCellClass(v, false);
+        h += '<td class="'+cls+'">' + (v!=null ? v.toFixed(2) : '—') + '</td>';
+      });
+      h += '<td class="'+(av!=null?vCellClass(av,false):'')+'">' + (av!=null?av.toFixed(2):'—') + '</td>';
+      h += '<td>' + (d!=null?d.toFixed(2):'—') + '</td></tr>';
+    });
+    if(bcalc){
+      var totVals = times.map(function(t){ return bcalc.series[t] && bcalc.series[t].sum!=null ? bcalc.series[t].sum : null; });
+      h += '<tr class="tot"><td class="lab">Σ</td>';
+      totVals.forEach(function(v){
+        h += '<td class="'+vCellClass(v,true)+'">' + (v!=null?v.toFixed(1):'—') + '</td>';
+      });
+      h += '<td>—</td><td>' + (bcalc.dropPct!=null?bcalc.dropPct.toFixed(1)+'%':'—') + '</td></tr>';
+    }
+    h += '</tbody></table>';
+  });
+  h += '</div>';
+  return h;
 }
 
 function initAdvancedVoltageCharts(root){
@@ -1470,7 +1688,22 @@ var BOARD_CSS = [
   ".board.cover .b-note{top:52%;font-size:3.6%;color:#3a4250;}",
   ".board.cover .b-extra{position:absolute;top:60%;left:10%;right:10%;text-align:center;font-size:3%;color:#7c8390;}",
   ".board.cover .b-mark{position:absolute;top:24%;left:50%;transform:translateX(-50%);width:14%;aspect-ratio:1;",
-  "border-radius:50%;background:var(--b-accent-soft);display:flex;align-items:center;justify-content:center;font-size:6%;}"
+  "border-radius:50%;background:var(--b-accent-soft);display:flex;align-items:center;justify-content:center;font-size:6%;}",
+  ".board .vb-board{width:100%;height:100%;overflow:hidden;display:flex;flex-direction:column;gap:1.2%;}",
+  ".board .vb-status{font-size:2.4%;font-weight:800;text-align:center;padding:0.6% 1%;border-radius:4px;background:#f3f6fa;}",
+  ".board .vb-status.health-good{color:#00823f;background:#e8f5e9;}",
+  ".board .vb-status.health-warn{color:#e08b1a;background:#fff8e1;}",
+  ".board .vb-status.health-bad{color:#d6483f;background:#fdecea;}",
+  ".board .vb-empty{font-size:2.8%;color:#98a2b0;text-align:center;padding-top:8%;}",
+  ".board .vb-table{width:100%;border-collapse:collapse;font-size:1.85%;table-layout:fixed;margin-bottom:0.8%;}",
+  ".board .vb-table th,.board .vb-table td{border:1px solid #d5dbe3;padding:0.35% 0.2%;text-align:center;white-space:nowrap;overflow:hidden;}",
+  ".board .vb-table thead tr:first-child th{background:var(--b-accent);color:#fff;font-weight:800;font-size:2%;}",
+  ".board .vb-table thead tr:last-child th{background:var(--b-accent-soft);color:#1565c0;font-weight:700;}",
+  ".board .vb-table td.lab{font-weight:800;background:#f7f9fb;}",
+  ".board .vb-table tr.tot td{font-weight:800;background:#eef6ff;}",
+  ".board .vb-table td.health-good{background:#e8f5e9;color:#1b5e20;}",
+  ".board .vb-table td.health-warn{background:#fff8e1;color:#e65100;}",
+  ".board .vb-table td.health-bad{background:#fdecea;color:#c62828;}"
 ].join("");
 (function injectBoardCSS(){
   var st = document.createElement("style");
@@ -2075,7 +2308,7 @@ function boardHTML(slide, meta, opts){
     }
     inner += '<div class="b-content" style="' + contentTop + ' bottom:8%;">';
     if(slide.layout === "table")          inner += tableHTML(slide.rows);
-    else if(slide.layout === "voltage") inner += voltageInputHTML(slide);
+    else if(slide.layout === "voltage") inner += voltageBoardHTML(slide);
     else if(slide.layout === "voltage-chart") inner += voltageChartHTML(slide);
     else if(slide.layout === "photos")    inner += photosHTML(slide.images, slide);
     else if(slide.layout === "checklist") inner += checklistHTML(slide.checklist);
@@ -3754,7 +3987,9 @@ async function buildExportHTML(){
     initAdvancedVoltageCharts(renderHost);
     await new Promise(function(resolve){
       requestAnimationFrame(function(){
-        requestAnimationFrame(resolve);
+        requestAnimationFrame(function(){
+          setTimeout(resolve, 80);
+        });
       });
     });
 
@@ -3763,11 +3998,35 @@ async function buildExportHTML(){
       var cv = canvases[ci];
       try{
         var img = document.createElement("img");
-        img.src = cv.toDataURL("image/png");
+        var dataUrl = null;
+        try{
+          if(cv.width > 0 && cv.height > 0){
+            dataUrl = cv.toDataURL("image/png");
+          }
+        }catch(e1){ dataUrl = null; }
+        if(!dataUrl || dataUrl.length < 200){
+          var kind = cv.dataset.kind || "battery";
+          var vSlide = getVoltageSlide();
+          if(vSlide){
+            var pack = voltageChartSeries(vSlide, kind);
+            var chartOpts = {
+              title: kind==="bank"?"افت ولتاژ بانک‌ها":(kind==="site"?"میانگین سایت":"افت ولتاژ باتری‌ها"),
+              categories: pack.times.map(String),
+              width: 900, height: 360,
+              minY: kind==="bank"?40:10, maxY: kind==="bank"?56:14.5,
+              lowY: kind==="bank"?44:11, highY: kind==="bank"?54:13,
+              colors: voltageChartPalette(),
+              emptyText: "داده کافی نیست"
+            };
+            dataUrl = renderLineChartImage(pack.series, chartOpts);
+          }
+        }
+        if(!dataUrl) continue;
+        img.src = dataUrl;
         img.alt = "نمودار ولتاژ";
         img.className = "vchart-export-image";
         img.style.cssText = "width:100%;height:100%;display:block;object-fit:contain;";
-        cv.parentNode.replaceChild(img, cv);
+        if(cv.parentNode) cv.parentNode.replaceChild(img, cv);
       }catch(err){
         console.warn("Voltage chart export image failed:", err);
       }
@@ -3815,6 +4074,22 @@ async function buildExportHTML(){
   .board .vchart-threshold-note{font-size:5.5px;line-height:1.35;padding:3px 4px;max-height:22px;overflow:hidden;}
   .board .voltage-note:last-child{display:none;}
   .board .voltage-summary{display:none;}
+  .board .vb-board{width:100%;height:100%;overflow:hidden;display:flex;flex-direction:column;gap:1.2%;}
+  .board .vb-status{font-size:2.4%;font-weight:800;text-align:center;padding:0.6% 1%;border-radius:4px;background:#f3f6fa;}
+  .board .vb-status.health-good{color:#00823f;background:#e8f5e9;}
+  .board .vb-status.health-warn{color:#e08b1a;background:#fff8e1;}
+  .board .vb-status.health-bad{color:#d6483f;background:#fdecea;}
+  .board .vb-empty{font-size:2.8%;color:#98a2b0;text-align:center;padding-top:8%;}
+  .board .vb-table{width:100%;border-collapse:collapse;font-size:1.85%;table-layout:fixed;margin-bottom:0.8%;}
+  .board .vb-table th,.board .vb-table td{border:1px solid #d5dbe3;padding:0.35% 0.2%;text-align:center;white-space:nowrap;overflow:hidden;}
+  .board .vb-table thead tr:first-child th{background:var(--b-accent,#2F6FB5);color:#fff;font-weight:800;font-size:2%;}
+  .board .vb-table thead tr:last-child th{background:var(--b-accent-soft,#eaf2fb);color:#1565c0;font-weight:700;}
+  .board .vb-table td.lab{font-weight:800;background:#f7f9fb;}
+  .board .vb-table tr.tot td{font-weight:800;background:#eef6ff;}
+  .board .vb-table td.health-good{background:#e8f5e9;color:#1b5e20;}
+  .board .vb-table td.health-warn{background:#fff8e1;color:#e65100;}
+  .board .vb-table td.health-bad{background:#fdecea;color:#c62828;}
+
   `;
 
   return '<!DOCTYPE html>' +
