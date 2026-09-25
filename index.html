@@ -480,14 +480,14 @@
   .jdp-clear{background:var(--paper);color:var(--ink);border:1.5px solid var(--line);}
   .jdp-ok{background:var(--accent);color:#fff;}
 </style>
-<meta name="template-data-policy" content="empty-input-template"><meta name="template-version" content="7.3.3-layout-fix">
+<meta name="template-data-policy" content="empty-input-template"><meta name="template-version" content="7.3.4-fit-fix">
 </head>
 <body>
 
 <header class="appbar">
   <button class="icon-btn" id="btnSettings" aria-label="تنظیمات">⚙️</button>
   <div class="brand">
-    <b>سامانه حرفه‌ای گزارش نصب باتری <span class="version-badge">v7.3.3 Layout Fix · Flex Board</span></b>
+    <b>سامانه حرفه‌ای گزارش نصب باتری <span class="version-badge">v7.3.4 Fit Fix · No Overlap</span></b>
     <span id="brandSub">تیم پاور شرکت نقش اول کیفیت (NAK) · nak-mci.ir</span>
   </div>
   <a class="company-link" href="https://www.nak-mci.ir" target="_blank" rel="noopener noreferrer">NAK ↗</a>
@@ -711,7 +711,7 @@ window.LOGO_RIGHT_DEFAULT = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.o
 
 <script>
 /* ============================================================================
-   قالب‌ساز گزارش پاورپوینت — نسخه ۷.۳.۳ (Layout Fix)
+   قالب‌ساز گزارش پاورپوینت — نسخه ۷.۳.۴ (Fit Fix — بدون هم‌پوشانی)
    - چیدمان اسلاید با Flexbox (بدون position:absolute روی هدر/محتوا)
    - واحد اندازه‌گیری: font-size:1cqw روی .board → 1em = ۱٪ عرض اسلاید
    - ذخیره‌سازی IndexedDB + localStorage
@@ -1103,10 +1103,12 @@ function voltageBoardHTML(slide){
     h += '<div class="vb-empty">تعداد بانک را در ویرایشگر وارد کنید</div></div>';
     return h;
   }
+  var bankN = bankKeys.length;
+  var tblFs = bankN <= 1 ? 1.25 : bankN === 2 ? 1.05 : bankN === 3 ? 0.92 : 0.8;
   bankKeys.forEach(function(bk){
     var bcalc = calc.banks[bk];
     h += '<div class="vb-table-wrap">';
-    h += '<table class="vb-table"><thead><tr><th colspan="' + (times.length+3) + '">بانک ' + bk + ' · 48V</th></tr>';
+    h += '<table class="vb-table" style="font-size:' + tblFs + 'em;"><thead><tr><th colspan="' + (times.length+3) + '">بانک ' + bk + ' · 48V</th></tr>';
     h += '<tr><th>باتری</th>' + times.map(function(t){ return '<th>'+t+'</th>'; }).join('') + '<th>Avg</th><th>Δ</th></tr></thead><tbody>';
     banksMap[bk].sort(function(a,b){ return a.battery - b.battery; }).forEach(function(r){
       var vals = times.map(function(t){ return num(r.values && r.values[t]); });
@@ -1577,93 +1579,109 @@ var BOARD_CSS = [
   ".board-wrap{width:100%;container-type:inline-size;}",
   ".board{position:relative;width:100%;aspect-ratio:16/9;background:#fff;border-radius:6px;overflow:hidden;",
   "box-shadow:0 1px 6px rgba(0,0,0,.18);direction:rtl;font-family:Vazirmatn,Tahoma,sans-serif;",
-  "font-size:1cqw;box-sizing:border-box;padding:6.5cqw 5cqw 2.6cqw 5cqw;",
-  "display:flex;flex-direction:column;color:#333;line-height:1.4;}",
+  "font-size:1cqw;box-sizing:border-box;",
+  "padding:13.5cqw 4.2cqw 5.2cqw 4.2cqw;",
+  "display:flex;flex-direction:column;color:#333;line-height:1.35;}",
   ".board *{box-sizing:border-box;}",
-  ".board .bar-top{position:absolute;top:0;left:0;right:0;height:3cqw;background:var(--b-primary);}",
-  ".board .bar-bottom{position:absolute;bottom:0;left:0;right:0;height:1.7cqw;background:var(--b-primary);}",
-  ".board .logo{position:absolute;top:4cqw;width:9cqw;height:9cqw;background:#fff;border-radius:18%;",
-  "box-shadow:0 1px 4px rgba(0,0,0,.16);display:flex;align-items:center;justify-content:center;",
-  "padding:0.8cqw;overflow:hidden;}", 
+  ".board .bar-top{position:absolute;top:0;left:0;right:0;height:2.6cqw;background:var(--b-primary);}",
+  ".board .bar-bottom{position:absolute;bottom:0;left:0;right:0;height:1.5cqw;background:var(--b-primary);}",
+  ".board .logo{position:absolute;top:3.4cqw;width:7.2cqw;height:7.2cqw;background:#fff;border-radius:16%;",
+  "box-shadow:0 1px 4px rgba(0,0,0,.14);display:flex;align-items:center;justify-content:center;",
+  "padding:0.6cqw;overflow:hidden;z-index:2;}",
   ".board .logo img{width:100%;height:100%;object-fit:contain;display:block;}",
-  ".board .logo.l{left:2.6cqw;}",
-  ".board .logo.r{right:2.6cqw;}",
-  ".board .b-head{flex:0 0 auto;text-align:center;padding:0 10cqw;}",
-  ".board .b-title{font-size:4.6em;font-weight:800;color:var(--b-accent);line-height:1.3;margin:0;",
-  "word-wrap:break-word;overflow-wrap:break-word;}",
-  ".board .b-note{font-size:2.6em;color:#5c6470;line-height:1.5;font-weight:500;margin-top:0.8cqw;",
-  "word-wrap:break-word;overflow-wrap:break-word;}",
-  ".board .b-content{flex:1 1 auto;min-height:0;margin-top:1.5cqw;position:relative;overflow:hidden;}",
-  ".board .b-footer{position:absolute;bottom:0.5cqw;left:5cqw;right:5cqw;display:flex;align-items:center;",
-  "justify-content:space-between;font-size:1.9em;color:#9aa3b0;font-weight:600;pointer-events:none;}",
+  ".board .logo.l{left:2.2cqw;}",
+  ".board .logo.r{right:2.2cqw;}",
+  ".board .b-head{flex:0 0 auto;text-align:center;padding:0 9cqw;max-width:100%;}",
+  ".board .b-title{font-size:3.6em;font-weight:800;color:var(--b-accent);line-height:1.25;margin:0;",
+  "word-wrap:break-word;overflow-wrap:break-word;max-height:2.6em;overflow:hidden;}",
+  ".board .b-note{font-size:2.1em;color:#5c6470;line-height:1.4;font-weight:500;margin-top:0.5cqw;",
+  "word-wrap:break-word;overflow-wrap:break-word;max-height:2.9em;overflow:hidden;}",
+  ".board .b-content{flex:1 1 auto;min-height:0;margin-top:1cqw;position:relative;overflow:hidden;",
+  "display:flex;flex-direction:column;}",
+  ".board .b-footer{position:absolute;bottom:1.7cqw;left:4.2cqw;right:4.2cqw;display:flex;align-items:center;",
+  "justify-content:space-between;font-size:1.55em;color:#9aa3b0;font-weight:600;pointer-events:none;z-index:2;",
+  "white-space:nowrap;overflow:hidden;gap:1cqw;}",
+  ".board .b-footer span{overflow:hidden;text-overflow:ellipsis;}",
   /* جدول اطلاعات */
-  ".board .b-table-fit{width:100%;height:100%;overflow:hidden;}",
-  ".board .b-table{width:100%;height:100%;border-collapse:collapse;font-size:2.4em;table-layout:fixed;line-height:1.2;}",
-  ".board .b-table td{border:1px solid #d5dbe3;padding:0.5em 0.8em;overflow:hidden;text-overflow:ellipsis;vertical-align:middle;}",
+  ".board .b-table-fit{width:100%;height:100%;overflow:hidden;flex:1 1 auto;min-height:0;}",
+  ".board .b-table{width:100%;height:100%;border-collapse:collapse;font-size:2.15em;table-layout:fixed;line-height:1.15;}",
+  ".board .b-table td{border:1px solid #d5dbe3;padding:0.35em 0.55em;overflow:hidden;text-overflow:ellipsis;vertical-align:middle;}",
   ".board .b-table td.lab{background:var(--b-accent-soft);font-weight:700;color:#213041;width:22%;}",
   ".board .b-table td.val{background:#fff;color:#333;width:28%;text-align:center;}",
   /* گالری تصاویر */
-  ".board .b-photos{display:grid;gap:0.6cqw;width:100%;height:100%;}",
+  ".board .b-photos{display:grid;gap:0.7cqw;width:100%;height:100%;flex:1 1 auto;min-height:0;}",
   ".board .b-photo{position:relative;min-width:0;min-height:0;overflow:hidden;background:#f3f5f8;border-radius:0.4cqw;",
   "display:flex;align-items:center;justify-content:center;}",
   ".board .b-photo img{max-width:100%;max-height:100%;width:auto;height:auto;display:block;object-fit:contain;}",
   ".board .b-photo .ph-cap{position:absolute;left:0;right:0;bottom:0;background:rgba(20,25,35,.62);color:#fff;",
-  "font-size:1.8em;padding:0.6cqw 1cqw;text-align:center;z-index:3;}",
+  "font-size:1.55em;padding:0.45cqw 0.8cqw;text-align:center;z-index:3;line-height:1.3;",
+  "overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}",
   ".board .b-photo-empty{grid-column:1/-1;grid-row:1/-1;border:2px dashed #c6ced9;border-radius:0.6cqw;background:#f7f9fb;",
-  "display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1cqw;color:#98a2b0;text-align:center;padding:3cqw;}",
-  ".board .b-photo-empty .pe-ic{font-size:6em;}",
-  ".board .b-photo-empty .pe-tx{font-size:2.6em;font-weight:700;color:#7b8794;}",
-  ".board .b-photo-empty .pe-sub{font-size:2.1em;color:#a6adba;}",
+  "display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.8cqw;color:#98a2b0;text-align:center;padding:2.5cqw;}",
+  ".board .b-photo-empty .pe-ic{font-size:5em;}",
+  ".board .b-photo-empty .pe-tx{font-size:2.3em;font-weight:700;color:#7b8794;}",
+  ".board .b-photo-empty .pe-sub{font-size:1.9em;color:#a6adba;}",
   /* متن و چک‌لیست */
-  ".board .b-body{font-size:3em;line-height:1.85;color:#333;text-align:justify;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;}",
-  ".board .b-chk{display:flex;flex-direction:column;gap:1.4cqw;font-size:2.8em;color:#333;}",
-  ".board .b-chk .ci{display:flex;align-items:flex-start;gap:1.2cqw;line-height:1.65;}",
-  ".board .b-chk .ci .bx{flex:0 0 auto;width:1.4em;height:1.4em;border-radius:0.3em;border:1px solid #cbd3dd;background:#fff;",
-  "display:flex;align-items:center;justify-content:center;font-size:0.85em;color:#fff;font-weight:800;}",
+  ".board .b-body{font-size:2.7em;line-height:1.7;color:#333;text-align:justify;white-space:pre-wrap;",
+  "word-wrap:break-word;overflow-wrap:break-word;overflow:hidden;flex:1 1 auto;min-height:0;}",
+  ".board .b-chk{display:flex;flex-direction:column;gap:1cqw;font-size:2.35em;color:#333;overflow:hidden;",
+  "flex:1 1 auto;min-height:0;justify-content:flex-start;}",
+  ".board .b-chk .ci{display:flex;align-items:flex-start;gap:1cqw;line-height:1.5;}",
+  ".board .b-chk .ci .bx{flex:0 0 auto;width:1.35em;height:1.35em;border-radius:0.28em;border:1px solid #cbd3dd;background:#fff;",
+  "display:flex;align-items:center;justify-content:center;font-size:0.82em;color:#fff;font-weight:800;}",
   ".board .b-chk .ci.done .bx{background:var(--b-primary);border-color:var(--b-primary);}",
   ".board .b-chk .ci.done span{color:#7b8794;text-decoration:line-through;}",
-  /* روی جلد */
-  ".board.cover{justify-content:center;align-items:center;padding:6.5cqw 10cqw 5cqw 10cqw;text-align:center;}",
-  ".board.cover .b-cover-inner{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1 1 auto;min-height:0;gap:0;}",
-  ".board.cover .b-mark{width:14cqw;height:14cqw;border-radius:50%;background:var(--b-accent-soft);",
-  "display:flex;align-items:center;justify-content:center;font-size:6em;flex:0 0 auto;margin-bottom:2cqw;}",
-  ".board.cover .b-title{font-size:6.2em;margin:0;}",
-  ".board.cover .b-note{font-size:3.4em;margin-top:1.5cqw;color:#3a4250;}",
-  ".board.cover .b-extra{font-size:2.8em;color:#7c8390;margin-top:2cqw;}",
-  /* جدول ولتاژ */
-  ".board .vb-board{width:100%;height:100%;overflow:hidden;display:flex;flex-direction:column;gap:0.8cqw;}",
-  ".board .vb-status{flex:0 0 auto;font-size:1.8em;font-weight:800;text-align:center;padding:0.6cqw 1cqw;border-radius:0.6cqw;background:#f3f6fa;color:#1c2230;}",
+  /* کاور */
+  ".board.cover{justify-content:center;align-items:center;padding:12cqw 9cqw 6cqw 9cqw;text-align:center;}",
+  ".board.cover .b-cover-inner{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1 1 auto;min-height:0;gap:0;max-width:100%;}",
+  ".board.cover .b-mark{width:11cqw;height:11cqw;border-radius:50%;background:var(--b-accent-soft);",
+  "display:flex;align-items:center;justify-content:center;font-size:5em;flex:0 0 auto;margin-bottom:1.6cqw;}",
+  ".board.cover .b-title{font-size:5.2em;margin:0;max-height:none;}",
+  ".board.cover .b-note{font-size:2.9em;margin-top:1.2cqw;color:#3a4250;max-height:none;}",
+  ".board.cover .b-extra{font-size:2.4em;color:#7c8390;margin-top:1.6cqw;}",
+  /* تست ولتاژ */
+  ".board .vb-board{width:100%;height:100%;overflow:hidden;display:flex;flex-direction:column;gap:0.55cqw;flex:1 1 auto;min-height:0;}",
+  ".board .vb-status{flex:0 0 auto;font-size:1.55em;font-weight:800;text-align:center;padding:0.45cqw 0.8cqw;",
+  "border-radius:0.5cqw;background:#f3f6fa;color:#1c2230;}",
   ".board .vb-status.health-good{color:#00823f;background:#e8f5e9;}",
   ".board .vb-status.health-warn{color:#e08b1a;background:#fff8e1;}",
   ".board .vb-status.health-bad{color:#d6483f;background:#fdecea;}",
-  ".board .vb-empty{font-size:1.6em;color:#98a2b0;text-align:center;padding-top:6cqw;}",
+  ".board .vb-empty{font-size:1.6em;color:#98a2b0;text-align:center;padding-top:5cqw;}",
   ".board .vb-table-wrap{flex:1 1 0;min-height:0;overflow:hidden;display:flex;}",
-  ".board .vb-table{width:100%;height:100%;border-collapse:collapse;font-size:1.15em;table-layout:fixed;line-height:1.15;}",
-  ".board .vb-table th,.board .vb-table td{border:1px solid #d5dbe3;padding:0.3cqw 0.2cqw;text-align:center;",
+  ".board .vb-table{width:100%;height:100%;border-collapse:collapse;font-size:1.05em;table-layout:fixed;line-height:1.1;}",
+  ".board .vb-table th,.board .vb-table td{border:1px solid #d5dbe3;padding:0.22cqw 0.15cqw;text-align:center;",
   "white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}",
-  ".board .vb-table thead tr:first-child th{background:var(--b-accent);color:#fff;font-weight:800;font-size:1.2em;}",
+  ".board .vb-table thead tr:first-child th{background:var(--b-accent);color:#fff;font-weight:800;font-size:1.15em;}",
   ".board .vb-table thead tr:last-child th{background:var(--b-accent-soft);color:#1565c0;font-weight:700;}",
   ".board .vb-table td.lab{font-weight:800;background:#f7f9fb;}",
   ".board .vb-table tr.tot td{font-weight:800;background:#eef6ff;}",
   ".board .vb-table td.health-good{background:#e8f5e9;color:#1b5e20;}",
   ".board .vb-table td.health-warn{background:#fff8e1;color:#e65100;}",
   ".board .vb-table td.health-bad{background:#fdecea;color:#c62828;}",
-  /* نمودارهای ولتاژ داخل اسلاید */
-  ".board .voltage-wrap{display:flex;flex-direction:column;height:100%;width:100%;}",
+  /* نمودارهای ولتاژ — چیدمان ۲+۱ برای جلوگیری از فشردگی */
+  ".board .voltage-wrap{display:flex;flex-direction:column;height:100%;width:100%;flex:1 1 auto;min-height:0;}",
   ".board .voltage-summary{display:none;}",
-  ".board .vchart-suite{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1cqw;flex:1 1 auto;min-height:0;margin-top:0;}",
-  ".board .vchart-card{min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden;background:#fff;border:1px solid var(--b-accent-soft);border-radius:0.6cqw;box-shadow:none;}",
-  ".board .vchart-head{flex:0 0 auto;display:block;padding:0.6cqw 1cqw;border-bottom:1px solid var(--b-accent-soft);background:linear-gradient(180deg,#fff,#f5f6f8);}",
-  ".board .vchart-head .vch-title{font-size:1.6em;line-height:1.3;font-weight:900;color:#1c2230;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}",
+  ".board .vchart-suite{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1.15fr 1fr;",
+  "gap:0.7cqw;flex:1 1 auto;min-height:0;margin-top:0;}",
+  ".board .vchart-card{min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden;",
+  "background:#fff;border:1px solid var(--b-accent-soft);border-radius:0.5cqw;box-shadow:none;}",
+  ".board .vchart-card:nth-child(3){grid-column:1 / -1;}",
+  ".board .vchart-head{flex:0 0 auto;display:block;padding:0.4cqw 0.7cqw;border-bottom:1px solid var(--b-accent-soft);",
+  "background:linear-gradient(180deg,#fff,#f5f6f8);}",
+  ".board .vchart-head .vch-title{font-size:1.35em;line-height:1.25;font-weight:900;color:#1c2230;",
+  "white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}",
   ".board .vchart-head .vch-sub{display:none;}",
   ".board .vchart-actions{display:none;}",
-  ".board .vchart-canvas-wrap{flex:1 1 auto;min-height:0;position:relative;background:#fff;display:flex;align-items:center;justify-content:center;}",
-  ".board .vchart-canvas{width:100%;height:100%;display:block;touch-action:none;}",
+  ".board .vchart-canvas-wrap{flex:1 1 auto;min-height:0;position:relative;background:#fff;",
+  "display:flex;align-items:center;justify-content:center;}",
+  ".board .vchart-canvas,.board .vchart-export-image{width:100%;height:100%;display:block;object-fit:contain;}",
   ".board .vchart-legend{display:none;}",
-  ".board .vchart-metrics{flex:0 0 auto;display:grid;grid-template-columns:repeat(2,1fr);gap:0.4cqw;padding:0.6cqw;border-top:1px solid var(--b-accent-soft);}",
-  ".board .vchart-metric{padding:0.4cqw 0.6cqw;border-radius:0.4cqw;background:#f5f6f8;border:1px solid var(--b-accent-soft);text-align:center;min-width:0;}",
-  ".board .vchart-metric b{display:block;font-size:1.3em;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}",
-  ".board .vchart-metric span{display:block;font-size:1em;color:#5b6472;margin-top:0.1cqw;}",
+  ".board .vchart-metrics{flex:0 0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:0.3cqw;",
+  "padding:0.35cqw 0.5cqw;border-top:1px solid var(--b-accent-soft);}",
+  ".board .vchart-metric{padding:0.25cqw 0.35cqw;border-radius:0.3cqw;background:#f5f6f8;",
+  "border:1px solid var(--b-accent-soft);text-align:center;min-width:0;}",
+  ".board .vchart-metric b{display:block;font-size:1.1em;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}",
+  ".board .vchart-metric span{display:block;font-size:0.85em;color:#5b6472;margin-top:0.05cqw;}",
   ".board .vchart-threshold-note{display:none;}",
   ".board .voltage-wrap > .voltage-note:last-child{display:none;}"
 ].join("");
@@ -2269,15 +2287,18 @@ function boardHTML(slide, meta, opts){
 function tableHTML(rows){
   rows = (rows||[]).filter(function(r){ return (r.label && r.label.trim()) || (r.value && r.value.trim()); });
   if(!rows.length){
-    return '<div class="b-table-fit"><div style="font-size:3.2em;color:#a6adba;text-align:center;padding-top:8cqw;">ردیف جدول اضافه نشده</div></div>';
+    return '<div class="b-table-fit"><div style="font-size:3em;color:#a6adba;text-align:center;padding-top:6cqw;">ردیف جدول اضافه نشده</div></div>';
   }
-  var h = '<div class="b-table-fit"><table class="b-table">';
+  var pairs = Math.ceil(rows.length / 2);
+  var fs = pairs <= 5 ? 2.35 : pairs <= 8 ? 2.05 : pairs <= 11 ? 1.75 : pairs <= 14 ? 1.5 : 1.32;
+  var pad = pairs <= 8 ? "0.4em 0.55em" : pairs <= 12 ? "0.28em 0.4em" : "0.18em 0.3em";
+  var h = '<div class="b-table-fit"><table class="b-table" style="font-size:' + fs + 'em;">';
   for(var i=0; i<rows.length; i+=2){
     var a = rows[i], b = rows[i+1];
     h += '<tr>';
-    h += '<td class="lab">' + escapeHTML(a.label||"") + '</td><td class="val">' + escapeHTML(a.value||"") + '</td>';
-    if(b) h += '<td class="lab">' + escapeHTML(b.label||"") + '</td><td class="val">' + escapeHTML(b.value||"") + '</td>';
-    else  h += '<td class="lab"></td><td class="val"></td>';
+    h += '<td class="lab" style="padding:' + pad + ';">' + escapeHTML(a.label||"") + '</td><td class="val" style="padding:' + pad + ';">' + escapeHTML(a.value||"") + '</td>';
+    if(b) h += '<td class="lab" style="padding:' + pad + ';">' + escapeHTML(b.label||"") + '</td><td class="val" style="padding:' + pad + ';">' + escapeHTML(b.value||"") + '</td>';
+    else  h += '<td class="lab" style="padding:' + pad + ';"></td><td class="val" style="padding:' + pad + ';"></td>';
     h += '</tr>';
   }
   h += '</table></div>';
@@ -2305,8 +2326,11 @@ function photosHTML(images, slide){
 }
 function checklistHTML(items){
   items = (items||[]).filter(function(i){ return i.text && i.text.trim(); });
-  if(!items.length) return '<div style="font-size:3.2em;color:#a6adba;text-align:center;padding-top:8cqw;">موردی اضافه نشده</div>';
-  var h = '<div class="b-chk">';
+  if(!items.length) return '<div style="font-size:3em;color:#a6adba;text-align:center;padding-top:6cqw;">موردی اضافه نشده</div>';
+  var n = items.length;
+  var fs = n <= 5 ? 2.5 : n <= 8 ? 2.15 : n <= 12 ? 1.85 : 1.55;
+  var gap = n <= 6 ? "1.1cqw" : n <= 10 ? "0.7cqw" : "0.45cqw";
+  var h = '<div class="b-chk" style="font-size:' + fs + 'em;gap:' + gap + ';">';
   items.forEach(function(i){
     h += '<div class="ci ' + (i.done?"done":"") + '"><div class="bx">' + (i.done?"✓":"") + '</div><span>' + escapeHTML(i.text) + '</span></div>';
   });
@@ -3980,7 +4004,7 @@ async function buildExportHTML(){
   .vchart-threshold-note{padding:7px 9px;font-size:9px;color:#5b6472;line-height:1.7;border-top:1px dashed #e3e6ec;}
   .board .vchart-canvas-wrap{flex:1 1 auto;min-height:0;height:auto;}
   .board .vchart-export-image{width:100%;height:100%;display:block;object-fit:contain;}
-  .board .vchart-suite{grid-template-columns:repeat(3,minmax(0,1fr));}
+  .board .vchart-suite{grid-template-columns:1fr 1fr;grid-template-rows:1.15fr 1fr;}.board .vchart-card:nth-child(3){grid-column:1 / -1;}
   `;
 
   return '<!DOCTYPE html>' +
